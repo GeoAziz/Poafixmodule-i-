@@ -70,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildSettingsContent() {
     return Theme(
       data: Theme.of(context).copyWith(
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 4,
           margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           shape: RoundedRectangleBorder(

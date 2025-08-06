@@ -13,21 +13,26 @@ import '../home/home_screen.dart';
 import '../../models/user_model.dart';
 
 class BookingScreen extends StatefulWidget {
-  final Map<String, dynamic> provider;
-  final String serviceOffered;
-  final String providerName;
-  final String providerId;
-  final String clientId;
-  final List<Map<String, dynamic>> selectedServices;
+  final Map<String, dynamic>? provider;
+  final String? serviceOffered;
+  final String? providerName;
+  final String? providerId;
+  final String? clientId;
+  final List<Map<String, dynamic>>? selectedServices;
+  // New parameters for service selection screen
+  final User? user;
+  final String? selectedService;
 
   const BookingScreen({
     Key? key,
-    required this.provider,
-    required this.serviceOffered,
-    required this.providerName,
-    required this.providerId,
-    required this.clientId,
-    required this.selectedServices,
+    this.provider,
+    this.serviceOffered,
+    this.providerName,
+    this.providerId,
+    this.clientId,
+    this.selectedServices,
+    this.user,
+    this.selectedService,
   }) : super(key: key);
 
   @override
@@ -97,8 +102,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
   void _logSelectedServices() {
     print('Selected services in booking screen:');
-    print('Number of services: ${widget.selectedServices.length}');
-    widget.selectedServices.forEach((service) {
+    print('Number of services: ${widget.selectedServices?.length ?? 0}');
+    widget.selectedServices?.forEach((service) {
       print(
           'Service: ${service['name']}, Quantity: ${service['quantity']}, Price: ${service['basePrice']}');
     });
@@ -143,7 +148,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
     try {
       // Calculate services with proper validation
-      final services = widget.selectedServices.map((service) {
+      final services = (widget.selectedServices ?? []).map((service) {
         final quantity = (service['quantity'] as int?) ?? 1;
         final basePrice = (service['basePrice'] as num?)?.toDouble() ?? 0.0;
 
@@ -172,9 +177,9 @@ class _BookingScreenState extends State<BookingScreen> {
         throw Exception('Client ID is required');
       }
       final serviceRequest = await ServiceRequestService().createRequest(
-        providerId: widget.providerId,
+        providerId: widget.providerId ?? '',
         clientId: _effectiveClientId!, // Add non-null assertion
-        serviceType: widget.serviceOffered,
+        serviceType: widget.serviceOffered ?? '',
         scheduledDate: DateTime(
           selectedDate!.year,
           selectedDate!.month,
@@ -183,8 +188,7 @@ class _BookingScreenState extends State<BookingScreen> {
           selectedTime!.minute,
         ),
         location: {
-          'coordinates': widget.provider['location']?['coordinates'] ??
-              [36.8337083, -1.3095883],
+          'coordinates': (widget.provider?['location']?['coordinates']) ?? [36.8337083, -1.3095883],
           'type': 'Point'
         },
         amount: totalAmount,
@@ -195,10 +199,12 @@ class _BookingScreenState extends State<BookingScreen> {
 
       // Create booking with the service request ID
       final bookingData = {
-        'providerId': widget.providerId,
+        'providerId': widget.providerId ?? '',
         'clientId': _effectiveClientId,
-        'serviceType': widget.serviceOffered,
-        'serviceName': widget.selectedServices.first['name'],
+        'serviceType': widget.serviceOffered ?? '',
+        'serviceName': (widget.selectedServices != null && widget.selectedServices!.isNotEmpty)
+            ? widget.selectedServices!.first['name']
+            : '',
         'scheduledDate': selectedDate!.toIso8601String(),
         'scheduledTime': selectedTime!.format(context),
         'notes': noteController.text,
@@ -207,8 +213,7 @@ class _BookingScreenState extends State<BookingScreen> {
         'status': 'pending',
         'payment': {'method': 'mpesa', 'status': 'pending'},
         'location': {
-          'coordinates': widget.provider['location']?['coordinates'] ??
-              [36.8337083, -1.3095883],
+          'coordinates': (widget.provider?['location']?['coordinates']) ?? [36.8337083, -1.3095883],
           'type': 'Point'
         },
         'serviceRequestId': serviceRequest['id'],
@@ -254,20 +259,20 @@ class _BookingScreenState extends State<BookingScreen> {
       return false;
     }
 
-    if (widget.providerId.isEmpty) {
+    if ((widget.providerId?.isEmpty ?? true)) {
       _showErrorDialog('Provider information missing');
       return false;
     }
 
-    if (widget.selectedServices.isEmpty) {
+    if ((widget.selectedServices?.isEmpty ?? true)) {
       _showErrorDialog('Please select at least one service');
       return false;
     }
 
     // Skip quantity validation for moving service
-    if (widget.serviceOffered.toLowerCase() != 'moving') {
+    if ((widget.serviceOffered?.toLowerCase() ?? '') != 'moving') {
       // Only validate quantities for non-moving services
-      for (final service in widget.selectedServices) {
+      for (final service in widget.selectedServices ?? []) {
         final quantity = service['quantity'] as int?;
         if (quantity == null || quantity < 1) {
           _showErrorDialog(
@@ -297,10 +302,10 @@ class _BookingScreenState extends State<BookingScreen> {
           MaterialPageRoute(
             builder: (context) => ServicePaymentScreen(
               booking: json.decode(response.body),
-              amount: widget.selectedServices.fold<double>(
+              amount: (widget.selectedServices ?? []).fold<double>(
                 0,
                 (sum, service) =>
-                    sum + (service['basePrice'] * service['quantity']),
+                    sum + ((service['basePrice'] ?? 0.0) * (service['quantity'] ?? 1)),
               ),
             ),
           ),
@@ -504,8 +509,8 @@ class _BookingScreenState extends State<BookingScreen> {
             Card(
               child: ListTile(
                 leading: const CircleAvatar(child: Icon(Icons.person)),
-                title: Text(widget.providerName),
-                subtitle: Text(widget.serviceOffered),
+                title: Text(widget.providerName ?? ''),
+                subtitle: Text(widget.serviceOffered ?? ''),
               ),
             ),
             const SizedBox(height: 20),

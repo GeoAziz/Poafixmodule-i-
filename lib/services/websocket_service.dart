@@ -129,11 +129,21 @@ class WebSocketService {
 
   void _startPingTimer() {
     _pingTimer?.cancel();
-    _pingTimer = Timer.periodic(Duration(seconds: 30), (_) {
-      if (socket.connected) {
+    _pingTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+      if (isConnected) {
         socket.emit('ping');
       }
     });
+  }
+
+  // Add the missing emit method for external use
+  void emit(String event, [dynamic data]) {
+    if (isConnected) {
+      socket.emit(event, data);
+      print('Emitted event: $event with data: $data');
+    } else {
+      print('Cannot emit event $event - socket not connected');
+    }
   }
 
   void _scheduleReconnect() {

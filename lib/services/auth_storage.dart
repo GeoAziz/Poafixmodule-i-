@@ -138,4 +138,8 @@ class AuthStorage {
       rethrow;
     }
   }
+
+  Future<String?> getToken() async {
+    return await _storage.read(key: KEY_AUTH_TOKEN);
+  }
 }

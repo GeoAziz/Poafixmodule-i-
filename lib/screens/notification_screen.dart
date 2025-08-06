@@ -50,9 +50,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       print('Loading notifications for $userType: $userId');
 
-      // Use ApiConfig.getApiUrl to construct the URL correctly
+      // Use ApiConfig.getEndpointUrl to construct the URL correctly
       final response = await http.get(
-        Uri.parse(ApiConfig.getApiUrl('/notifications')).replace(
+        Uri.parse('${ApiConfig.baseUrl}/api/notifications').replace(
           queryParameters: {
             'recipientId': userId,
             'recipientModel':

@@ -353,51 +353,99 @@ class AuthService {
   ) async {
     try {
       print('🔍 Attempting login for: $email');
+      print('🌐 Current base URL: ${ApiConfig.baseUrl}');
+
+      // Test connection before attempting login
+      final isConnected = await ApiConfig.testConnection();
+      if (!isConnected) {
+        print('🔄 Connection failed, refreshing network discovery...');
+        await ApiConfig.refreshConnection();
+        
+        // Test again after refresh
+        final stillNotConnected = !(await ApiConfig.testConnection());
+        if (stillNotConnected) {
+          throw Exception('Cannot connect to server. Please check your network connection.');
+        }
+      }
+
+      final loginData = {
+        'email': email.trim(),
+        'password': password,
+      };
 
       // Try provider login first
       try {
-        final response = await http.post(
-          Uri.parse('${ApiConfig.baseUrl}/api/providers/login'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'email': email.trim(),
-            'password': password,
-          }),
+        print('🔄 Trying provider login...');
+        final response = await ApiConfig.makeRequest(
+          '/api/providers/login',
+          method: 'POST',
+          body: loginData,
         );
 
         print('📡 Provider login status: ${response.statusCode}');
-        print('📡 Provider response: ${response.body}');
+        print('📡 Provider response: ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...');
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           await saveProviderAuthData(data);
-          return data;
+          return {
+            ...data,
+            'userType': 'service-provider',
+          };
         }
       } catch (e) {
-        print('Provider login attempt failed: $e');
+        print('❌ Provider login failed: $e');
       }
 
       // Try client login
-      print('🔄 Trying client login...');
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/clients/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'email': email.trim(),
-          'password': password,
-        }),
-      );
+      try {
+        print('🔄 Trying client login...');
+        final response = await ApiConfig.makeRequest(
+          '/api/clients/login',
+          method: 'POST',
+          body: loginData,
+        );
 
-      print('📡 Client login status: ${response.statusCode}');
-      print('📡 Client response: ${response.body}');
+        print('📡 Client login status: ${response.statusCode}');
+        print('📡 Client response: ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        await saveAuthData(data);
-        return data;
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          await saveAuthData(data);
+          return {
+            ...data,
+            'userType': 'client',
+          };
+        }
+      } catch (e) {
+        print('❌ Client login failed: $e');
       }
 
-      throw Exception('Invalid credentials');
+      // Try admin login
+      try {
+        print('🔄 Trying admin login...');
+        final response = await ApiConfig.makeRequest(
+          '/api/admin/login',
+          method: 'POST',
+          body: loginData,
+        );
+
+        print('📡 Admin login status: ${response.statusCode}');
+        print('📡 Admin response: ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...');
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          await saveAuthData(data);
+          return {
+            ...data,
+            'userType': 'admin',
+          };
+        }
+      } catch (e) {
+        print('❌ Admin login failed: $e');
+      }
+
+      throw Exception('Invalid email or password');
     } catch (e) {
       print('❌ Login error: $e');
       rethrow;
@@ -770,7 +818,7 @@ class AuthService {
       String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse(ApiConfig.getAuthUrl('provider')),
+        Uri.parse(ApiConfig.getProviderLoginUrl()),
         headers: {
           'Content-Type': 'application/json',
         },

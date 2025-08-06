@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:poafix/screens/select_service.dart'; // Update this path if your SelectService widget is in a different location
 import 'package:poafix/screens/bookings/bookings_screen.dart';
+import 'package:poafix/screens/services/service_selection_screen.dart'; // Correct import for ServiceSelectionScreen
 import 'package:poafix/screens/quick_actions/schedule_screen.dart';
 import 'package:poafix/screens/quick_actions/history_screen.dart';
 import 'package:poafix/screens/quick_actions/saved_screen.dart';
@@ -31,10 +32,15 @@ class _HomeScreenState extends State<HomeScreen> {
   int unreadNotifications = 5; // Simulating unread notifications
 
   List<Widget> get _screens => [
-        HomeScreenContent(user: widget.user),
-        BookingsScreen(user: widget.user), // Pass the user parameter
-        ProfileScreen(),
+        _buildHomeTab(), // Home tab with dashboard
+        ServiceSelectionScreen(user: widget.user), // Use ServiceSelectionScreen for Search tab
+        BookingsScreen(user: widget.user), // Bookings tab
+        ProfileScreen(user: widget.user), // Profile tab
       ];
+
+  Widget _buildHomeTab() {
+    return HomeScreenContent(user: widget.user);
+  }
 
   // Redirect to login screen if the user is not authenticated
   void _redirectToLogin() {
@@ -171,24 +177,33 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) {
+          setState(() => _currentIndex = index);
+          switch (index) {
+            case 0:
+              Navigator.pushReplacementNamed(context, '/home', arguments: widget.user);
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ServiceSelectionScreen(user: widget.user),
+                ),
+              );
+              break;
+            case 2:
+              Navigator.pushReplacementNamed(context, '/bookings', arguments: widget.user);
+              break;
+            case 3:
+              Navigator.pushReplacementNamed(context, '/profile', arguments: widget.user);
+              break;
+          }
+        },
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Bookings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle), // Profile Icon
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings'),
+          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profile'),
         ],
       ),
     );

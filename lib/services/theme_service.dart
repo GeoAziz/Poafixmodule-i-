@@ -25,7 +25,7 @@ class ThemeService extends ChangeNotifier {
       primarySwatch: Colors.blue,
       brightness: Brightness.light,
       scaffoldBackgroundColor: Colors.white,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -55,7 +55,7 @@ class ThemeService extends ChangeNotifier {
       primarySwatch: Colors.blue,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: Color(0xFF121212),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),

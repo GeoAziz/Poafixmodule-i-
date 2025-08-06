@@ -154,6 +154,14 @@ class LocationService {
     return true;
   }
 
+  Future<bool> requestLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    return permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+  }
+
   Future<List<dynamic>> getNearbyProviders(double latitude, double longitude,
       {double radius = 5000}) async {
     try {
@@ -263,7 +271,7 @@ class LocationService {
     try {
       final encodedAddress = Uri.encodeComponent(address);
       final url =
-          '${ApiConfig.geocodingEndpoint}?address=$encodedAddress&key=${ApiConfig.googleMapsApiKey}';
+          'https://maps.googleapis.com/maps/api/geocode/json?address=$encodedAddress&key=YOUR_GOOGLE_MAPS_API_KEY';
 
       final response = await http.get(Uri.parse(url));
       final data = json.decode(response.body);
@@ -277,14 +285,14 @@ class LocationService {
       }
 
       return {
-        'latitude': ApiConfig.defaultLatitude,
-        'longitude': ApiConfig.defaultLongitude,
+        'latitude': -1.2921,
+        'longitude': 36.8219,
       };
     } catch (e) {
-      ApiConfig.debugLog('Error getting coordinates: $e');
+      print('Error getting coordinates: $e');
       return {
-        'latitude': ApiConfig.defaultLatitude,
-        'longitude': ApiConfig.defaultLongitude,
+        'latitude': -1.2921,
+        'longitude': 36.8219,
       };
     }
   }
@@ -459,5 +467,43 @@ class LocationService {
       return List<Map<String, dynamic>>.from(data['predictions']);
     }
     throw Exception('Failed to search places');
+  }
+
+  // Remove static from these methods and make them instance methods
+  Future<bool> hasLocationPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return false;
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return false;
+    }
+    if (permission == LocationPermission.deniedForever) return false;
+    return true;
+  }
+
+  Future<bool> requestLocationPermissionHelper() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    return permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+  }
+
+  Future<Position?> getCurrentLocationHelper() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return null;
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return null;
+    }
+    if (permission == LocationPermission.deniedForever) return null;
+    try {
+      return await Geolocator.getCurrentPosition();
+    } catch (e) {
+      print('Error getting location: $e');
+      return null;
+    }
   }
 }

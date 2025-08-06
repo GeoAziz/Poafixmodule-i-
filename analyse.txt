@@ -1,0 +1,2930 @@
+──(devmahnx㉿devmahnx)-[~/Poafixmodule-i-]
+└─$ flutter analyze
+Analyzing Poafixmodule-i-...                                            
+
+   info • Don't invoke 'print' in production code •
+          lib/config/api_config.dart:74:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/config/api_config.dart:75:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/config/api_config.dart:76:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/config/api_config.dart:77:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:23:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:25:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:34:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:36:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:39:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:46:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:48:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:51:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:58:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:60:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:63:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:70:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:72:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:75:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:82:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:84:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/api_service.dart:87:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/auth_service.dart:21:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/auth_service.dart:31:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/core/services/auth_service.dart:47:7 • avoid_print
+   info • The constant name 'STATUS_PENDING' isn't a lowerCamelCase
+          identifier • lib/core/services/booking_service.dart:9:23 •
+          constant_identifier_names
+   info • The constant name 'STATUS_CONFIRMED' isn't a lowerCamelCase
+          identifier • lib/core/services/booking_service.dart:10:23 •
+          constant_identifier_names
+   info • The constant name 'STATUS_COMPLETED' isn't a lowerCamelCase
+          identifier • lib/core/services/booking_service.dart:11:23 •
+          constant_identifier_names
+   info • The constant name 'STATUS_CANCELLED' isn't a lowerCamelCase
+          identifier • lib/core/services/booking_service.dart:12:23 •
+          constant_identifier_names
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:17:3 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:22:3 • avoid_print
+   info • Parameter 'key' could be a super parameter •
+          lib/main.dart:28:9 • use_super_parameters
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:41:9 • avoid_print
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/main.dart:100:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/main.dart:102:3 • library_private_types_in_public_api
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/main.dart:126:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/main.dart:128:3 • library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:144:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:151:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:152:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:153:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:154:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:157:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:164:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:167:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:170:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/main.dart:174:7 • avoid_print
+   info • Don't use 'BuildContext's across async gaps •
+          lib/middleware/auth_middleware.dart:12:20 •
+          use_build_context_synchronously
+warning • Unused import: 'package:intl/intl.dart' •
+       lib/models/booking.dart:1:8 • unused_import
+warning • Unused import: 'dart:math' • lib/models/booking.dart:2:8 •
+       unused_import
+   info • The constant name 'in_progress' isn't a lowerCamelCase
+          identifier • lib/models/booking.dart:7:3 •
+          constant_identifier_names
+   info • The constant name 'call_invite' isn't a lowerCamelCase
+          identifier • lib/models/message_model.dart:91:3 •
+          constant_identifier_names
+   info • The constant name 'payment_request' isn't a lowerCamelCase
+          identifier • lib/models/message_model.dart:92:3 •
+          constant_identifier_names
+   info • Don't invoke 'print' in production code •
+          lib/models/mpesa_transaction.dart:28:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/models/mpesa_transaction.dart:44:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/models/mpesa_transaction.dart:45:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/models/notification_model.dart:23:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/models/notification_model.dart:24:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/models/notification_model.dart:41:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/models/notification_model.dart:42:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/models/notification_model.dart:43:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/models/notification_model.dart:44:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/providers/auth_provider.dart:91:5 • avoid_print
+   info • The private field _isLoading could be 'final' •
+          lib/providers/booking_notifier.dart:8:8 •
+          prefer_final_fields
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/animated_splash_screen.dart:7:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/animated_splash_screen.dart:11:3 •
+          library_private_types_in_public_api
+   info • The constant name 'TOKEN_KEY' isn't a lowerCamelCase
+          identifier • lib/screens/auth/auth_service.dart:11:23 •
+          constant_identifier_names
+   info • The constant name 'USER_TYPE_KEY' isn't a lowerCamelCase
+          identifier • lib/screens/auth/auth_service.dart:12:23 •
+          constant_identifier_names
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/auth_service.dart:21:22 • avoid_print
+warning • The declaration '_sanitizeMapData' isn't referenced •
+       lib/screens/auth/auth_service.dart:93:30 • unused_element
+warning • The declaration '_saveAuthData' isn't referenced •
+       lib/screens/auth/auth_service.dart:155:23 • unused_element
+warning • Unused import:
+       'package:flutter_secure_storage/flutter_secure_storage.dart' •
+       lib/screens/auth/login_screen.dart:7:8 • unused_import
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/auth/login_screen.dart:13:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/auth/login_screen.dart:16:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/login_screen.dart:39:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/login_screen.dart:40:5 • avoid_print
+  error • The method 'printConnectionInfo' isn't defined for the type
+         'ApiConfig' • lib/screens/auth/login_screen.dart:41:15 •
+         undefined_method
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/login_screen.dart:42:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/login_screen.dart:86:7 • avoid_print
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/auth/login_screen.dart:95:11 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/auth/login_screen.dart:108:11 •
+          use_build_context_synchronously
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/login_screen.dart:124:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/login_screen.dart:163:21 • avoid_print
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/auth/login_screen.dart:164:42 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/auth/login_screen.dart:177:42 •
+          use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/auth/login_screen.dart:288:57 •
+          deprecated_member_use
+warning • Unused import:
+       'package:cached_network_image/cached_network_image.dart' •
+       lib/screens/auth/sign_in_screen.dart:11:8 • unused_import
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/auth/sign_in_screen.dart:13:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/auth/sign_in_screen.dart:15:3 •
+          library_private_types_in_public_api
+   info • The private field _fieldErrors could be 'final' •
+          lib/screens/auth/sign_in_screen.dart:42:23 •
+          prefer_final_fields
+warning • The declaration '_handleNavigation' isn't referenced •
+       lib/screens/auth/sign_in_screen.dart:128:16 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/sign_in_screen.dart:153:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/sign_in_screen.dart:178:7 • avoid_print
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/auth/sign_in_screen.dart:179:28 •
+          use_build_context_synchronously
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/sign_in_screen.dart:253:7 • avoid_print
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/auth/sign_up_screen.dart:8:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/auth/sign_up_screen.dart:10:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/sign_up_screen.dart:41:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/sign_up_screen.dart:42:9 • avoid_print
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/auth/sign_up_screen.dart:60:13 •
+          use_build_context_synchronously
+   info • Don't invoke 'print' in production code •
+          lib/screens/auth/sign_up_screen.dart:69:9 • avoid_print
+   info • The 'child' argument should be last in widget constructor
+          invocations • lib/screens/auth/sign_up_screen.dart:156:17 •
+          sort_child_properties_last
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/billing_history_screen.dart:5:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/billing_history_screen.dart:8:3 •
+          library_private_types_in_public_api
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/billing_history_screen.dart:90:38 •
+          deprecated_member_use
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/booking/booking_confirmation_screen.dart:11:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/booking/booking_confirmation_screen.dart:19:3 •
+          library_private_types_in_public_api
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/booking/booking_screen.dart:26:9 •
+          use_super_parameters
+warning • The value of the field '_storage' isn't used •
+       lib/screens/booking/booking_screen.dart:47:9 • unused_field
+warning • The value of the field '_jobService' isn't used •
+       lib/screens/booking/booking_screen.dart:49:9 • unused_field
+warning • The value of the field '_isInitialized' isn't used •
+       lib/screens/booking/booking_screen.dart:58:8 • unused_field
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:76:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:92:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:94:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:98:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:104:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:105:5 • avoid_print
+  error • The property 'length' can't be unconditionally accessed
+         because the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:105:58 •
+         unchecked_use_of_nullable_value
+   info • Function literals shouldn't be passed to 'forEach' •
+          lib/screens/booking/booking_screen.dart:106:29 •
+          avoid_function_literals_in_foreach_calls
+  error • The method 'forEach' can't be unconditionally invoked
+         because the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:106:29 •
+         unchecked_use_of_nullable_value
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:107:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:140:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:143:7 • avoid_print
+  error • The method 'map' can't be unconditionally invoked because
+         the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:151:48 •
+         unchecked_use_of_nullable_value
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:155:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:156:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:157:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:158:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:173:7 • avoid_print
+  error • The argument type 'String?' can't be assigned to the
+         parameter type 'String'.  •
+         lib/screens/booking/booking_screen.dart:180:21 •
+         argument_type_not_assignable
+  error • The argument type 'String?' can't be assigned to the
+         parameter type 'String'.  •
+         lib/screens/booking/booking_screen.dart:182:22 •
+         argument_type_not_assignable
+  error • The method '[]' can't be unconditionally invoked because
+         the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:191:41 •
+         unchecked_use_of_nullable_value
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:199:7 • avoid_print
+  error • The property 'first' can't be unconditionally accessed
+         because the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:206:48 •
+         unchecked_use_of_nullable_value
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/booking/booking_screen.dart:208:47 •
+          use_build_context_synchronously
+  error • The method '[]' can't be unconditionally invoked because
+         the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:215:41 •
+         unchecked_use_of_nullable_value
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:222:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:228:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:234:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:244:5 • avoid_print
+  error • The property 'isEmpty' can't be unconditionally accessed
+         because the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:262:27 •
+         unchecked_use_of_nullable_value
+  error • The property 'isEmpty' can't be unconditionally accessed
+         because the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:267:33 •
+         unchecked_use_of_nullable_value
+  error • The method 'toLowerCase' can't be unconditionally invoked
+         because the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:273:31 •
+         unchecked_use_of_nullable_value
+  error • A nullable expression can't be used as an iterator in a
+         for-in loop • lib/screens/booking/booking_screen.dart:275:29
+         • unchecked_use_of_nullable_value
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:285:5 • avoid_print
+warning • The declaration '_completeService' isn't referenced •
+       lib/screens/booking/booking_screen.dart:289:16 •
+       unused_element
+  error • The method 'fold' can't be unconditionally invoked because
+         the receiver can be 'null' •
+         lib/screens/booking/booking_screen.dart:305:47 •
+         unchecked_use_of_nullable_value
+warning • The declaration '_notifyProvider' isn't referenced •
+       lib/screens/booking/booking_screen.dart:319:16 •
+       unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/booking/booking_screen.dart:334:7 • avoid_print
+warning • The declaration '_handleSessionExpired' isn't referenced •
+       lib/screens/booking/booking_screen.dart:338:8 • unused_element
+warning • The declaration '_showSuccessDialog' isn't referenced •
+       lib/screens/booking/booking_screen.dart:345:8 • unused_element
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/booking/booking_screen.dart:364:30 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/booking/booking_screen.dart:366:19 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/booking/booking_screen.dart:410:29 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/booking/booking_screen.dart:413:17 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/booking/booking_screen.dart:444:29 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/booking/booking_screen.dart:448:17 •
+          use_build_context_synchronously
+  error • The argument type 'String?' can't be assigned to the
+         parameter type 'String'.  •
+         lib/screens/booking/booking_screen.dart:512:29 •
+         argument_type_not_assignable
+  error • The argument type 'String?' can't be assigned to the
+         parameter type 'String'.  •
+         lib/screens/booking/booking_screen.dart:513:32 •
+         argument_type_not_assignable
+warning • Unused import: '../../services/auth_storage.dart' •
+       lib/screens/bookings/bookings_screen.dart:5:8 • unused_import
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/bookings/bookings_screen.dart:17:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/bookings/bookings_screen.dart:24:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:41:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:54:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:55:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:56:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:57:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:69:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:92:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:106:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:117:9 •
+          avoid_print
+   info • Function literals shouldn't be passed to 'forEach' •
+          lib/screens/bookings/bookings_screen.dart:118:19 •
+          avoid_function_literals_in_foreach_calls
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:119:11 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/bookings/bookings_screen.dart:123:7 •
+          avoid_print
+warning • The declaration '_buildDrawer' isn't referenced •
+       lib/screens/bookings/bookings_screen.dart:148:10 •
+       unused_element
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/bookings/bookings_screen.dart:191:15 •
+          use_build_context_synchronously
+   info • The 'child' argument should be last in widget constructor
+          invocations •
+          lib/screens/bookings/bookings_screen.dart:361:13 •
+          sort_child_properties_last
+warning • The declaration '_buildBookingStatusIcon' isn't referenced
+       • lib/screens/bookings/bookings_screen.dart:371:10 •
+       unused_element
+warning • The declaration '_formatDate' isn't referenced •
+       lib/screens/bookings/bookings_screen.dart:384:10 •
+       unused_element
+warning • The declaration '_capitalizeStatus' isn't referenced •
+       lib/screens/bookings/bookings_screen.dart:388:10 •
+       unused_element
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/calendar_screen.dart:10:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/calendar_screen.dart:12:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/calendar_screen.dart:40:7 • avoid_print
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/calendar_screen.dart:93:55 •
+          deprecated_member_use
+   info • The 'child' argument should be last in widget constructor
+          invocations • lib/screens/calendar_screen.dart:106:9 •
+          sort_child_properties_last
+warning • The value of the local variable 'time' isn't used •
+       lib/screens/calendar_screen.dart:238:29 •
+       unused_local_variable
+warning • The value of the local variable 'time' isn't used •
+       lib/screens/calendar_screen.dart:251:29 •
+       unused_local_variable
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/call/incoming_call_screen.dart:13:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/call/incoming_call_screen.dart:24:3 •
+          library_private_types_in_public_api
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/call/incoming_call_screen.dart:220:49 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/call/incoming_call_screen.dart:245:51 •
+          deprecated_member_use
+   info • The private field _isMuted could be 'final' •
+          lib/screens/call/video_call_screen.dart:26:8 •
+          prefer_final_fields
+warning • The value of the field '_isMuted' isn't used •
+       lib/screens/call/video_call_screen.dart:26:8 • unused_field
+   info • The private field _isVideoEnabled could be 'final' •
+          lib/screens/call/video_call_screen.dart:27:8 •
+          prefer_final_fields
+warning • The value of the field '_isVideoEnabled' isn't used •
+       lib/screens/call/video_call_screen.dart:27:8 • unused_field
+   info • The private field _isFrontCamera could be 'final' •
+          lib/screens/call/video_call_screen.dart:28:8 •
+          prefer_final_fields
+warning • The value of the field '_isFrontCamera' isn't used •
+       lib/screens/call/video_call_screen.dart:28:8 • unused_field
+warning • The value of the field '_isConnected' isn't used •
+       lib/screens/call/video_call_screen.dart:29:8 • unused_field
+warning • The value of the field '_showControls' isn't used •
+       lib/screens/call/video_call_screen.dart:30:8 • unused_field
+warning • The value of the field '_remoteUid' isn't used •
+       lib/screens/call/video_call_screen.dart:31:8 • unused_field
+warning • The value of the field '_callDuration' isn't used •
+       lib/screens/call/video_call_screen.dart:34:12 • unused_field
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/call/voice_call_screen.dart:12:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/call/voice_call_screen.dart:22:3 •
+          library_private_types_in_public_api
+  error • The argument type 'Null' can't be assigned to the parameter
+         type 'String'.  •
+         lib/screens/call/voice_call_screen.dart:62:14 •
+         argument_type_not_assignable
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/chat/chat_list_screen.dart:13:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/chat/chat_list_screen.dart:16:3 •
+          library_private_types_in_public_api
+warning • The left operand can't be null, so the right operand is
+       never executed • lib/screens/chat/chat_list_screen.dart:51:40
+       • dead_null_aware_expression
+  error • The method 'getOtherUserName' isn't defined for the type
+         'ChatRoom' • lib/screens/chat/chat_list_screen.dart:162:32 •
+         undefined_method
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/chat/chat_list_screen.dart:162:62 •
+       unnecessary_non_null_assertion
+  error • The method 'getOtherUserAvatar' isn't defined for the type
+         'ChatRoom' • lib/screens/chat/chat_list_screen.dart:163:34 •
+         undefined_method
+  error • The getter 'unreadCount' isn't defined for the type
+         'ChatRoom' • lib/screens/chat/chat_list_screen.dart:165:28 •
+         undefined_getter
+  error • The getter 'unreadCount' isn't defined for the type
+         'ChatRoom' • lib/screens/chat/chat_list_screen.dart:197:24 •
+         undefined_getter
+  error • The getter 'timestamp' isn't defined for the type 'String'
+         • lib/screens/chat/chat_list_screen.dart:220:44 •
+         undefined_getter
+  error • Undefined class 'ChatMessage' •
+         lib/screens/chat/chat_list_screen.dart:232:33 •
+         undefined_class
+warning • Unused import: 'package:url_launcher/url_launcher.dart' •
+       lib/screens/chat/chat_screen.dart:5:8 • unused_import
+warning • Unused import: 'dart:convert' •
+       lib/screens/chat/chat_screen.dart:7:8 • unused_import
+  error • Target of URI doesn't exist:
+         '../../widgets/chat_message_bubble.dart' •
+         lib/screens/chat/chat_screen.dart:14:8 • uri_does_not_exist
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/chat/chat_screen.dart:21:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/chat/chat_screen.dart:28:3 •
+          library_private_types_in_public_api
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/chat/chat_screen.dart:142:36 •
+       unnecessary_non_null_assertion
+  error • The method 'getOtherUserName' isn't defined for the type
+         'ChatRoom' • lib/screens/chat/chat_screen.dart:160:43 •
+         undefined_method
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/chat/chat_screen.dart:160:81 •
+       unnecessary_non_null_assertion
+  error • The method 'getOtherUserAvatar' isn't defined for the type
+         'ChatRoom' • lib/screens/chat/chat_screen.dart:161:45 •
+         undefined_method
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/chat/chat_screen.dart:161:85 •
+       unnecessary_non_null_assertion
+  error • The method 'getOtherUserId' isn't defined for the type
+         'ChatRoom' • lib/screens/chat/chat_screen.dart:162:41 •
+         undefined_method
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/chat/chat_screen.dart:162:77 •
+       unnecessary_non_null_assertion
+  error • The method 'ChatMessageBubble' isn't defined for the type
+         '_ChatScreenState' •
+         lib/screens/chat/chat_screen.dart:308:13 • undefined_method
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/chat/chat_screen.dart:467:40 •
+       unnecessary_non_null_assertion
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/chat/chat_screen.dart:471:28 •
+          use_build_context_synchronously
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/chat/chat_screen.dart:492:42 •
+       unnecessary_non_null_assertion
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/chat/chat_screen.dart:497:28 •
+          use_build_context_synchronously
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/chat/chat_screen.dart:509:40 •
+       unnecessary_non_null_assertion
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/chat/chat_screen.dart:515:28 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/chat/chat_screen.dart:561:28 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/chat/chat_screen.dart:565:28 •
+          use_build_context_synchronously
+  error • The method 'getOtherUserName' isn't defined for the type
+         'ChatRoom' • lib/screens/chat/chat_screen.dart:611:43 •
+         undefined_method
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/chat/chat_screen.dart:611:81 •
+       unnecessary_non_null_assertion
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/client/booking_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • The imported package 'timezone' isn't a dependency of the
+          importing package •
+          lib/screens/client/edit_profile_screen.dart:5:8 •
+          depend_on_referenced_packages
+   info • The imported package 'timezone' isn't a dependency of the
+          importing package •
+          lib/screens/client/edit_profile_screen.dart:6:8 •
+          depend_on_referenced_packages
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/client/edit_profile_screen.dart:11:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/client/edit_profile_screen.dart:14:3 •
+          library_private_types_in_public_api
+   info • The private field _communicationOptions could be 'final' •
+          lib/screens/client/edit_profile_screen.dart:27:16 •
+          prefer_final_fields
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/client/profile_screen.dart:8:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/client/profile_screen.dart:10:3 •
+          library_private_types_in_public_api
+   info • The 'child' argument should be last in widget constructor
+          invocations • lib/screens/client/profile_screen.dart:119:15
+          • sort_child_properties_last
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/client/profile_screen.dart:208:9 •
+          use_super_parameters
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/client/review_service_screen.dart:10:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/client/review_service_screen.dart:17:3 •
+          library_private_types_in_public_api
+  error • The named parameter 'reviewText' is required, but there's
+         no corresponding argument •
+         lib/screens/client/review_service_screen.dart:73:29 •
+         missing_required_argument
+  error • The named parameter 'review' isn't defined •
+         lib/screens/client/review_service_screen.dart:77:9 •
+         undefined_named_parameter
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/client/review_service_screen.dart:80:21 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/client/review_service_screen.dart:82:28 •
+          use_build_context_synchronously
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/client/service_history_screen.dart:7:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/client/service_history_screen.dart:10:3 •
+          library_private_types_in_public_api
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/client/service_provider_list_screen.dart:9:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/client/service_provider_list_screen.dart:15:3 •
+          library_private_types_in_public_api
+warning • The value of the field '_currentPosition' isn't used •
+       lib/screens/client/service_provider_list_screen.dart:22:13 •
+       unused_field
+   info • Don't invoke 'print' in production code •
+          lib/screens/client/service_provider_list_screen.dart:38:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/client/service_provider_list_screen.dart:51:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/client/service_provider_list_screen.dart:56:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/client/service_provider_list_screen.dart:60:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/client/service_provider_list_screen.dart:61:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/client/service_provider_list_screen.dart:72:7 •
+          avoid_print
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/clients_screen.dart:5:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/clients_screen.dart:7:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/clients_screen.dart:26:7 • avoid_print
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/contact_support_screen.dart:5:9 •
+          use_super_parameters
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/document_upload_screen.dart:12:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/document_upload_screen.dart:14:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/document_upload_screen.dart:38:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/document_upload_screen.dart:39:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/document_upload_screen.dart:40:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/document_upload_screen.dart:52:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/document_upload_screen.dart:81:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/document_upload_screen.dart:83:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/document_upload_screen.dart:92:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/document_upload_screen.dart:94:7 • avoid_print
+warning • The declaration '_pickAndUploadMultipleFiles' isn't
+       referenced • lib/screens/document_upload_screen.dart:166:16 •
+       unused_element
+warning • The declaration '_buildLoadingShimmer' isn't referenced •
+       lib/screens/document_upload_screen.dart:284:10 •
+       unused_element
+warning • The declaration '_buildHeader' isn't referenced •
+       lib/screens/document_upload_screen.dart:290:10 •
+       unused_element
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/finance/financial_management_screen.dart:11:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/finance/financial_management_screen.dart:13:3 •
+          library_private_types_in_public_api
+warning • The value of the field '_summary' isn't used •
+       lib/screens/finance/financial_management_screen.dart:23:24 •
+       unused_field
+   info • Don't invoke 'print' in production code •
+          lib/screens/finance/financial_management_screen.dart:65:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/finance/financial_management_screen.dart:66:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/finance/financial_management_screen.dart:67:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/finance/financial_management_screen.dart:68:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/finance/financial_management_screen.dart:78:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/finance/financial_management_screen.dart:114:7
+          • avoid_print
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/finance/financial_management_screen.dart:120:32
+          • use_build_context_synchronously
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/follow_us_screen.dart:4:7 •
+          use_key_in_widget_constructors
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/home/home_screen.dart:21:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/home/home_screen.dart:27:3 •
+          library_private_types_in_public_api
+warning • The declaration '_redirectToLogin' isn't referenced •
+       lib/screens/home/home_screen.dart:42:8 • unused_element
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/home/home_screen.dart:45:9 •
+          use_build_context_synchronously
+warning • The left operand can't be null, so the right operand is
+       never executed • lib/screens/home/home_screen.dart:83:19 •
+       dead_null_aware_expression
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/home/home_screen.dart:229:3 •
+          use_key_in_widget_constructors
+   info • Constructors in '@immutable' classes should be declared as
+          'const' • lib/screens/home/home_screen.dart:229:3 •
+          prefer_const_constructors_in_immutables
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/home_screen.dart:8:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/home_screen.dart:17:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/home_screen.dart:47:3 •
+          use_key_in_widget_constructors
+   info • Constructors in '@immutable' classes should be declared as
+          'const' • lib/screens/home_screen.dart:47:3 •
+          prefer_const_constructors_in_immutables
+   info • 'userCircle' is deprecated and shouldn't be used. Use
+          "circleUser" instead • lib/screens/home_screen.dart:73:43 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/home_screen.dart:89:61 • deprecated_member_use
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/home_screen.dart:118:9 •
+          use_key_in_widget_constructors
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/home_screen.dart:151:49 • deprecated_member_use
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/location/location_picker_screen.dart:10:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/location/location_picker_screen.dart:17:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/location/location_picker_screen.dart:53:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/location/location_picker_screen.dart:68:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/location/location_picker_screen.dart:90:7 •
+          avoid_print
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/location/location_picker_screen.dart:233:31 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/location/location_picker_screen.dart:234:31 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/location/location_picker_screen.dart:240:38 •
+          use_build_context_synchronously
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/login_screen.dart:14:9 • use_super_parameters
+   info • Statements in an if should be enclosed in a block •
+          lib/screens/login_screen.dart:49:9 •
+          curly_braces_in_flow_control_structures
+   info • Don't invoke 'print' in production code •
+          lib/screens/login_screen.dart:51:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/login_screen.dart:64:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/login_screen.dart:65:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/login_screen.dart:72:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/login_screen.dart:86:7 • avoid_print
+warning • The declaration '_getToken' isn't referenced •
+       lib/screens/login_screen.dart:109:19 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/login_screen.dart:253:7 • avoid_print
+warning • The declaration '_getBookingUpdateMessage' isn't referenced
+       • lib/screens/login_screen.dart:257:10 • unused_element
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/my_service_screen.dart:7:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/my_service_screen.dart:20:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/my_service_screen.dart:22:3 •
+          library_private_types_in_public_api
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/my_service_screen.dart:133:9 •
+          use_key_in_widget_constructors
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/notification_screen.dart:14:9 •
+          use_super_parameters
+   info • Don't invoke 'print' in production code •
+          lib/screens/notification_screen.dart:51:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notification_screen.dart:69:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notification_screen.dart:70:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notification_screen.dart:90:7 • avoid_print
+warning • The declaration '_getToken' isn't referenced •
+       lib/screens/notification_screen.dart:113:19 • unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/notification_screen.dart:184:50 •
+          deprecated_member_use
+warning • The declaration '_formatDateString' isn't referenced •
+       lib/screens/notification_screen.dart:329:10 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/notification_screen.dart:356:7 • avoid_print
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/notifications/notification_screen.dart:16:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/notifications/notification_screen.dart:19:3 •
+          library_private_types_in_public_api
+warning • The left operand can't be null, so the right operand is
+       never executed •
+       lib/screens/notifications/notification_screen.dart:74:44 •
+       dead_null_aware_expression
+warning • The value of the local variable 'userId' isn't used •
+       lib/screens/notifications/notification_screen.dart:103:20 •
+       unused_local_variable
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:156:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:160:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:171:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:180:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:182:7 •
+          avoid_print
+warning • The declaration '_getNotificationIcon' isn't referenced •
+       lib/screens/notifications/notification_screen.dart:205:12 •
+       unused_element
+warning • The declaration '_getNotificationColor' isn't referenced •
+       lib/screens/notifications/notification_screen.dart:222:9 •
+       unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:267:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:268:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:269:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:270:5 •
+          avoid_print
+warning • The declaration '_buildTypeIcon' isn't referenced •
+       lib/screens/notifications/notification_screen.dart:457:10 •
+       unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/notifications/notification_screen.dart:486:22 •
+          deprecated_member_use
+warning • The declaration '_buildNotificationDetails' isn't
+       referenced •
+       lib/screens/notifications/notification_screen.dart:493:10 •
+       unused_element
+warning • The declaration '_buildPriorityIcon' isn't referenced •
+       lib/screens/notifications/notification_screen.dart:542:10 •
+       unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/notifications/notification_screen.dart:589:41 •
+          deprecated_member_use
+warning • The declaration '_buildStatusBadge' isn't referenced •
+       lib/screens/notifications/notification_screen.dart:595:10 •
+       unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/notifications/notification_screen.dart:614:22 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/notifications/notification_screen.dart:616:41 •
+          deprecated_member_use
+warning • The declaration '_buildDetailRowWithIcon' isn't referenced
+       • lib/screens/notifications/notification_screen.dart:629:10 •
+       unused_element
+warning • The declaration '_buildActionButtons' isn't referenced •
+       lib/screens/notifications/notification_screen.dart:661:10 •
+       unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notification_screen.dart:747:7 •
+          avoid_print
+warning • The declaration '_deleteNotification' isn't referenced •
+       lib/screens/notifications/notification_screen.dart:751:16 •
+       unused_element
+warning • The declaration '_getNotificationStyle' isn't referenced •
+       lib/screens/notifications/notification_screen.dart:755:21 •
+       unused_element
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/notifications/notifications_screen.dart:6:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/notifications/notifications_screen.dart:8:3 •
+          library_private_types_in_public_api
+warning • The value of the field '_error' isn't used •
+       lib/screens/notifications/notifications_screen.dart:16:11 •
+       unused_field
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notifications_screen.dart:43:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notifications_screen.dart:59:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications/notifications_screen.dart:72:7 •
+          avoid_print
+warning • The declaration '_getNotificationIcon' isn't referenced •
+       lib/screens/notifications/notifications_screen.dart:227:12 •
+       unused_element
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/notifications_screen.dart:6:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/notifications_screen.dart:8:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications_screen.dart:30:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications_screen.dart:37:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/notifications_screen.dart:46:7 • avoid_print
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/notifications_screen.dart:122:30 •
+          use_build_context_synchronously
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/payment/mpesa_payment_screen.dart:10:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/payment/mpesa_payment_screen.dart:13:3 •
+          library_private_types_in_public_api
+warning • The value of the field '_mpesaService' isn't used •
+       lib/screens/payment/mpesa_payment_screen.dart:18:9 •
+       unused_field
+warning • The value of the local variable 'response' isn't used •
+       lib/screens/payment/mpesa_payment_screen.dart:44:13 •
+       unused_local_variable
+   info • Don't invoke 'print' in production code •
+          lib/screens/payment/mpesa_payment_screen.dart:86:9 •
+          avoid_print
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/payment/service_payment_screen.dart:9:9 •
+          use_super_parameters
+warning • The value of the local variable 'result' isn't used •
+       lib/screens/payment/service_payment_screen.dart:34:13 •
+       unused_local_variable
+   info • Don't invoke 'print' in production code •
+          lib/screens/payment/service_payment_screen.dart:76:9 •
+          avoid_print
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/payment_methods_screen.dart:4:9 •
+          use_super_parameters
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/payment_methods_screen.dart:66:41 •
+          deprecated_member_use
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/profile/activity_history_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/profile/payment_billing_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/profile/profile_screen.dart:8:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/profile/profile_screen.dart:10:3 •
+          library_private_types_in_public_api
+   info • The private field _stats could be 'final' •
+          lib/screens/profile/profile_screen.dart:22:24 •
+          prefer_final_fields
+warning • The value of the field '_isLoading' isn't used •
+       lib/screens/profile/profile_screen.dart:23:8 • unused_field
+   info • Don't invoke 'print' in production code •
+          lib/screens/profile/profile_screen.dart:46:7 • avoid_print
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/profile/profile_screen.dart:70:28 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/profile/profile_screen.dart:74:28 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/profile/profile_screen.dart:89:28 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/profile/profile_screen.dart:98:28 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/profile/profile_screen.dart:203:31 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/profile/profile_screen.dart:248:29 •
+          use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/profile/profile_screen.dart:296:47 •
+          deprecated_member_use
+   info • Use a 'SizedBox' to add whitespace to a layout •
+          lib/screens/profile/profile_screen.dart:380:12 •
+          sized_box_for_whitespace
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/profile/profile_screen.dart:555:33 •
+          use_build_context_synchronously
+   info • Don't invoke 'print' in production code •
+          lib/screens/profile/profile_screen.dart:635:7 • avoid_print
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/profile/ratings_reviews_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/profile/service_preferences_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/profile/service_preferences_screen.dart:5:3 •
+          library_private_types_in_public_api
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/profile/settings_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/provider/availability_screen.dart:4:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/provider/availability_screen.dart:6:3 •
+          library_private_types_in_public_api
+warning • The value of the field '_isLoading' isn't used •
+       lib/screens/provider/availability_screen.dart:32:8 •
+       unused_field
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/provider/availability_screen.dart:90:28 •
+          use_build_context_synchronously
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/provider/certifications_screen.dart:4:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/provider/certifications_screen.dart:6:3 •
+          library_private_types_in_public_api
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/quick_actions/history_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/quick_actions/saved_screen.dart:3:7
+          • use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/quick_actions/schedule_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/rating/comprehensive_rating_screen.dart:14:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/rating/comprehensive_rating_screen.dart:23:3 •
+          library_private_types_in_public_api
+   info • The private field _images could be 'final' •
+          lib/screens/rating/comprehensive_rating_screen.dart:30:14 •
+          prefer_final_fields
+   info • Unnecessary use of 'toList' in a spread •
+          lib/screens/rating/comprehensive_rating_screen.dart:216:16
+          • unnecessary_to_list_in_spreads
+  error • The named parameter 'reviewText' is required, but there's
+         no corresponding argument •
+         lib/screens/rating/comprehensive_rating_screen.dart:473:30 •
+         missing_required_argument
+  error • The named parameter 'review' isn't defined •
+         lib/screens/rating/comprehensive_rating_screen.dart:477:11 •
+         undefined_named_parameter
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/rating/rating_screen.dart:12:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/rating/rating_screen.dart:21:3 •
+          library_private_types_in_public_api
+  error • The named parameter 'reviewText' is required, but there's
+         no corresponding argument •
+         lib/screens/rating/rating_screen.dart:65:30 •
+         missing_required_argument
+  error • The named parameter 'review' isn't defined •
+         lib/screens/rating/rating_screen.dart:69:11 •
+         undefined_named_parameter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/rating/rating_screen.dart:207:45 •
+          deprecated_member_use
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/refer_a_friend_screen.dart:4:7 •
+          use_key_in_widget_constructors
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/reviews/comprehensive_review_screen.dart:11:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/reviews/comprehensive_review_screen.dart:18:3 •
+          library_private_types_in_public_api
+   info • Unnecessary use of 'toList' in a spread •
+          lib/screens/reviews/comprehensive_review_screen.dart:357:15
+          • unnecessary_to_list_in_spreads
+   info • Unnecessary use of 'toList' in a spread •
+          lib/screens/reviews/comprehensive_review_screen.dart:378:77
+          • unnecessary_to_list_in_spreads
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/reviews/comprehensive_review_screen.dart:694:28
+          • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/reviews/comprehensive_review_screen.dart:709:30
+          • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/reviews/comprehensive_review_screen.dart:713:30
+          • use_build_context_synchronously
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/reviews/comprehensive_review_screen.dart:727:7
+          • use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/reviews/comprehensive_review_screen.dart:729:3
+          • library_private_types_in_public_api
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/reviews/provider_reviews_screen.dart:11:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/reviews/provider_reviews_screen.dart:18:3 •
+          library_private_types_in_public_api
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/reviews/provider_reviews_screen.dart:255:28 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/reviews/provider_reviews_screen.dart:270:30 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/reviews/provider_reviews_screen.dart:274:30 •
+          use_build_context_synchronously
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/reviews/provider_reviews_screen.dart:287:9 •
+          use_super_parameters
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/reviews/provider_reviews_screen.dart:502:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/reviews/provider_reviews_screen.dart:504:3 •
+          library_private_types_in_public_api
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/search/advanced_search_screen.dart:14:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/search/advanced_search_screen.dart:21:3 •
+          library_private_types_in_public_api
+warning • The value of the field '_locationService' isn't used •
+       lib/screens/search/advanced_search_screen.dart:26:9 •
+       unused_field
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/search/advanced_search_screen.dart:406:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/search/advanced_search_screen.dart:420:3 •
+          library_private_types_in_public_api
+  error • The named parameter 'latitude' isn't defined •
+         lib/screens/search/advanced_search_screen.dart:439:9 •
+         undefined_named_parameter
+  error • The named parameter 'longitude' isn't defined •
+         lib/screens/search/advanced_search_screen.dart:440:9 •
+         undefined_named_parameter
+  error • The named parameter 'searchQuery' isn't defined •
+         lib/screens/search/advanced_search_screen.dart:442:9 •
+         undefined_named_parameter
+  error • The named parameter 'maxDistance' isn't defined •
+         lib/screens/search/advanced_search_screen.dart:443:9 •
+         undefined_named_parameter
+  error • The named parameter 'minPrice' isn't defined •
+         lib/screens/search/advanced_search_screen.dart:445:9 •
+         undefined_named_parameter
+  error • The named parameter 'availableNow' isn't defined •
+         lib/screens/search/advanced_search_screen.dart:447:9 •
+         undefined_named_parameter
+  error • The named parameter 'verifiedOnly' isn't defined •
+         lib/screens/search/advanced_search_screen.dart:448:9 •
+         undefined_named_parameter
+  error • A value of type 'Map<String, dynamic>' can't be assigned to
+         a variable of type 'List<Map<String, dynamic>>' •
+         lib/screens/search/advanced_search_screen.dart:453:22 •
+         invalid_assignment
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/search/advanced_search_screen.dart:567:9 •
+          use_super_parameters
+warning • Unused import:
+       'package:flutter_rating_bar/flutter_rating_bar.dart' •
+       lib/screens/search/provider_comparison_screen.dart:2:8 •
+       unused_import
+warning • Unused import: '../../models/provider_model.dart' •
+       lib/screens/search/provider_comparison_screen.dart:4:8 •
+       unused_import
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/search/provider_comparison_screen.dart:11:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/search/provider_comparison_screen.dart:18:3 •
+          library_private_types_in_public_api
+  error • The named parameter 'latitude' isn't defined •
+         lib/screens/search/provider_comparison_screen.dart:38:9 •
+         undefined_named_parameter
+  error • The named parameter 'longitude' isn't defined •
+         lib/screens/search/provider_comparison_screen.dart:39:9 •
+         undefined_named_parameter
+  error • A value of type 'Map<String, dynamic>' can't be assigned to
+         a variable of type 'List<Map<String, dynamic>>' •
+         lib/screens/search/provider_comparison_screen.dart:44:22 •
+         invalid_assignment
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/search/provider_comparison_screen.dart:360:9 •
+          use_super_parameters
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/service/service_tracking_screen.dart:10:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/service/service_tracking_screen.dart:14:3 •
+          library_private_types_in_public_api
+   info • Statements in an if should be enclosed in a block •
+          lib/screens/service/service_tracking_screen.dart:37:15 •
+          curly_braces_in_flow_control_structures
+   info • The type of the right operand ('BookingStatus') isn't a
+          subtype or a supertype of the left operand ('String') •
+          lib/screens/service/service_tracking_screen.dart:43:36 •
+          unrelated_type_equality_checks
+warning • The operand can't be 'null', so the condition is always
+       'true' •
+       lib/screens/service/service_tracking_screen.dart:97:31 •
+       unnecessary_null_comparison
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/service_provider/dashboard_screen.dart:4:7 •
+          use_key_in_widget_constructors
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/dashboard_screen.dart:74:42 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/dashboard_screen.dart:100:58 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/dashboard_screen.dart:143:34 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/dashboard_screen.dart:178:32 •
+          deprecated_member_use
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/service_provider/earnings_screen.dart:5:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/service_provider/earnings_screen.dart:7:3 •
+          library_private_types_in_public_api
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:8:7 • use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:10:3 • library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:37:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:43:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:57:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:64:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:71:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:94:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:106:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:107:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:121:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:138:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:139:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:155:7 • avoid_print
+   info • Use a 'SizedBox' to add whitespace to a layout •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:231:13 • sized_box_for_whitespace
+warning • The declaration '_buildSummaryCards' isn't referenced •
+       lib/screens/service_provider/financial_management_screen.dart:
+       290:10 • unused_element
+   info • Use a 'SizedBox' to add whitespace to a layout •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:291:12 • sized_box_for_whitespace
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:323:20 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/financial_management_screen.da
+          rt:336:38 • deprecated_member_use
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/service_provider/job_details_screen.dart:14:9 •
+          use_super_parameters
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/job_details_screen.dart:63:35
+          • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/job_details_screen.dart:109:42
+          • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/job_details_screen.dart:244:24
+          • deprecated_member_use
+   info • Use a 'SizedBox' to add whitespace to a layout •
+          lib/screens/service_provider/job_details_screen.dart:309:11
+          • sized_box_for_whitespace
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/job_details_screen.dart:442:32
+          • deprecated_member_use
+   info • Unnecessary 'this.' qualifier •
+          lib/screens/service_provider/jobs_screen.dart:18:39 •
+          unnecessary_this
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/service_provider/jobs_screen.dart:25:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/service_provider/jobs_screen.dart:31:3 •
+          library_private_types_in_public_api
+warning • The value of the field '_searchQuery' isn't used •
+       lib/screens/service_provider/jobs_screen.dart:49:10 •
+       unused_field
+   info • The private field _isSearching could be 'final' •
+          lib/screens/service_provider/jobs_screen.dart:50:8 •
+          prefer_final_fields
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/jobs_screen.dart:81:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/jobs_screen.dart:126:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/jobs_screen.dart:131:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/jobs_screen.dart:140:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/jobs_screen.dart:164:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/jobs_screen.dart:169:5 •
+          avoid_print
+warning • The receiver can't be null, so the null-aware operator '?.'
+       is unnecessary •
+       lib/screens/service_provider/jobs_screen.dart:308:44 •
+       invalid_null_aware_operator
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/service_provider/jobs_screen.dart:309:67 •
+       unnecessary_non_null_assertion
+warning • The declaration '_buildLoadingSkeleton' isn't referenced •
+       lib/screens/service_provider/jobs_screen.dart:325:10 •
+       unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/jobs_screen.dart:365:32 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/jobs_screen.dart:376:49 •
+          deprecated_member_use
+warning • The declaration '_handleBookingAction' isn't referenced •
+       lib/screens/service_provider/jobs_screen.dart:468:16 •
+       unused_element
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/service_provider/jobs_screen.dart:516:22 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/service_provider/jobs_screen.dart:526:22 •
+          use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/service_provider/jobs_screen.dart:530:20 •
+          use_build_context_synchronously
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/jobs_screen.dart:579:7 •
+          avoid_print
+warning • The receiver can't be null, so the null-aware operator '?.'
+       is unnecessary •
+       lib/screens/service_provider/jobs_screen.dart:605:30 •
+       invalid_null_aware_operator
+warning • The '!' will have no effect because the receiver can't be
+       null • lib/screens/service_provider/jobs_screen.dart:606:53 •
+       unnecessary_non_null_assertion
+   info • 'WillPopScope' is deprecated and shouldn't be used. Use
+          PopScope instead. The Android predictive back feature will
+          not work with WillPopScope. This feature was deprecated
+          after v3.12.0-1.0.pre •
+          lib/screens/service_provider/jobs_screen.dart:680:16 •
+          deprecated_member_use
+warning • The operand can't be 'null', so the condition is always
+       'true' • lib/screens/service_provider/jobs_screen.dart:793:20
+       • unnecessary_null_comparison
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/jobs_screen.dart:824:7 •
+          avoid_print
+warning • The declaration '_buildHeader' isn't referenced •
+       lib/screens/service_provider/jobs_screen.dart:865:10 •
+       unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/jobs_screen.dart:917:40 •
+          deprecated_member_use
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/service_provider/my_services_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/service_provider/notifications_screen.dart:7:7
+          • use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/service_provider/notifications_screen.dart:9:3
+          • library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/notifications_screen.dart:31:7
+          • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/notifications_screen.dart:43:9
+          • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/notifications_screen.dart:46:7
+          • avoid_print
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/notifications_screen.dart:135:
+          58 • deprecated_member_use
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/service_provider/profile_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/service_provider/requests_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/service_provider/service_areas_screen.dart:5:7
+          • use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/service_provider/service_areas_screen.dart:7:3
+          • library_private_types_in_public_api
+warning • The value of the field '_mapController' isn't used •
+       lib/screens/service_provider/service_areas_screen.dart:11:24 •
+       unused_field
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/service_areas_screen.dart:81:3
+          4 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/service_provider/service_areas_screen.dart:106:
+          28 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/service_provider/service_areas_screen.dart:110:
+          28 • use_build_context_synchronously
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/service_provider/service_provider_screen.dart:4
+          5:9 • use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/service_provider/service_provider_screen.dart:5
+          4:3 • library_private_types_in_public_api
+warning • The value of the field '_locationService' isn't used •
+       lib/screens/service_provider/service_provider_screen.dart:71:2
+       5 • unused_field
+warning • The declaration '_screens' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:91:2
+       0 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          03:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          14:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          18:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          26:7 • avoid_print
+warning • The declaration '_checkProviderAccess' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:130:
+       16 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          41:7 • avoid_print
+warning • The declaration '_checkAuthAndInitialize' isn't referenced
+       •
+       lib/screens/service_provider/service_provider_screen.dart:145:
+       16 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          68:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          80:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          98:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:2
+          16:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:2
+          22:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:2
+          34:19 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:2
+          37:19 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:2
+          47:7 • avoid_print
+warning • The declaration '_loadServiceProviderId' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:300:
+       16 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:3
+          07:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:3
+          40:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:3
+          58:7 • avoid_print
+warning • The declaration '_updateProviderLocation' isn't referenced
+       •
+       lib/screens/service_provider/service_provider_screen.dart:368:
+       16 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:3
+          74:7 • avoid_print
+warning • The declaration '_saveLocationToServer' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:494:
+       16 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:5
+          08:7 • avoid_print
+warning • The declaration '_showLocationDialog' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:512:
+       8 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:7
+          00:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:7
+          32:7 • avoid_print
+   info • 'WillPopScope' is deprecated and shouldn't be used. Use
+          PopScope instead. The Android predictive back feature will
+          not work with WillPopScope. This feature was deprecated
+          after v3.12.0-1.0.pre •
+          lib/screens/service_provider/service_provider_screen.dart:7
+          42:12 • deprecated_member_use
+warning • The declaration '_buildProfileScreen' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:762:
+       10 • unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/service_provider_screen.dart:7
+          78:46 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/service_provider_screen.dart:8
+          59:44 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          114:29 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          117:32 • deprecated_member_use
+warning • The declaration '_startSendingLocation' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:1143
+       :8 • unused_element
+warning • The declaration '_stopSendingLocation' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:1153
+       :8 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          171:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          174:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          246:7 • avoid_print
+warning • The declaration '_buildBookingsList' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:1252
+       :10 • unused_element
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          272:30 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          277:30 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          283:28 • use_build_context_synchronously
+   info • Unnecessary braces in a string interpolation •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          284:43 • unnecessary_brace_in_string_interps
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          306:7 • avoid_print
+warning • The declaration '_onPageChanged' isn't referenced •
+       lib/screens/service_provider/service_provider_screen.dart:1316
+       :8 • unused_element
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          324:9 • use_super_parameters
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          339:21 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider/service_provider_screen.dart:1
+          360:21 • avoid_print
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/service_provider_list_screen.dart:14:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/service_provider_list_screen.dart:23:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider_list_screen.dart:49:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider_list_screen.dart:50:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider_list_screen.dart:52:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider_list_screen.dart:53:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider_list_screen.dart:72:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider_list_screen.dart:91:11 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider_list_screen.dart:114:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/service_provider_list_screen.dart:119:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/services/client_service.dart:27:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/services/client_service.dart:31:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/services/client_service.dart:33:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/services/client_service.dart:41:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/services/client_service.dart:43:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/screens/services/client_service.dart:50:7 • avoid_print
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/services/service_detail_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/services/service_list_screen.dart:3:7 •
+          use_key_in_widget_constructors
+   info • Parameter 'key' could be a super parameter •
+          lib/screens/services/service_selection_screen.dart:8:9 •
+          use_super_parameters
+   info • Invalid use of a private type in a public API •
+          lib/screens/services/service_selection_screen.dart:14:3 •
+          library_private_types_in_public_api
+warning • The left operand can't be null, so the right operand is
+       never executed •
+       lib/screens/services/service_selection_screen.dart:100:45 •
+       dead_null_aware_expression
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/services/service_selection_screen.dart:214:34 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/screens/services/service_selection_screen.dart:231:40 •
+          deprecated_member_use
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/screens/settings_screen.dart:8:7 •
+          use_key_in_widget_constructors
+   info • Invalid use of a private type in a public API •
+          lib/screens/settings_screen.dart:10:3 •
+          library_private_types_in_public_api
+   info • Don't invoke 'print' in production code •
+          lib/screens/settings_screen.dart:32:7 • avoid_print
+   info • Unnecessary 'this.' qualifier •
+          lib/screens/settings_screen.dart:468:39 • unnecessary_this
+   info • Constructors for public widgets should have a named 'key'
+          parameter •
+          lib/screens/terms_and_conditions_screen.dart:4:7 •
+          use_key_in_widget_constructors
+  error • The name 'debugLog' is already defined •
+         lib/services/api_config.dart:73:15 • duplicate_definition
+  error • Can't have modifier 'static' here •
+         lib/services/api_config.dart:95:3 • extraneous_modifier
+  error • The function 'getApiUrl' isn't defined •
+         lib/services/api_config.dart:96:12 • undefined_function
+  error • Can't have modifier 'static' here •
+         lib/services/api_config.dart:99:3 • extraneous_modifier
+  error • Undefined name 'baseUrl' •
+         lib/services/api_config.dart:99:42 • undefined_identifier
+  error • Can't have modifier 'static' here •
+         lib/services/api_config.dart:100:3 • extraneous_modifier
+  error • Undefined name 'baseUrl' •
+         lib/services/api_config.dart:100:44 • undefined_identifier
+  error • Can't have modifier 'static' here •
+         lib/services/api_config.dart:101:3 • extraneous_modifier
+  error • Undefined name 'baseUrl' •
+         lib/services/api_config.dart:101:41 • undefined_identifier
+  error • Can't have modifier 'static' here •
+         lib/services/api_config.dart:104:3 • extraneous_modifier
+  error • The function 'debugLog' isn't defined •
+         lib/services/api_config.dart:105:5 • undefined_function
+  error • The function 'debugLog' isn't defined •
+         lib/services/api_config.dart:106:5 • undefined_function
+  error • Undefined name 'baseUrl' •
+         lib/services/api_config.dart:106:29 • undefined_identifier
+  error • The function 'debugLog' isn't defined •
+         lib/services/api_config.dart:107:5 • undefined_function
+  error • Undefined name 'connectionTimeout' •
+         lib/services/api_config.dart:107:29 • undefined_identifier
+  error • The function 'debugLog' isn't defined •
+         lib/services/api_config.dart:108:5 • undefined_function
+  error • Undefined name 'maxRetries' •
+         lib/services/api_config.dart:108:32 • undefined_identifier
+  error • Can't have modifier 'static' here •
+         lib/services/api_config.dart:112:3 • extraneous_modifier
+  error • Undefined name '_networkService' •
+         lib/services/api_config.dart:118:18 • undefined_identifier
+  error • Expected a method, getter, setter or operator declaration •
+         lib/services/api_config.dart:125:1 • expected_executable
+   info • Don't invoke 'print' in production code •
+          lib/services/api_service.dart:35:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/api_service.dart:45:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:7:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:8:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:9:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:10:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:11:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:18:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:19:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:20:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:26:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:27:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:28:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_logging_interceptor.dart:29:5 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:60:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:65:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:70:7 • avoid_print
+   info • The constant name 'TOKEN_KEY' isn't a lowerCamelCase
+          identifier • lib/services/auth_service.dart:101:23 •
+          constant_identifier_names
+   info • The constant name 'USER_TYPE_KEY' isn't a lowerCamelCase
+          identifier • lib/services/auth_service.dart:102:23 •
+          constant_identifier_names
+   info • The constant name 'USER_DATA_KEY' isn't a lowerCamelCase
+          identifier • lib/services/auth_service.dart:103:23 •
+          constant_identifier_names
+   info • The constant name 'CLIENT_ID_KEY' isn't a lowerCamelCase
+          identifier • lib/services/auth_service.dart:104:23 •
+          constant_identifier_names
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:109:22 • avoid_print
+warning • The declaration '_makeRequest' isn't referenced •
+       lib/services/auth_service.dart:112:39 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:175:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:217:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:228:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:236:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:263:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:274:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:275:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:286:7 • avoid_print
+warning • The declaration '_parseCoordinate' isn't referenced •
+       lib/services/auth_service.dart:292:17 • unused_element
+warning • The declaration '_isValidLatitude' isn't referenced •
+       lib/services/auth_service.dart:298:15 • unused_element
+warning • The declaration '_isValidLongitude' isn't referenced •
+       lib/services/auth_service.dart:306:15 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:317:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:320:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:331:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:332:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:345:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:355:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:356:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:361:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:378:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:385:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:386:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:397:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:402:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:409:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:410:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:421:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:426:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:433:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:434:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:445:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:450:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:460:7 • avoid_print
+warning • The declaration '_saveAuthData' isn't referenced •
+       lib/services/auth_service.dart:471:23 • unused_element
+warning • The declaration '_parseJwt' isn't referenced •
+       lib/services/auth_service.dart:498:31 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:585:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:607:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:608:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:609:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:610:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:611:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:613:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:616:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:629:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:630:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:631:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:632:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:650:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:651:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:652:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:656:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:662:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:695:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:705:7 • avoid_print
+warning • The declaration '_handleLoginSuccess' isn't referenced •
+       lib/services/auth_service.dart:710:16 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:712:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:736:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:739:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:740:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:741:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:742:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:744:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:761:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:768:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:787:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:789:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:812:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:831:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:832:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:847:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:855:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:867:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:868:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:885:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:893:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:904:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:905:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:921:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:951:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_service.dart:993:7 • avoid_print
+   info • The constant name 'KEY_AUTH_TOKEN' isn't a lowerCamelCase
+          identifier • lib/services/auth_storage.dart:11:23 •
+          constant_identifier_names
+   info • The constant name 'KEY_USER_ID' isn't a lowerCamelCase
+          identifier • lib/services/auth_storage.dart:12:23 •
+          constant_identifier_names
+   info • The constant name 'KEY_USER_TYPE' isn't a lowerCamelCase
+          identifier • lib/services/auth_storage.dart:13:23 •
+          constant_identifier_names
+   info • The constant name 'KEY_NAME' isn't a lowerCamelCase
+          identifier • lib/services/auth_storage.dart:14:23 •
+          constant_identifier_names
+   info • The constant name 'KEY_EMAIL' isn't a lowerCamelCase
+          identifier • lib/services/auth_storage.dart:15:23 •
+          constant_identifier_names
+   info • The constant name 'KEY_BUSINESS_NAME' isn't a
+          lowerCamelCase identifier •
+          lib/services/auth_storage.dart:16:23 •
+          constant_identifier_names
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:27:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:28:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:29:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:30:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:47:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:49:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:63:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:64:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:65:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:66:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:111:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/auth_storage.dart:137:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/availability_service.dart:30:7 • avoid_print
+warning • The value of the field '_authStorage' isn't used •
+       lib/services/booking_service.dart:24:21 • unused_field
+warning • The value of the field '_authService' isn't used •
+       lib/services/booking_service.dart:25:21 • unused_field
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:50:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:55:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:59:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:83:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:89:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:95:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:98:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:101:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:147:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:160:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:161:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:193:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:224:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:226:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:262:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:263:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:278:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:279:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:294:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:319:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:320:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:334:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:335:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:346:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:347:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:348:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:349:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:352:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:366:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:367:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:368:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:378:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:379:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:395:19 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:409:7 • avoid_print
+warning • The declaration '_extractId' isn't referenced •
+       lib/services/booking_service.dart:414:11 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:432:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:446:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:464:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:465:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:483:7 • avoid_print
+warning • The declaration '_getCurrentUserId' isn't referenced •
+       lib/services/booking_service.dart:489:18 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:534:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:576:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:577:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:578:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/booking_service.dart:586:9 • avoid_print
+warning • The value of the field '_notificationService' isn't used •
+       lib/services/call_service.dart:16:29 • unused_field
+   info • Don't invoke 'print' in production code •
+          lib/services/call_service.dart:28:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/call_service.dart:40:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/call_service.dart:42:7 • avoid_print
+  error • The named parameter 'callService' is required, but there's
+         no corresponding argument •
+         lib/services/call_service.dart:127:33 •
+         missing_required_argument
+  error • The named parameter 'callerPhone' is required, but there's
+         no corresponding argument •
+         lib/services/call_service.dart:127:33 •
+         missing_required_argument
+  error • The named parameter 'channelId' isn't defined •
+         lib/services/call_service.dart:130:13 •
+         undefined_named_parameter
+  error • The named parameter 'onAccept' isn't defined •
+         lib/services/call_service.dart:132:13 •
+         undefined_named_parameter
+  error • The named parameter 'onDecline' isn't defined •
+         lib/services/call_service.dart:133:13 •
+         undefined_named_parameter
+   info • Don't invoke 'print' in production code •
+          lib/services/call_service.dart:207:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/certification_service.dart:30:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/chat_service.dart:224:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/compression_service.dart:28:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/database.dart:16:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/database.dart:24:9 • avoid_print
+   info • 'OPENING' is deprecated and shouldn't be used. Use opening
+          instead • lib/services/database.dart:40:33 •
+          deprecated_member_use
+   info • Don't invoke 'print' in production code •
+          lib/services/database.dart:45:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/database.dart:50:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/database.dart:54:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/database.dart:63:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/document_sync_service.dart:28:7 • avoid_print
+warning • The value of the field '_currentCallerId' isn't used •
+       lib/services/enhanced_call_service.dart:54:11 • unused_field
+   info • Don't invoke 'print' in production code •
+          lib/services/enhanced_call_service.dart:90:13 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/enhanced_call_service.dart:94:13 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/enhanced_call_service.dart:98:13 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/enhanced_call_service.dart:102:13 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/enhanced_call_service.dart:106:13 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/enhanced_call_service.dart:112:7 • avoid_print
+warning • The left operand can't be null, so the right operand is
+       never executed •
+       lib/services/enhanced_call_service.dart:216:42 •
+       dead_null_aware_expression
+  error • There's no constant named 'connecting' in 'CallState' •
+         lib/services/enhanced_call_service.dart:275:42 •
+         undefined_enum_constant
+warning • The declaration '_declineCall' isn't referenced •
+       lib/services/enhanced_call_service.dart:299:8 • unused_element
+  error • There's no constant named 'ended' in 'CallState' •
+         lib/services/enhanced_call_service.dart:330:42 •
+         undefined_enum_constant
+   info • Don't invoke 'print' in production code •
+          lib/services/enhanced_call_service.dart:333:7 • avoid_print
+  error • The argument type 'Null' can't be assigned to the parameter
+         type 'String'.  •
+         lib/services/enhanced_call_service.dart:341:16 •
+         argument_type_not_assignable
+   info • Don't invoke 'print' in production code •
+          lib/services/enhanced_call_service.dart:347:7 • avoid_print
+  error • There's no constant named 'audioToggled' in 'CallState' •
+         lib/services/enhanced_call_service.dart:356:40 •
+         undefined_enum_constant
+  error • There's no constant named 'speakerToggled' in 'CallState' •
+         lib/services/enhanced_call_service.dart:362:40 •
+         undefined_enum_constant
+  error • There's no constant named 'videoToggled' in 'CallState' •
+         lib/services/enhanced_call_service.dart:369:40 •
+         undefined_enum_constant
+  error • There's no constant named 'cameraSwitched' in 'CallState' •
+         lib/services/enhanced_call_service.dart:374:40 •
+         undefined_enum_constant
+  error • Undefined name 'FlutterRingtonePlayer' •
+         lib/services/enhanced_call_service.dart:423:5 •
+         undefined_identifier
+  error • Undefined name 'FlutterRingtonePlayer' •
+         lib/services/enhanced_call_service.dart:427:5 •
+         undefined_identifier
+  error • There's no constant named 'accepted' in 'CallState' •
+         lib/services/enhanced_call_service.dart:432:40 •
+         undefined_enum_constant
+  error • There's no constant named 'ended' in 'CallState' •
+         lib/services/enhanced_call_service.dart:443:40 •
+         undefined_enum_constant
+  error • The name 'CallState' is already defined •
+         lib/services/enhanced_call_service.dart:494:6 •
+         duplicate_definition
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:516:9 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:518:21 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:519:23 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:520:22 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:521:24 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:522:22 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:529:9 •
+         undefined_identifier
+  error • The method '_rejectCall' isn't defined for the type
+         'EnhancedCallService' •
+         lib/services/enhanced_call_service.dart:530:13 •
+         undefined_method
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:531:21 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:532:22 •
+         undefined_identifier
+  error • The name 'acceptCall' is already defined •
+         lib/services/enhanced_call_service.dart:539:16 •
+         duplicate_definition
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:540:9 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:542:21 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:543:23 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:544:22 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:545:24 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:546:22 •
+         undefined_identifier
+  error • The name 'rejectCall' is already defined •
+         lib/services/enhanced_call_service.dart:552:16 •
+         duplicate_definition
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:553:9 •
+         undefined_identifier
+  error • The method '_rejectCall' isn't defined for the type
+         'EnhancedCallService' •
+         lib/services/enhanced_call_service.dart:554:13 •
+         undefined_method
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:555:21 •
+         undefined_identifier
+  error • Undefined name '_incomingCallData' •
+         lib/services/enhanced_call_service.dart:556:22 •
+         undefined_identifier
+  error • The name 'IncomingCallData' is already defined •
+         lib/services/enhanced_call_service.dart:563:7 •
+         duplicate_definition
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:21:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:24:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:48:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:49:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:57:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:58:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:68:19 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:75:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:81:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/financial_service.dart:117:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/http_service.dart:30:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/http_service.dart:31:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/http_service.dart:47:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/http_service.dart:48:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/http_service.dart:61:7 • avoid_print
+warning • Unused import: 'package:image/image.dart' •
+       lib/services/image_helper.dart:2:8 • unused_import
+   info • Don't invoke 'print' in production code •
+          lib/services/image_helper.dart:27:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/job_service.dart:38:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/job_service.dart:42:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/job_service.dart:73:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/job_service.dart:96:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/job_service.dart:126:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/job_service.dart:155:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/job_service.dart:178:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/job_service.dart:192:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/job_service.dart:201:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:40:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:77:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:80:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:121:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:124:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:128:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:168:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:177:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:204:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:217:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:218:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:229:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:230:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:233:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:254:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:256:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:284:7 • avoid_print
+   info • Unnecessary braces in a string interpolation •
+          lib/services/location_service.dart:300:55 •
+          unnecessary_brace_in_string_interps
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:316:7 • avoid_print
+   info • Use 'rethrow' to rethrow a caught exception •
+          lib/services/location_service.dart:317:7 •
+          use_rethrow_when_possible
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:348:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:411:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:423:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/location_service.dart:434:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/messaging_service.dart:323:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/messaging_service.dart:359:7 • avoid_print
+  error • The argument type 'MessageModel' can't be assigned to the
+         parameter type 'ChatMessage?'.  •
+         lib/services/messaging_service.dart:427:22 •
+         argument_type_not_assignable
+   info • Don't invoke 'print' in production code •
+          lib/services/mpesa_service.dart:29:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/mpesa_service.dart:55:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/mpesa_service.dart:75:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/navigation_service.dart:5:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/network_interceptor.dart:6:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/network_interceptor.dart:7:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/network_interceptor.dart:8:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/network_interceptor.dart:14:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/network_interceptor.dart:16:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/network_interceptor.dart:22:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/network_interceptor.dart:24:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/network_interceptor.dart:25:5 • avoid_print
+warning • The value of the field '_lastConnectivity' isn't used •
+       lib/services/network_service.dart:25:29 • unused_field
+warning • The declaration '_handleForegroundMessage' isn't referenced
+       • lib/services/notification_hub.dart:27:16 • unused_element
+warning • The declaration '_handleBackgroundMessage' isn't referenced
+       • lib/services/notification_hub.dart:35:8 • unused_element
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_hub.dart:36:5 • avoid_print
+   info • The private field _notificationStreamController could be
+          'final' • lib/services/notification_service.dart:12:45 •
+          prefer_final_fields
+   info • The constant name 'BOOKING_ACCEPTED' isn't a lowerCamelCase
+          identifier • lib/services/notification_service.dart:23:23 •
+          constant_identifier_names
+   info • The constant name 'BOOKING_REJECTED' isn't a lowerCamelCase
+          identifier • lib/services/notification_service.dart:24:23 •
+          constant_identifier_names
+   info • The constant name 'JOB_STARTED' isn't a lowerCamelCase
+          identifier • lib/services/notification_service.dart:25:23 •
+          constant_identifier_names
+   info • The constant name 'JOB_COMPLETED' isn't a lowerCamelCase
+          identifier • lib/services/notification_service.dart:26:23 •
+          constant_identifier_names
+   info • Use interpolation to compose strings and values •
+          lib/services/notification_service.dart:33:21 •
+          prefer_interpolation_to_compose_strings
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:34:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:43:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:61:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:65:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:70:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:90:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:91:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:92:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:107:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:108:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:116:9 • avoid_print
+   info • Function literals shouldn't be passed to 'forEach' •
+          lib/services/notification_service.dart:117:23 •
+          avoid_function_literals_in_foreach_calls
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:118:11 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:127:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:159:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/notification_service.dart:200:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_document_service.dart:24:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_document_service.dart:34:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_document_service.dart:59:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_document_service.dart:89:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_document_service.dart:118:11 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_document_service.dart:122:7 •
+          avoid_print
+   info • The private field _retryAttempts could be 'final' •
+          lib/services/provider_location_service.dart:9:7 •
+          prefer_final_fields
+warning • The value of the field '_retryAttempts' isn't used •
+       lib/services/provider_location_service.dart:9:7 • unused_field
+warning • The value of the field '_maxRetries' isn't used •
+       lib/services/provider_location_service.dart:10:16 •
+       unused_field
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_location_service.dart:26:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_location_service.dart:27:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_location_service.dart:35:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_location_service.dart:48:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_location_service.dart:49:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_location_service.dart:56:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_location_service.dart:75:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_location_service.dart:88:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_service.dart:51:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_service.dart:84:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_service.dart:124:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_service.dart:162:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_service.dart:186:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_service.dart:219:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_service.dart:261:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/provider_services/service_area_service.dart:41
+          :7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/rating_service.dart:121:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/service_request.service.dart:56:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/service_request.service.dart:85:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/service_request.service.dart:112:7 •
+          avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/service_service.dart:36:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/service_service.dart:68:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/service_service.dart:101:7 • avoid_print
+warning • The value of the field '_isActive' isn't used •
+       lib/services/session_service.dart:14:8 • unused_field
+   info • Don't invoke 'print' in production code •
+          lib/services/session_service.dart:33:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/session_service.dart:47:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/session_service.dart:80:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/settings_service.dart:28:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/settings_service.dart:29:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/settings_service.dart:39:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/settings_service.dart:40:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/settings_service.dart:54:9 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/settings_service.dart:60:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/settings_service.dart:88:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/signup_handler.dart:10:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/signup_handler.dart:11:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/signup_handler.dart:25:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/signup_handler.dart:26:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/signup_handler.dart:36:7 • avoid_print
+   info • The prefix 'IO' isn't a lower_case_with_underscores
+          identifier • lib/services/socket_service.dart:1:60 •
+          library_prefixes
+   info • Don't invoke 'print' in production code •
+          lib/services/socket_service.dart:16:29 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/socket_service.dart:17:32 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/socket_service.dart:18:31 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/storage_service.dart:47:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/storage_service.dart:70:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/storage_service.dart:80:7 • avoid_print
+   info • The prefix 'IO' isn't a lower_case_with_underscores
+          identifier • lib/services/websocket.service.dart:1:60 •
+          library_prefixes
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket.service.dart:23:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket.service.dart:27:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket.service.dart:31:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket.service.dart:38:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket.service.dart:40:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket.service.dart:59:7 • avoid_print
+   info • The prefix 'IO' isn't a lower_case_with_underscores
+          identifier • lib/services/websocket_service.dart:1:60 •
+          library_prefixes
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:38:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:46:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:54:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:59:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:65:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:70:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:76:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:88:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:92:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:97:5 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:101:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:102:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:107:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:118:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:143:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:145:7 • avoid_print
+warning • The declaration '_scheduleReconnect' isn't referenced •
+       lib/services/websocket_service.dart:149:8 • unused_element
+warning • The declaration '_scheduleReconnect' isn't referenced •
+       lib/services/websocket_service.dart:158:8 • unused_element
+  error • The name '_scheduleReconnect' is already defined •
+         lib/services/websocket_service.dart:158:8 •
+         duplicate_definition
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:164:9 • avoid_print
+warning • The method doesn't override an inherited method •
+       lib/services/websocket_service.dart:179:8 •
+       override_on_non_overriding_member
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:193:7 • avoid_print
+   info • Don't invoke 'print' in production code •
+          lib/services/websocket_service.dart:229:7 • avoid_print
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/activity_card.dart:12:9 • use_super_parameters
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/widgets/activity_card.dart:66:48 •
+          deprecated_member_use
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/booking_card.dart:13:9 • use_super_parameters
+warning • The left operand can't be null, so the right operand is
+       never executed • lib/widgets/booking_card.dart:47:38 •
+       dead_null_aware_expression
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/widgets/booking_card.dart:53:42 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/widgets/booking_card.dart:107:61 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/widgets/booking_card.dart:119:59 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/widgets/booking_card.dart:131:53 •
+          deprecated_member_use
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/earnings_chart.dart:9:9 • use_super_parameters
+   info • Use a 'SizedBox' to add whitespace to a layout •
+          lib/widgets/earnings_chart.dart:33:13 •
+          sized_box_for_whitespace
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/widgets/earnings_chart.dart:88:60 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/widgets/earnings_chart.dart:89:60 •
+          deprecated_member_use
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/widgets/fade_in_animation.dart:7:3 •
+          use_key_in_widget_constructors
+   info • Constructors in '@immutable' classes should be declared as
+          'const' • lib/widgets/fade_in_animation.dart:7:3 •
+          prefer_const_constructors_in_immutables
+   info • Invalid use of a private type in a public API •
+          lib/widgets/fade_in_animation.dart:10:3 •
+          library_private_types_in_public_api
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/job_calendar_event.dart:8:9 •
+          use_super_parameters
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/widgets/job_calendar_event.dart:49:46 •
+          deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use
+          .withValues() to avoid precision loss •
+          lib/widgets/job_calendar_event.dart:64:46 •
+          deprecated_member_use
+warning • The left operand can't be null, so the right operand is
+       never executed • lib/widgets/job_calendar_event.dart:97:36 •
+       dead_null_aware_expression
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/network_status_widget.dart:10:9 •
+          use_super_parameters
+   info • The type of the right operand ('ConnectivityResult') isn't
+          a subtype or a supertype of the left operand
+          ('List<ConnectivityResult>?') •
+          lib/widgets/network_status_widget.dart:180:29 •
+          unrelated_type_equality_checks
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/network_status_widget.dart:235:9 •
+          use_super_parameters
+   info • Unnecessary use of 'toList' in a spread •
+          lib/widgets/network_status_widget.dart:287:28 •
+          unnecessary_to_list_in_spreads
+   info • Don't use 'BuildContext's across async gaps •
+          lib/widgets/network_status_widget.dart:300:40 •
+          use_build_context_synchronously
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/no_records_view.dart:9:9 • use_super_parameters
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/provider_base_screen.dart:14:9 •
+          use_super_parameters
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/provider_drawer.dart:15:9 •
+          use_super_parameters
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/service_provider_widgets.dart:9:9 •
+          use_super_parameters
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/service_provider_widgets.dart:43:9 •
+          use_super_parameters
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/widgets/service_provider_widgets.dart:76:9
+          • use_key_in_widget_constructors
+   info • Constructors for public widgets should have a named 'key'
+          parameter • lib/widgets/service_provider_widgets.dart:132:9
+          • use_key_in_widget_constructors
+   info • Parameter 'key' could be a super parameter •
+          lib/widgets/transaction_card.dart:13:9 •
+          use_super_parameters
+   info • Unnecessary braces in a string interpolation •
+          lib/widgets/transaction_card.dart:40:20 •
+          unnecessary_brace_in_string_interps
+   info • Can't use a relative path to import a library in 'lib' •
+          test/url_test.dart:2:8 • avoid_relative_lib_imports
+
+1097 issues found. (ran in 8.5s)
+
+┌──(devmahnx㉿devmahnx)-[~/Poafixmodule-i-]
+└─$           

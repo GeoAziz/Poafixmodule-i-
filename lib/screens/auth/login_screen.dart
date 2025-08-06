@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // Add this import for kDebugMode
 import 'package:lottie/lottie.dart';
 import 'package:poafix/screens/service_provider/service_provider_screen.dart'
     as sp;
 import 'package:poafix/services/auth_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:poafix/config/api_config.dart';
+import '../../services/api_config.dart';
 import '../home/home_screen.dart';
 import '../../models/user_model.dart';
 
@@ -36,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen>
     _animController.forward();
     // Debug: Print API configuration
     print('API Configuration:');
-    print('Base URL: [32m${ApiConfig.baseUrl}[0m');
+    print('Base URL: ${ApiConfig.baseUrl}');
     ApiConfig.printConnectionInfo();
     print('Login endpoint: ${ApiConfig.baseUrl}/auth/login');
   }
@@ -53,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen>
     if (value == null || value.isEmpty) {
       return 'Please enter your email';
     }
-    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+[0m').hasMatch(value)) {
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)) {
       return 'Please enter a valid email address';
     }
     return null;
@@ -129,6 +130,62 @@ class _LoginScreenState extends State<LoginScreen>
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  Widget _buildNetworkDebugInfo() {
+    return Container(
+      margin: EdgeInsets.only(top: 16),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Network Debug Info:',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Backend URL: ${ApiConfig.baseUrl}',
+            style: TextStyle(fontSize: 10, fontFamily: 'monospace'),
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final status = await ApiConfig.getNetworkStatus();
+                    print('📊 Network Status: $status');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Network info logged to console')),
+                    );
+                  },
+                  child: Text('Test Network', style: TextStyle(fontSize: 10)),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await ApiConfig.refreshConnection();
+                    setState(() {}); // Refresh UI
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Network refreshed')),
+                    );
+                  },
+                  child: Text('Refresh', style: TextStyle(fontSize: 10)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -217,6 +274,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                   const SizedBox(height: 24),
+                  // LOGIN BUTTON - FIXED WITH WHITE BOLD TEXT
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -226,11 +284,23 @@ class _LoginScreenState extends State<LoginScreen>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         backgroundColor: theme.primaryColor,
+                        elevation: 2,
+                        shadowColor: theme.primaryColor.withOpacity(0.3),
                       ),
                       onPressed: _isLoading ? null : _handleLogin,
                       child: _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Login'),
+                          ? const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            )
+                          : const Text(
+                              'Login',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -246,16 +316,26 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ],
                   ),
-                  // Image.asset(
-                  //   'assets/illustrations/login_illustration.png',
-                  //   height: 120,
-                  // ),
                   const SizedBox(height: 32),
                   // Modern illustration for visual polish
                   Image.asset(
                     'assets/illustrations/login_illustration.png',
                     height: 120,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.image,
+                        size: 60,
+                        color: Colors.grey,
+                      ),
+                    ),
                   ),
+                  // Network debug info - visible only in debug mode
+                  if (kDebugMode) _buildNetworkDebugInfo(),
                 ],
               ),
             ),

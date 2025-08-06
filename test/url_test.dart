@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/config/api_config.dart';
+import '../lib/services/api_config.dart';
 
 void main() {
   group('API URL Tests', () {

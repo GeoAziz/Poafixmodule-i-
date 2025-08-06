@@ -6,9 +6,22 @@ import 'screens/home/home_screen.dart' as client;
 import 'screens/service_provider/service_provider_screen.dart';
 import 'services/auth_storage.dart';
 import 'screens/bookings/bookings_screen.dart';
+import 'services/api_config.dart';
+import 'screens/profile/profile_screen.dart';
+import 'screens/proximity_service_selection_screen.dart';
+import 'screens/enhanced_booking_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize network discovery
+  print('🚀 Initializing PoaFix App...');
+  await ApiConfig.initialize();
+  
+  // Print network status for debugging
+  final networkStatus = await ApiConfig.getNetworkStatus();
+  print('🌐 Network Status: $networkStatus');
+  
   runApp(const PoaFixApp());
 }
 
@@ -44,12 +57,30 @@ class PoaFixApp extends StatelessWidget {
                     user: user ?? User.empty(),
                   );
 
+                case '/proximity-services':
+                  final user = settings.arguments as User?;
+                  return ProximityServiceSelectionScreen(
+                    user: user ?? User.empty(),
+                  );
+
+                case '/enhanced-booking':
+                  final arguments = settings.arguments as Map<String, dynamic>?;
+                  return EnhancedBookingScreen(
+                    serviceId: arguments?['serviceId'] ?? '',
+                    serviceName: arguments?['serviceName'] ?? 'Service',
+                    user: arguments?['user'] ?? User.empty(),
+                  );
+
                 case '/bookings':
                   final user = settings.arguments as User?;
                   return BookingsScreen(
                     user: user ?? User.empty(),
                     showNavigation: true,
                   );
+
+                case '/profile':
+                  final user = settings.arguments as User?;
+                  return ProfileScreen(user: user ?? User.empty());
 
                 default:
                   return Scaffold(
@@ -90,7 +121,7 @@ class _SplashWrapperState extends State<SplashWrapper> {
   }
 
   void _finishSplash() {
-    setState(() => _showSplash = false);
+    setState(() { _showSplash = false; });
   }
 
   @override

@@ -221,17 +221,16 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 setState(() => _currentIndex = index);
                 switch (index) {
                   case 0:
-                    Navigator.pushReplacementNamed(context, '/home');
+                    Navigator.pushReplacementNamed(context, '/home', arguments: widget.user);
                     break;
                   case 1:
-                    Navigator.pushReplacementNamed(
-                        context, '/select-service'); // Updated route
+                    Navigator.pushReplacementNamed(context, '/select-service', arguments: widget.user); // ✅ Fixed route with user argument
                     break;
                   case 2:
                     // Already on bookings screen
                     break;
                   case 3:
-                    Navigator.pushReplacementNamed(context, '/profile');
+                    Navigator.pushReplacementNamed(context, '/profile', arguments: widget.user);
                     break;
                 }
               },

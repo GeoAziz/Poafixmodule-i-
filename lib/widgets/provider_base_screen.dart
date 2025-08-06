@@ -45,7 +45,7 @@ class ProviderBaseScreen extends StatelessWidget {
           ? ProviderDrawer(
               userName: 'Sarah Wanjiku',
               businessName: 'Quick Movers Nairobi',
-              providerId: providerId ?? '', // Add this line
+              providerId: providerId,
             )
           : null,
       body: body,

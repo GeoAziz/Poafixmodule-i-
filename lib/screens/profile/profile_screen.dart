@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../models/user_model.dart';
 import '../../services/auth_storage.dart';
-import 'package:image_picker/image_picker.dart'; // Add this import
+import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../location/location_picker_screen.dart';
 import '../../services/location_service.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final User user; // Accept user argument
+
+  ProfileScreen({Key? key, required this.user}) : super(key: key);
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -13,7 +18,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _authStorage = AuthStorage();
   final _formKey = GlobalKey<FormState>();
-  final _locationService = LocationService(); // Add this line
+  final _locationService = LocationService();
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();

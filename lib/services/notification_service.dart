@@ -91,7 +91,7 @@ class NotificationService {
       print('RecipientId: $recipientId');
       print('RecipientModel: $recipientModel');
 
-      final response = await ApiConfig.httpClient.get(
+      final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/api/notifications').replace(
           queryParameters: {
             'recipientId': recipientId,
@@ -136,7 +136,7 @@ class NotificationService {
         throw Exception('No auth token found');
       }
 
-      final response = await ApiConfig.httpClient.patch(
+      final response = await http.patch(
         Uri.parse(
             '${ApiConfig.baseUrl}/api/notifications/$notificationId/read'),
         headers: {
