@@ -7,14 +7,15 @@ import '../screens/call/voice_call_screen.dart';
 import '../screens/call/video_call_screen.dart';
 import '../screens/call/incoming_call_screen.dart';
 import 'websocket_service.dart';
-import 'notification_service.dart';
+import 'enhanced_call_service.dart';
 
 class CallService {
-  static const String agoraAppId = 'YOUR_AGORA_APP_ID'; // Replace with your Agora App ID
-  
+  static const String agoraAppId =
+      'YOUR_AGORA_APP_ID'; // Replace with your Agora App ID
+
   final WebSocketService _webSocketService = WebSocketService();
-  final NotificationService _notificationService = NotificationService();
-  
+  // Removed unused NotificationService field
+
   RtcEngine? _engine;
   bool _isCallActive = false;
   String? _currentChannelId;
@@ -23,7 +24,7 @@ class CallService {
   // Initialize Agora engine
   Future<void> initialize(BuildContext context) async {
     _context = context;
-    
+
     if (agoraAppId.isEmpty || agoraAppId == 'YOUR_AGORA_APP_ID') {
       print('⚠️ Agora App ID not configured. Using fallback phone dialer.');
       return;
@@ -83,7 +84,7 @@ class CallService {
       }
 
       final channelId = 'call_${DateTime.now().millisecondsSinceEpoch}';
-      
+
       // Notify the other user via WebSocket
       _webSocketService.emit('initiate_call', {
         'calleeId': calleeId,
@@ -103,7 +104,6 @@ class CallService {
         _isCallActive = true;
         _currentChannelId = channelId;
       });
-
     } catch (e) {
       _showMessage('Failed to initiate call: $e');
     }
@@ -125,67 +125,18 @@ class CallService {
         _context!,
         MaterialPageRoute(
           builder: (context) => IncomingCallScreen(
-            callerName: data['callerName'] ?? 'Unknown',
             callerId: data['callerId'],
-            channelId: data['channelId'],
+            callerName: data['callerName'] ?? 'Unknown',
+            callerPhone: data['callerPhone'] ?? '',
             isVideoCall: data['isVideoCall'] ?? false,
-            onAccept: () => _acceptCall(data),
-            onDecline: () => _declineCall(data['callerId']),
+            callService: EnhancedCallService(),
           ),
         ),
       );
     }
   }
 
-  // Accept incoming call
-  Future<void> _acceptCall(Map<String, dynamic> callData) async {
-    try {
-      final isVideoCall = callData['isVideoCall'] ?? false;
-      
-      if (isVideoCall) {
-        await _requestVideoCallPermissions();
-      } else {
-        await _requestAudioPermissions();
-      }
-
-      // Notify caller that call was accepted
-      _webSocketService.emit('accept_call', {
-        'callerId': callData['callerId'],
-        'channelId': callData['channelId'],
-      });
-
-      setState(() {
-        _isCallActive = true;
-        _currentChannelId = callData['channelId'];
-      });
-
-      // Navigate to appropriate call screen
-      if (isVideoCall) {
-        _navigateToVideoCall(
-          callData['channelId'],
-          callData['callerName'] ?? 'Unknown',
-          true,
-        );
-      } else {
-        _navigateToVoiceCall(
-          callData['channelId'],
-          callData['callerName'] ?? 'Unknown',
-          true,
-        );
-      }
-
-    } catch (e) {
-      _showMessage('Failed to accept call: $e');
-    }
-  }
-
-  // Decline incoming call
-  void _declineCall(String callerId) {
-    _webSocketService.emit('decline_call', {
-      'callerId': callerId,
-      'reason': 'declined',
-    });
-  }
+  // Removed unused _acceptCall and _declineCall methods
 
   // End current call
   Future<void> endCall() async {
@@ -193,7 +144,7 @@ class CallService {
 
     try {
       await _engine?.leaveChannel();
-      
+
       _webSocketService.emit('end_call', {
         'channelId': _currentChannelId,
       });
@@ -202,7 +153,6 @@ class CallService {
         _isCallActive = false;
         _currentChannelId = null;
       });
-
     } catch (e) {
       print('Error ending call: $e');
     }
@@ -214,7 +164,7 @@ class CallService {
       _isCallActive = false;
       _currentChannelId = null;
     });
-    
+
     if (_context != null) {
       Navigator.popUntil(_context!, (route) => route.isFirst);
     }
@@ -227,12 +177,14 @@ class CallService {
   }
 
   // Fallback to system phone dialer
-  Future<void> _fallbackToPhoneDialer(String calleeId, String calleeName) async {
+  Future<void> _fallbackToPhoneDialer(
+      String calleeId, String calleeName) async {
     showDialog(
       context: _context!,
       builder: (context) => AlertDialog(
         title: Text('Call $calleeName'),
-        content: Text('Video calling is not available. Would you like to make a phone call instead?'),
+        content: Text(
+            'Video calling is not available. Would you like to make a phone call instead?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -270,7 +222,8 @@ class CallService {
   }
 
   // Navigation helpers
-  void _navigateToVoiceCall(String channelId, String calleeName, bool isIncoming) {
+  void _navigateToVoiceCall(
+      String channelId, String calleeName, bool isIncoming) {
     if (_context != null) {
       Navigator.push(
         _context!,
@@ -287,7 +240,8 @@ class CallService {
     }
   }
 
-  void _navigateToVideoCall(String channelId, String calleeName, bool isIncoming) {
+  void _navigateToVideoCall(
+      String channelId, String calleeName, bool isIncoming) {
     if (_context != null) {
       Navigator.push(
         _context!,

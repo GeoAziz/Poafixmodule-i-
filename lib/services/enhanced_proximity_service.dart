@@ -2,62 +2,71 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
-import '../models/service_category_model.dart'; // Only import from models
+import '../models/service_category_model.dart';
 import '../models/provider_model.dart';
-import '../services/api_config.dart';
 import '../services/auth_storage.dart';
 import '../services/location_service.dart';
+import '../services/provider_service.dart';
+import 'package:logging/logging.dart' as logging;
 
 class ProximityService {
   static const String _baseUrl = 'http://192.168.0.101:5000/api';
   final AuthStorage _authStorage = AuthStorage();
   final LocationService _locationService = LocationService();
+  final logging.Logger _logger = logging.Logger('ProximityService');
 
   // Get services with nearby provider counts
   Future<List<ServiceCategoryModel>> getServicesWithProximity({
     double? latitude,
     double? longitude,
-    double radiusKm = 5.0, // Increased default radius to 5km
+    double radiusKm = 5.0,
   }) async {
     try {
       Position? position;
-      
-      // Get current location if not provided
+
       if (latitude == null || longitude == null) {
         position = await _locationService.getCurrentLocation();
-        latitude = position?.latitude ?? -1.2921;  // Default to Nairobi
+        latitude = position?.latitude ?? -1.2921;
         longitude = position?.longitude ?? 36.8219;
       }
 
       final token = await _authStorage.getToken();
       final response = await http.get(
         Uri.parse(
-          '$_baseUrl/providers/nearby?serviceType=plumbing'
-          '&latitude=$latitude'
-          '&longitude=$longitude'
-          '&radius=${radiusKm * 1000}' // Convert km to meters for backend
-          '&limit=20'
-        ),
+            '$_baseUrl/services/proximity?lat=$latitude&lng=$longitude&radius=${radiusKm * 1000}'),
         headers: {
           'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
+          if (token != null) 'auth': token,
         },
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<dynamic> servicesJson = data['services'] ?? [];
-        
-        return servicesJson.map((json) => ServiceCategoryModel.fromJson(json)).toList();
-      } else {
-        // Return default services if API fails
-        return _getDefaultServices();
+        List<dynamic> servicesJson;
+
+        if (data is List) {
+          servicesJson = data;
+        } else if (data is Map<String, dynamic> &&
+            data.containsKey('services')) {
+          servicesJson = data['services'] as List<dynamic>;
+        } else {
+          _logger.warning('Unexpected response format');
+          return [];
+        }
+
+        return servicesJson
+            .map((json) => ServiceCategoryModel.fromJson(json))
+            .toList();
       }
+      return _getDefaultServices();
     } catch (e) {
-      print('Error getting proximity services: $e');
+      _logger.severe('Error getting proximity services: $e');
       return _getDefaultServices();
     }
   }
+
+  // Helper to ensure correct types for ProviderModel fields
+  // Removed parseProviderJson: not needed for provider parsing
 
   // Get nearby providers for a specific service
   Future<List<ProviderModel>> getNearbyProviders({
@@ -65,57 +74,55 @@ class ProximityService {
     double? latitude,
     double? longitude,
     double radiusKm = 10.0,
-    int limit = 20,
   }) async {
     try {
-      Position? position;
-      
-      // Get current location if not provided
-      if (latitude == null || longitude == null) {
-        position = await _locationService.getCurrentLocation();
-        latitude = position?.latitude ?? -1.2921;  // Default to Nairobi
-        longitude = position?.longitude ?? 36.8219;
-      }
-
       final token = await _authStorage.getToken();
-      final response = await http.get(
-        Uri.parse('$_baseUrl/providers/nearby?serviceType=$serviceType&latitude=$latitude&longitude=$longitude&radius=$radiusKm&limit=$limit'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
+      final url = Uri.parse('$_baseUrl/providers/search/advanced');
+      final headers = {
+        'Content-Type': 'application/json',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      };
+      final body = json.encode({
+        'serviceType': serviceType,
+        'location': {
+          'latitude': latitude ?? -1.2921,
+          'longitude': longitude ?? 36.8219
         },
+        'radius': radiusKm,
+      });
+      print('[Frontend] Sending provider search request:');
+      print('URL: $url');
+      print('Headers: $headers');
+      print('Body: $body');
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
       );
-
+      print('[Frontend] Response status: ${response.statusCode}');
+      print('[Frontend] Response body: ${response.body}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<dynamic> providersJson = data['providers'] ?? [];
-        
-        // Always map to ProviderModel
-        return providersJson.map((json) {
-          final provider = ProviderModel.fromJson(json);
-          // Calculate distance if coordinates are available
-          if (json['location'] != null && json['location']['coordinates'] != null) {
-            final coords = json['location']['coordinates'];
-            if (coords.length >= 2) {
-              final distance = Geolocator.distanceBetween(
-                latitude!,
-                longitude!,
-                coords[1].toDouble(),
-                coords[0].toDouble(),
-              ) / 1000; // Convert to km
-
-              // Add distance info to metadata only
-              provider.metadata['distance'] = distance.toStringAsFixed(1);
-              provider.metadata['distanceKm'] = distance;
-            }
-          }
-          return provider;
-        }).toList();
+        print('[Frontend] Decoded response: $data');
+        if (data is Map<String, dynamic> &&
+            data['data'] != null &&
+            data['data']['providers'] != null) {
+          final providersJson = data['data']['providers'] as List;
+          print('[Frontend] Parsed providers: $providersJson');
+          return providersJson
+              .map((json) =>
+                  ProviderModel.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else {
+          print('[Frontend] No providers found or unexpected response: $data');
+          return [];
+        }
       } else {
-        throw Exception('Failed to fetch nearby providers');
+        print('[Frontend] Failed to fetch providers: ${response.statusCode} - ${response.body}');
+        return [];
       }
     } catch (e) {
-      print('Error getting nearby providers: $e');
+      print('[Frontend] Exception in getNearbyProviders: $e');
       return [];
     }
   }
@@ -129,7 +136,7 @@ class ProximityService {
   }) async {
     try {
       Position? position;
-      
+
       if (latitude == null || longitude == null) {
         position = await _locationService.getCurrentLocation();
         latitude = position?.latitude ?? -1.2921;
@@ -138,10 +145,11 @@ class ProximityService {
 
       final token = await _authStorage.getToken();
       final response = await http.get(
-        Uri.parse('$_baseUrl/providers/count?service=$serviceType&lat=$latitude&lng=$longitude&radius=$radiusKm'),
+        Uri.parse(
+            '$_baseUrl/providers/count?service=$serviceType&lat=$latitude&lng=$longitude&radius=${radiusKm * 1000}'),
         headers: {
           'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
+          if (token != null) 'auth': token,
         },
       );
 
@@ -152,7 +160,7 @@ class ProximityService {
         return 0;
       }
     } catch (e) {
-      print('Error getting provider count: $e');
+      _logger.severe('Error getting provider count: $e');
       return 0;
     }
   }
@@ -174,11 +182,10 @@ class ProximityService {
         }),
       );
     } catch (e) {
-      print('Error updating location: $e');
+      _logger.severe('Error updating location: $e');
     }
   }
 
-  // Get default services (fallback)
   List<ServiceCategoryModel> _getDefaultServices() {
     return [
       ServiceCategoryModel(

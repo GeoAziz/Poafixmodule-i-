@@ -9,10 +9,10 @@ class ProviderReviewsScreen extends StatefulWidget {
   final String providerName;
 
   const ProviderReviewsScreen({
-    Key? key,
+    super.key,
     required this.providerId,
     required this.providerName,
-  }) : super(key: key);
+  });
 
   @override
   _ProviderReviewsScreenState createState() => _ProviderReviewsScreenState();
@@ -34,11 +34,12 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
 
   Future<void> _loadReviews() async {
     setState(() => _isLoading = true);
-    
+
     try {
-      final reviewsData = await _reviewService.getProviderReviews(widget.providerId);
+      final reviewsData =
+          await _reviewService.getProviderReviews(widget.providerId);
       final statsData = await _reviewService.getReviewStats(widget.providerId);
-      
+
       setState(() {
         _reviews = reviewsData.map((data) => Review.fromJson(data)).toList();
         _stats = statsData;
@@ -124,7 +125,7 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
                   children: [
                     // Statistics header
                     _buildStatsHeader(),
-                    
+
                     // Reviews list
                     Expanded(
                       child: _reviews.isEmpty
@@ -132,7 +133,8 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.reviews, size: 64, color: Colors.grey),
+                                  Icon(Icons.reviews,
+                                      size: 64, color: Colors.grey),
                                   SizedBox(height: 16),
                                   Text('No reviews yet'),
                                   Text('Be the first to leave a review!'),
@@ -146,7 +148,8 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
                                 return ReviewCard(
                                   review: _reviews[index],
                                   onLike: () => _likeReview(_reviews[index]),
-                                  onReport: () => _reportReview(_reviews[index]),
+                                  onReport: () =>
+                                      _reportReview(_reviews[index]),
                                 );
                               },
                             ),
@@ -197,14 +200,15 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
                   ],
                 ),
               ),
-              
+
               // Rating breakdown
               Expanded(
                 flex: 2,
                 child: Column(
                   children: [
                     for (int i = 5; i >= 1; i--)
-                      _buildRatingBar(i, breakdown[i.toString()] ?? 0, totalReviews),
+                      _buildRatingBar(
+                          i, breakdown[i.toString()] ?? 0, totalReviews),
                   ],
                 ),
               ),
@@ -217,7 +221,7 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
 
   Widget _buildRatingBar(int stars, int count, int total) {
     final percentage = total > 0 ? count / total : 0.0;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -263,7 +267,7 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
       context: context,
       builder: (context) => ReportDialog(),
     );
-    
+
     if (reason != null) {
       try {
         await _reviewService.reportReview(review.id, reason);
@@ -285,11 +289,11 @@ class ReviewCard extends StatelessWidget {
   final VoidCallback onReport;
 
   const ReviewCard({
-    Key? key,
+    super.key,
     required this.review,
     required this.onLike,
     required this.onReport,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -362,9 +366,9 @@ class ReviewCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Rating stars
             Row(
               children: [
@@ -380,7 +384,8 @@ class ReviewCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 if (review.serviceType.isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.blue[50],
                       borderRadius: BorderRadius.circular(12),
@@ -395,15 +400,15 @@ class ReviewCard extends StatelessWidget {
                   ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Review text
             Text(
               review.review,
               style: const TextStyle(fontSize: 14),
             ),
-            
+
             // Images (if any)
             if (review.images.isNotEmpty) ...[
               const SizedBox(height: 12),
@@ -428,7 +433,7 @@ class ReviewCard extends StatelessWidget {
                 ),
               ),
             ],
-            
+
             // Provider response (if any)
             if (review.providerResponse != null) ...[
               const SizedBox(height: 12),
@@ -448,7 +453,8 @@ class ReviewCard extends StatelessWidget {
                         SizedBox(width: 4),
                         Text(
                           'Provider Response',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       ],
                     ),
@@ -469,24 +475,28 @@ class ReviewCard extends StatelessWidget {
                 ),
               ),
             ],
-            
+
             const SizedBox(height: 12),
-            
+
             // Actions
             Row(
               children: [
                 TextButton.icon(
                   onPressed: onLike,
                   icon: Icon(
-                    review.isLikedByUser ? Icons.thumb_up : Icons.thumb_up_outlined,
+                    review.isLikedByUser
+                        ? Icons.thumb_up
+                        : Icons.thumb_up_outlined,
                     size: 16,
-                    color: review.isLikedByUser ? Colors.blue : Colors.grey[600],
+                    color:
+                        review.isLikedByUser ? Colors.blue : Colors.grey[600],
                   ),
                   label: Text(
                     'Helpful (${review.likes})',
                     style: TextStyle(
                       fontSize: 12,
-                      color: review.isLikedByUser ? Colors.blue : Colors.grey[600],
+                      color:
+                          review.isLikedByUser ? Colors.blue : Colors.grey[600],
                     ),
                   ),
                 ),
@@ -500,6 +510,8 @@ class ReviewCard extends StatelessWidget {
 }
 
 class ReportDialog extends StatefulWidget {
+  const ReportDialog({super.key});
+
   @override
   _ReportDialogState createState() => _ReportDialogState();
 }

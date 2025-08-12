@@ -114,8 +114,3 @@ class ChatRoom {
     return participants.firstWhere((id) => id != currentUserId, orElse: () => '');
   }
 }
-  // Returns the other user's id (for 1:1 chat)
-  String getOtherUserId(String currentUserId) {
-    if (isGroup) return '';
-    return participants.firstWhere((id) => id != currentUserId, orElse: () => '');
-  }

@@ -40,7 +40,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
 
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final serviceProviderId = await _storage.read(key: 'provider_id') ??
           await _storage.read(key: 'userId');
 
@@ -232,7 +232,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _markAsRead(String notificationId) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final serviceProviderId = await _storage.read(key: 'provider_id') ??
           await _storage.read(key: 'userId');
       if (token == null || serviceProviderId == null) return;

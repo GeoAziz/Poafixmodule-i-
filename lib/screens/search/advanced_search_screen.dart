@@ -3,7 +3,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import '../../services/provider_service.dart';
-import '../../services/location_service.dart';
 import '../service_provider_list_screen.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -12,10 +11,10 @@ class AdvancedSearchScreen extends StatefulWidget {
   final LatLng? initialLocation;
 
   const AdvancedSearchScreen({
-    Key? key,
+    super.key,
     this.initialService,
     this.initialLocation,
-  }) : super(key: key);
+  });
 
   @override
   _AdvancedSearchScreenState createState() => _AdvancedSearchScreenState();
@@ -23,7 +22,6 @@ class AdvancedSearchScreen extends StatefulWidget {
 
 class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
   final _searchController = TextEditingController();
-  final _locationService = LocationService();
   
   // Search filters
   String _selectedService = '';
@@ -404,7 +402,7 @@ class SearchResultsScreen extends StatefulWidget {
   final String sortBy;
 
   const SearchResultsScreen({
-    Key? key,
+    super.key,
     required this.searchQuery,
     required this.serviceType,
     required this.location,
@@ -414,7 +412,7 @@ class SearchResultsScreen extends StatefulWidget {
     required this.isAvailableNow,
     required this.isVerified,
     required this.sortBy,
-  }) : super(key: key);
+  });
 
   @override
   _SearchResultsScreenState createState() => _SearchResultsScreenState();
@@ -433,24 +431,23 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
   Future<void> _searchProviders() async {
     setState(() => _isLoading = true);
-    
     try {
-      final providers = await ProviderService.searchProvidersWithFilters(
-        latitude: widget.location.latitude,
-        longitude: widget.location.longitude,
+      final providersResponse = await ProviderService.searchProvidersWithFilters(
         serviceType: widget.serviceType,
-        searchQuery: widget.searchQuery,
-        maxDistance: widget.maxDistance * 1000, // Convert to meters
+        location: {
+          'lat': widget.location.latitude,
+          'lng': widget.location.longitude,
+        },
+        radius: widget.maxDistance,
         minRating: widget.minRating,
-        minPrice: widget.priceRange.start,
         maxPrice: widget.priceRange.end,
-        availableNow: widget.isAvailableNow,
-        verifiedOnly: widget.isVerified,
+        availability: widget.isAvailableNow,
         sortBy: widget.sortBy,
       );
-      
+      // Expecting a response with a 'providers' list
+      final providers = providersResponse['providers'] ?? [];
       setState(() {
-        _providers = providers;
+        _providers = List<Map<String, dynamic>>.from(providers);
         _isLoading = false;
       });
     } catch (e) {
@@ -565,11 +562,11 @@ class ProviderSearchCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const ProviderSearchCard({
-    Key? key,
+    super.key,
     required this.provider,
     required this.searchLocation,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

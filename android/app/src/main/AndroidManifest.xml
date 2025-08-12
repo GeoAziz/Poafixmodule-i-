@@ -6,6 +6,10 @@
         android:label="poafix"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Add your Google Maps API key below -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC40ByyUlGPJN4WJpUUkCo5EVvaX1Mqg2M"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

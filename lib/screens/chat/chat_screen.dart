@@ -19,10 +19,10 @@ class ChatScreen extends StatefulWidget {
   final User currentUser;
 
   const ChatScreen({
-    Key? key,
+    super.key,
     required this.chatRoom,
     required this.currentUser,
-  }) : super(key: key);
+  });
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -35,7 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final ImagePicker _imagePicker = ImagePicker();
-  
+
   List<ChatMessage> _messages = [];
   bool _isLoading = true;
   bool _isSending = false;
@@ -75,9 +75,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
-        _scrollController.position.maxScrollExtent - 200 &&
-        _hasMoreMessages && !_isLoading) {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        _hasMoreMessages &&
+        !_isLoading) {
       _loadMoreMessages();
     }
   }
@@ -89,7 +90,7 @@ class _ChatScreenState extends State<ChatScreen> {
         page: 1,
         limit: 50,
       );
-      
+
       if (mounted) {
         setState(() {
           _messages = messages.reversed.toList();
@@ -120,7 +121,7 @@ class _ChatScreenState extends State<ChatScreen> {
         page: _currentPage + 1,
         limit: 50,
       );
-      
+
       if (mounted) {
         setState(() {
           _messages.addAll(messages.reversed.toList());
@@ -139,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _markMessagesAsRead() async {
     await _chatService.markMessagesAsRead(
       roomId: widget.chatRoom.id,
-      userId: widget.currentUser.id!,
+      userId: widget.currentUser.id,
     );
   }
 
@@ -157,9 +158,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final otherUserName = widget.chatRoom.getOtherUserName(widget.currentUser.id!);
-    final otherUserAvatar = widget.chatRoom.getOtherUserAvatar(widget.currentUser.id!);
-    final otherUserId = widget.chatRoom.getOtherUserId(widget.currentUser.id!);
+    final otherUserName =
+        widget.chatRoom.getOtherUserName(widget.currentUser.id);
+    final otherUserAvatar =
+        widget.chatRoom.getOtherUserAvatar(widget.currentUser.id);
+    final otherUserId = widget.chatRoom.getOtherUserId(widget.currentUser.id);
 
     return Scaffold(
       appBar: AppBar(
@@ -168,10 +171,10 @@ class _ChatScreenState extends State<ChatScreen> {
             CircleAvatar(
               radius: 18,
               backgroundColor: Colors.white,
-              backgroundImage: otherUserAvatar != null 
-                  ? NetworkImage(otherUserAvatar) 
+              backgroundImage: otherUserAvatar != null
+                  ? NetworkImage(otherUserAvatar)
                   : null,
-              child: otherUserAvatar == null 
+              child: otherUserAvatar == null
                   ? Icon(Icons.person, color: Colors.blue[600], size: 20)
                   : null,
             ),
@@ -305,10 +308,12 @@ class _ChatScreenState extends State<ChatScreen> {
         return Column(
           children: [
             if (showTimestamp) _buildTimestamp(message.timestamp),
-            ChatMessageBubble(
-              message: message,
-              isMe: isMe,
+            GestureDetector(
               onLongPress: () => _showMessageOptions(message),
+              child: ChatMessageBubble(
+                message: message,
+                isMe: isMe,
+              ),
             ),
           ],
         );
@@ -318,10 +323,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool _shouldShowTimestamp(int index) {
     if (index == _messages.length - 1) return true;
-    
+
     final current = _messages[index];
     final next = _messages[index + 1];
-    
+
     return current.timestamp.difference(next.timestamp).inMinutes > 30;
   }
 
@@ -362,7 +367,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 filled: true,
                 fillColor: Colors.grey[100],
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _sendTextMessage(),
@@ -373,7 +379,7 @@ class _ChatScreenState extends State<ChatScreen> {
           CircleAvatar(
             backgroundColor: Colors.blue[600],
             child: IconButton(
-              icon: _isSending 
+              icon: _isSending
                   ? SizedBox(
                       width: 20,
                       height: 20,
@@ -464,7 +470,7 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       await _chatService.sendMessage(
         roomId: widget.chatRoom.id,
-        senderId: widget.currentUser.id!,
+        senderId: widget.currentUser.id,
         content: text,
       );
     } catch (e) {
@@ -489,7 +495,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (image != null) {
         await _chatService.sendImageMessage(
           roomId: widget.chatRoom.id,
-          senderId: widget.currentUser.id!,
+          senderId: widget.currentUser.id,
           imageFile: File(image.path),
         );
       }
@@ -503,10 +509,10 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _shareLocation() async {
     try {
       final position = await Geolocator.getCurrentPosition();
-      
+
       await _chatService.sendLocationMessage(
         roomId: widget.chatRoom.id,
-        senderId: widget.currentUser.id!,
+        senderId: widget.currentUser.id,
         latitude: position.latitude,
         longitude: position.longitude,
         address: 'Current Location',
@@ -520,7 +526,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _showMessageOptions(ChatMessage message) {
     final isMe = message.senderId == widget.currentUser.id;
-    
+
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -589,7 +595,8 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Clear Chat'),
-        content: Text('Are you sure you want to clear this chat? This action cannot be undone.'),
+        content: Text(
+            'Are you sure you want to clear this chat? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -608,8 +615,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showBlockUserDialog() {
-    final otherUserName = widget.chatRoom.getOtherUserName(widget.currentUser.id!);
-    
+    final otherUserName =
+        widget.chatRoom.getOtherUserName(widget.currentUser.id);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

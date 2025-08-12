@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../../services/provider_service.dart';
-import '../../models/provider_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class ProviderComparisonScreen extends StatefulWidget {
@@ -9,16 +7,18 @@ class ProviderComparisonScreen extends StatefulWidget {
   final LatLng location;
 
   const ProviderComparisonScreen({
-    Key? key,
+    super.key,
     required this.serviceType,
     required this.location,
-  }) : super(key: key);
+  });
 
   @override
-  _ProviderComparisonScreenState createState() => _ProviderComparisonScreenState();
+  ProviderComparisonScreenState createState() =>
+      ProviderComparisonScreenState();
 }
 
-class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
+// Made the state class public to fix "library_private_types_in_public_api"
+class ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
   List<Map<String, dynamic>> _providers = [];
   bool _isLoading = true;
   String? _error;
@@ -32,16 +32,21 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
 
   Future<void> _loadProviders() async {
     setState(() => _isLoading = true);
-    
+
     try {
-      final providers = await ProviderService.compareProviderPrices(
-        latitude: widget.location.latitude,
-        longitude: widget.location.longitude,
+      // Use correct parameter names: location map
+      final providersResponse = await ProviderService.compareProviderPrices(
         serviceType: widget.serviceType,
+        location: {
+          'lat': widget.location.latitude,
+          'lng': widget.location.longitude,
+        },
       );
-      
+
+      // Expecting a response with a 'providers' list
+      final providers = providersResponse['providers'] ?? [];
       setState(() {
-        _providers = providers;
+        _providers = List<Map<String, dynamic>>.from(providers);
         _isLoading = false;
         _sortProviders();
       });
@@ -56,13 +61,16 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
   void _sortProviders() {
     switch (_sortBy) {
       case 'price':
-        _providers.sort((a, b) => (a['basePrice'] ?? 0).compareTo(b['basePrice'] ?? 0));
+        _providers.sort(
+            (a, b) => (a['basePrice'] ?? 0).compareTo(b['basePrice'] ?? 0));
         break;
       case 'rating':
-        _providers.sort((a, b) => (b['averageRating'] ?? 0).compareTo(a['averageRating'] ?? 0));
+        _providers.sort((a, b) =>
+            (b['averageRating'] ?? 0).compareTo(a['averageRating'] ?? 0));
         break;
       case 'distance':
-        _providers.sort((a, b) => (a['distance'] ?? 0).compareTo(b['distance'] ?? 0));
+        _providers
+            .sort((a, b) => (a['distance'] ?? 0).compareTo(b['distance'] ?? 0));
         break;
     }
   }
@@ -84,8 +92,10 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
             },
             itemBuilder: (context) => [
               const PopupMenuItem(value: 'price', child: Text('Sort by Price')),
-              const PopupMenuItem(value: 'rating', child: Text('Sort by Rating')),
-              const PopupMenuItem(value: 'distance', child: Text('Sort by Distance')),
+              const PopupMenuItem(
+                  value: 'rating', child: Text('Sort by Rating')),
+              const PopupMenuItem(
+                  value: 'distance', child: Text('Sort by Distance')),
             ],
           ),
         ],
@@ -149,21 +159,33 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
             ],
           ),
         ),
-        
+
         // Comparison table header
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: Colors.blue[50],
           child: const Row(
             children: [
-              Expanded(flex: 3, child: Text('Provider', style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 2, child: Text('Price', style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 2, child: Text('Rating', style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 2, child: Text('Distance', style: TextStyle(fontWeight: FontWeight.bold))),
+              Expanded(
+                  flex: 3,
+                  child: Text('Provider',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              Expanded(
+                  flex: 2,
+                  child: Text('Price',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              Expanded(
+                  flex: 2,
+                  child: Text('Rating',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              Expanded(
+                  flex: 2,
+                  child: Text('Distance',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
             ],
           ),
         ),
-        
+
         // Provider comparison list
         Expanded(
           child: ListView.builder(
@@ -172,13 +194,16 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
               final provider = _providers[index];
               final isLowest = _isLowestPrice(provider, index);
               final isHighestRated = _isHighestRated(provider, index);
-              
+
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Card(
                   elevation: isLowest || isHighestRated ? 4 : 1,
-                  color: isLowest ? Colors.green[50] : 
-                         isHighestRated ? Colors.orange[50] : null,
+                  color: isLowest
+                      ? Colors.green[50]
+                      : isHighestRated
+                          ? Colors.orange[50]
+                          : null,
                   child: InkWell(
                     onTap: () => _showProviderDetails(provider),
                     child: Padding(
@@ -195,29 +220,35 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
                                   children: [
                                     Text(
                                       provider['businessName'] ?? 'Unknown',
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
                                     ),
                                     const SizedBox(height: 4),
                                     Row(
                                       children: [
                                         if (provider['isVerified'] ?? false)
-                                          const Icon(Icons.verified, size: 16, color: Colors.blue),
+                                          const Icon(Icons.verified,
+                                              size: 16, color: Colors.blue),
                                         if (provider['isAvailable'] ?? false)
                                           Container(
-                                            margin: const EdgeInsets.only(left: 4),
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            margin:
+                                                const EdgeInsets.only(left: 4),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 6, vertical: 2),
                                             decoration: BoxDecoration(
                                               color: Colors.green[100],
-                                              borderRadius: BorderRadius.circular(10),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
                                             ),
-                                            child: const Text('Available', style: TextStyle(fontSize: 10)),
+                                            child: const Text('Available',
+                                                style: TextStyle(fontSize: 10)),
                                           ),
                                       ],
                                     ),
                                   ],
                                 ),
                               ),
-                              
+
                               // Price
                               Expanded(
                                 flex: 2,
@@ -228,7 +259,8 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
                                       'KES ${provider['basePrice'] ?? 'N/A'}',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: isLowest ? Colors.green[700] : null,
+                                        color:
+                                            isLowest ? Colors.green[700] : null,
                                       ),
                                     ),
                                     if (isLowest)
@@ -243,7 +275,7 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
                                   ],
                                 ),
                               ),
-                              
+
                               // Rating
                               Expanded(
                                 flex: 2,
@@ -252,13 +284,16 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
                                   children: [
                                     Row(
                                       children: [
-                                        const Icon(Icons.star, size: 16, color: Colors.amber),
-                                        Text('${(provider['averageRating'] ?? 0).toStringAsFixed(1)}'),
+                                        const Icon(Icons.star,
+                                            size: 16, color: Colors.amber),
+                                        Text(
+                                            '${(provider['averageRating'] ?? 0).toStringAsFixed(1)}'),
                                       ],
                                     ),
                                     Text(
                                       '(${provider['totalRatings'] ?? 0})',
-                                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                      style: const TextStyle(
+                                          fontSize: 10, color: Colors.grey),
                                     ),
                                     if (isHighestRated)
                                       Text(
@@ -272,7 +307,7 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
                                   ],
                                 ),
                               ),
-                              
+
                               // Distance
                               Expanded(
                                 flex: 2,
@@ -283,16 +318,18 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
                               ),
                             ],
                           ),
-                          
+
                           // Additional info
-                          if (provider['specialOffers'] != null || provider['responseTime'] != null)
+                          if (provider['specialOffers'] != null ||
+                              provider['responseTime'] != null)
                             Padding(
                               padding: const EdgeInsets.only(top: 8),
                               child: Row(
                                 children: [
                                   if (provider['specialOffers'] != null)
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: Colors.red[100],
                                         borderRadius: BorderRadius.circular(10),
@@ -306,7 +343,8 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
                                   if (provider['responseTime'] != null)
                                     Text(
                                       'Avg response: ${provider['responseTime']}',
-                                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                      style: const TextStyle(
+                                          fontSize: 10, color: Colors.grey),
                                     ),
                                 ],
                               ),
@@ -357,7 +395,7 @@ class _ProviderComparisonScreenState extends State<ProviderComparisonScreen> {
 class ProviderDetailModal extends StatelessWidget {
   final Map<String, dynamic> provider;
 
-  const ProviderDetailModal({Key? key, required this.provider}) : super(key: key);
+  const ProviderDetailModal({super.key, required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -380,7 +418,8 @@ class ProviderDetailModal extends StatelessWidget {
                   children: [
                     Text(
                       provider['businessName'] ?? 'Unknown Provider',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     Text(provider['serviceOffered'] ?? ''),
                   ],
@@ -388,27 +427,28 @@ class ProviderDetailModal extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Quick stats
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem('Rating', '${(provider['averageRating'] ?? 0).toStringAsFixed(1)}⭐'),
+              _buildStatItem('Rating',
+                  '${(provider['averageRating'] ?? 0).toStringAsFixed(1)}⭐'),
               _buildStatItem('Price', 'KES ${provider['basePrice'] ?? 'N/A'}'),
-              _buildStatItem('Distance', '${(provider['distance'] / 1000).toStringAsFixed(1)} km'),
+              _buildStatItem('Distance',
+                  '${(provider['distance'] / 1000).toStringAsFixed(1)} km'),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Description
-          if (provider['description'] != null)
-            Text(provider['description']),
-          
+          if (provider['description'] != null) Text(provider['description']),
+
           const SizedBox(height: 16),
-          
+
           // Action buttons
           Row(
             children: [
@@ -441,7 +481,8 @@ class ProviderDetailModal extends StatelessWidget {
   Widget _buildStatItem(String label, String value) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
       ],
     );

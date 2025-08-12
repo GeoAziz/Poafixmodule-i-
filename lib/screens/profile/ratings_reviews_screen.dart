@@ -6,6 +6,8 @@ class RatingsReviewsScreen extends StatelessWidget {
     {"review": "Could be better.", "rating": 3.0},
   ];
 
+  RatingsReviewsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -57,7 +57,7 @@ class _FinancialManagementScreenState extends State<FinancialManagementScreen>
 
   Future<bool> _verifyCredentials() async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final userId =
           await _storage.read(key: 'id'); // Changed from 'userId' to 'id'
       final userType = await _storage.read(key: 'userType');

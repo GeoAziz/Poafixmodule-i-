@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as MaterialText show Text;
 import 'package:geolocator/geolocator.dart';
 import '../../models/user_model.dart';
 import '../../models/service_category_model.dart';
 import '../../services/enhanced_proximity_service.dart';
-import '../../services/location_service.dart';
+import '../booking/enhanced_booking_screen.dart' as booking;
 import '../booking/enhanced_booking_screen.dart';
 import '../../search/xcombo_provider_search_screen.dart';
 
 class ProximityServiceSelectionScreen extends StatefulWidget {
   final User user;
-  
+
   const ProximityServiceSelectionScreen({
-    Key? key,
+    super.key,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
-  _ProximityServiceSelectionScreenState createState() => _ProximityServiceSelectionScreenState();
+  _ProximityServiceSelectionScreenState createState() =>
+      _ProximityServiceSelectionScreenState();
 }
 
-class _ProximityServiceSelectionScreenState extends State<ProximityServiceSelectionScreen> {
+class _ProximityServiceSelectionScreenState
+    extends State<ProximityServiceSelectionScreen> {
   List<ServiceCategoryModel> _serviceCategories = [];
   bool _isLoading = true;
   Position? _currentLocation;
@@ -63,7 +66,8 @@ class _ProximityServiceSelectionScreenState extends State<ProximityServiceSelect
                   child: ListTile(
                     leading: Icon(service.icon, color: service.color),
                     title: Text(service.name),
-                    subtitle: Text('${service.nearbyProviders} providers nearby'),
+                    subtitle:
+                        Text('${service.nearbyProviders} providers nearby'),
                     onTap: () {
                       Navigator.push(
                         context,

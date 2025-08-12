@@ -12,22 +12,23 @@ class ComprehensiveRatingScreen extends StatefulWidget {
   final String? serviceType;
 
   const ComprehensiveRatingScreen({
-    Key? key,
+    super.key,
     required this.bookingId,
     required this.providerId,
     this.providerName,
     this.serviceType,
-  }) : super(key: key);
+  });
 
   @override
-  _ComprehensiveRatingScreenState createState() => _ComprehensiveRatingScreenState();
+  _ComprehensiveRatingScreenState createState() =>
+      _ComprehensiveRatingScreenState();
 }
 
 class _ComprehensiveRatingScreenState extends State<ComprehensiveRatingScreen> {
   double _overallRating = 0.0;
   String _reviewText = '';
   bool _isSubmitting = false;
-  List<File> _images = [];
+  final List<File> _images = [];
   final ImagePicker _picker = ImagePicker();
 
   // Category ratings for detailed feedback
@@ -68,34 +69,34 @@ class _ComprehensiveRatingScreenState extends State<ComprehensiveRatingScreen> {
           children: [
             // Service summary
             _buildServiceSummary(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Overall rating
             _buildOverallRating(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Category ratings
             _buildCategoryRatings(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Quick feedback
             _buildQuickFeedback(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Written review
             _buildWrittenReview(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Photo upload
             _buildPhotoUpload(),
-            
+
             const SizedBox(height: 32),
-            
+
             // Submit button
             _buildSubmitButton(),
           ],
@@ -164,7 +165,8 @@ class _ComprehensiveRatingScreenState extends State<ComprehensiveRatingScreen> {
                   const SizedBox(height: 8),
                   Text(
                     _getRatingDescription(_overallRating),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -188,32 +190,33 @@ class _ComprehensiveRatingScreenState extends State<ComprehensiveRatingScreen> {
             ),
             const SizedBox(height: 16),
             ..._categoryRatings.keys.map((category) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(category, style: const TextStyle(fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 4),
-                  RatingBar.builder(
-                    initialRating: _categoryRatings[category]!,
-                    minRating: 0,
-                    direction: Axis.horizontal,
-                    allowHalfRating: true,
-                    itemCount: 5,
-                    itemSize: 20,
-                    itemBuilder: (context, _) => const Icon(
-                      Icons.star,
-                      color: Colors.amber,
-                    ),
-                    onRatingUpdate: (rating) {
-                      setState(() {
-                        _categoryRatings[category] = rating;
-                      });
-                    },
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(category,
+                          style: const TextStyle(fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 4),
+                      RatingBar.builder(
+                        initialRating: _categoryRatings[category]!,
+                        minRating: 0,
+                        direction: Axis.horizontal,
+                        allowHalfRating: true,
+                        itemCount: 5,
+                        itemSize: 20,
+                        itemBuilder: (context, _) => const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                        ),
+                        onRatingUpdate: (rating) {
+                          setState(() {
+                            _categoryRatings[category] = rating;
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )).toList(),
+                )),
           ],
         ),
       ),
@@ -235,17 +238,19 @@ class _ComprehensiveRatingScreenState extends State<ComprehensiveRatingScreen> {
             Wrap(
               spacing: 8.0,
               runSpacing: 8.0,
-              children: _quickFeedback.keys.map((feedback) => FilterChip(
-                label: Text(feedback),
-                selected: _quickFeedback[feedback]!,
-                onSelected: (selected) {
-                  setState(() {
-                    _quickFeedback[feedback] = selected;
-                  });
-                },
-                selectedColor: Colors.blue[100],
-                checkmarkColor: Colors.blue[700],
-              )).toList(),
+              children: _quickFeedback.keys
+                  .map((feedback) => FilterChip(
+                        label: Text(feedback),
+                        selected: _quickFeedback[feedback]!,
+                        onSelected: (selected) {
+                          setState(() {
+                            _quickFeedback[feedback] = selected;
+                          });
+                        },
+                        selectedColor: Colors.blue[100],
+                        checkmarkColor: Colors.blue[700],
+                      ))
+                  .toList(),
             ),
           ],
         ),
@@ -346,7 +351,8 @@ class _ComprehensiveRatingScreenState extends State<ComprehensiveRatingScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.add_a_photo, color: Colors.grey),
-              Text('Add Photo', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              Text('Add Photo',
+                  style: TextStyle(color: Colors.grey, fontSize: 12)),
             ],
           ),
         ),
@@ -399,7 +405,9 @@ class _ComprehensiveRatingScreenState extends State<ComprehensiveRatingScreen> {
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
-        onPressed: _overallRating > 0 && !_isSubmitting ? _submitRatingAndReview : null,
+        onPressed: _overallRating > 0 && !_isSubmitting
+            ? _submitRatingAndReview
+            : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue[600],
           foregroundColor: Colors.white,
@@ -474,7 +482,7 @@ class _ComprehensiveRatingScreenState extends State<ComprehensiveRatingScreen> {
           providerId: widget.providerId,
           bookingId: widget.bookingId,
           rating: _overallRating,
-          review: _reviewText,
+          reviewText: _reviewText,
         );
       }
 

@@ -48,7 +48,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
     try {
       // Get credentials using the same keys used in login
       final userId = await _storage.read(key: 'userId');
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final userType = await _storage.read(key: 'userType');
 
       print('Loading credentials from storage:');

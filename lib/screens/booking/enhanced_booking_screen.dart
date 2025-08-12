@@ -1,3 +1,4 @@
+import '../../widgets/provider_map_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/user_model.dart';
@@ -12,116 +13,81 @@ class EnhancedBookingScreen extends StatefulWidget {
   final Position? userLocation;
 
   const EnhancedBookingScreen({
-    Key? key,
+    super.key,
     required this.user,
     required this.selectedService,
     this.userLocation,
-  }) : super(key: key);
+  });
 
   @override
-  _EnhancedBookingScreenState createState() => _EnhancedBookingScreenState();
+  State<EnhancedBookingScreen> createState() => _EnhancedBookingScreenState();
 }
 
 class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    print('[UI] Entered EnhancedBookingScreen for service: '
+        '${widget.selectedService.name} (id: ${widget.selectedService.id})');
+    loadNearbyProviders();
+  }
+
   final PageController _pageController = PageController();
   final ProximityService _proximityService = ProximityService();
   final BookingService _bookingService = BookingService();
-  
-  int _currentStep = 0;
-  bool _isLoading = false;
-  
-  // Booking data
-  String? _selectedSubService;
+
+  final int _currentStep = 0;
+  final List<String> _stepTitles = [
+    'Service',
+    'Provider',
+    'Schedule',
+    'Location',
+    'Confirm'
+  ];
+  final List<ProviderModel> _nearbyProviders = [];
   ProviderModel? _selectedProvider;
+  String? _selectedSubService;
+  bool _isLoading = false;
+  bool _isUrgent = false;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   String _location = '';
   String _notes = '';
-  double _estimatedPrice = 0;
-  bool _isUrgent = false;
-  List<ProviderModel> _nearbyProviders = [];
-
-  final List<String> _stepTitles = [
-    'Service Details',
-    'Choose Provider',
-    'Schedule',
-    'Location & Details',
-    'Confirmation',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _estimatedPrice = widget.selectedService.basePrice;
-    _loadNearbyProviders();
-  }
-
-  Future<void> _loadNearbyProviders() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final providers = await _proximityService.getNearbyProviders(
-        serviceType: widget.selectedService.id,
-        latitude: widget.userLocation?.latitude,
-        longitude: widget.userLocation?.longitude,
-      );
-
-      setState(() {
-        _nearbyProviders = providers;
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('Error loading providers: $e');
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Book ${widget.selectedService.name}'),
-        backgroundColor: widget.selectedService.color,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
       body: Column(
         children: [
-          // Progress Indicator
-          _buildProgressIndicator(),
-          
-          // Content
+          buildProgressIndicator(),
           Expanded(
             child: PageView(
               controller: _pageController,
-              onPageChanged: (index) => setState(() => _currentStep = index),
+              physics: NeverScrollableScrollPhysics(),
               children: [
-                _buildServiceDetailsStep(),
-                _buildProviderSelectionStep(),
-                _buildScheduleStep(),
-                _buildLocationStep(),
-                _buildConfirmationStep(),
+                buildServiceDetailsStep(),
+                buildProviderSelectionStep(),
+                buildScheduleStep(),
+                buildLocationStep(),
+                buildConfirmationStep(),
               ],
             ),
           ),
-          
-          // Bottom Navigation
-          _buildBottomNavigation(),
         ],
       ),
+      bottomNavigationBar: buildBottomNavigation(),
     );
   }
 
-  Widget _buildProgressIndicator() {
+  Widget buildProgressIndicator() {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [widget.selectedService.color, widget.selectedService.color.withOpacity(0.8)],
+          colors: [
+            widget.selectedService.color,
+            widget.selectedService.color.withAlpha((0.8 * 255).round())
+          ],
         ),
       ),
       child: Column(
@@ -133,9 +99,9 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                   height: 4,
                   margin: EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
-                    color: index <= _currentStep 
-                        ? Colors.white 
-                        : Colors.white.withOpacity(0.3),
+                    color: index <= _currentStep
+                        ? Colors.white
+                        : Colors.white.withAlpha((0.3 * 255).round()),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -149,14 +115,14 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               return Expanded(
                 child: Text(
                   _stepTitles[index],
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 11,
-                    fontWeight: index == _currentStep 
-                        ? FontWeight.bold 
+                    fontWeight: index == _currentStep
+                        ? FontWeight.bold
                         : FontWeight.normal,
                   ),
-                  textAlign: TextAlign.center,
                 ),
               );
             }),
@@ -166,7 +132,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     );
   }
 
-  Widget _buildServiceDetailsStep() {
+  Widget buildServiceDetailsStep() {
     return Padding(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -176,20 +142,24 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
           Container(
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: widget.selectedService.color.withOpacity(0.1),
+              color:
+                  widget.selectedService.color.withAlpha((0.1 * 255).round()),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: widget.selectedService.color.withOpacity(0.2)),
+              border: Border.all(
+                  color: widget.selectedService.color
+                      .withAlpha((0.2 * 255).round())),
             ),
             child: Row(
               children: [
                 Container(
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: widget.selectedService.color.withOpacity(0.2),
+                    color: widget.selectedService.color
+                        .withAlpha((0.2 * 255).round()),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    widget.selectedService.icon, 
+                    widget.selectedService.icon,
                     color: widget.selectedService.color,
                     size: 30,
                   ),
@@ -217,7 +187,8 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                       SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.location_on, size: 16, color: widget.selectedService.color),
+                          Icon(Icons.location_on,
+                              size: 16, color: widget.selectedService.color),
                           SizedBox(width: 4),
                           Text(
                             '${widget.selectedService.nearbyProviders} providers nearby',
@@ -235,9 +206,9 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               ],
             ),
           ),
-          
+
           SizedBox(height: 24),
-          
+
           Text(
             'Select specific service type:',
             style: TextStyle(
@@ -246,51 +217,57 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               color: Colors.grey[800],
             ),
           ),
-          
+
           SizedBox(height: 16),
-          
+
           Expanded(
             child: ListView.builder(
               itemCount: widget.selectedService.subServices.length,
               itemBuilder: (context, index) {
                 final service = widget.selectedService.subServices[index];
                 final isSelected = _selectedSubService == service;
-                
+
                 return Container(
                   margin: EdgeInsets.only(bottom: 12),
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
-                      onTap: () => setState(() => _selectedSubService = service),
+                      onTap: () =>
+                          setState(() => _selectedSubService = service),
                       child: Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: isSelected 
-                              ? widget.selectedService.color.withOpacity(0.1)
+                          color: isSelected
+                              ? widget.selectedService.color
+                                  .withAlpha((0.1 * 255).round())
                               : Colors.white,
                           border: Border.all(
-                            color: isSelected 
+                            color: isSelected
                                 ? widget.selectedService.color
                                 : Colors.grey[300]!,
                             width: isSelected ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(12),
-                          boxShadow: isSelected ? [
-                            BoxShadow(
-                              color: widget.selectedService.color.withOpacity(0.1),
-                              spreadRadius: 1,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ] : [],
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: widget.selectedService.color
+                                        .withAlpha((0.1 * 255).round()),
+                                    spreadRadius: 1,
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ]
+                              : [],
                         ),
                         child: Row(
                           children: [
                             Radio<String>(
                               value: service,
                               groupValue: _selectedSubService,
-                              onChanged: (value) => setState(() => _selectedSubService = value),
+                              onChanged: (value) =>
+                                  setState(() => _selectedSubService = value),
                               activeColor: widget.selectedService.color,
                             ),
                             Expanded(
@@ -298,10 +275,10 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                                 service,
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontWeight: isSelected 
-                                      ? FontWeight.bold 
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
                                       : FontWeight.normal,
-                                  color: isSelected 
+                                  color: isSelected
                                       ? widget.selectedService.color
                                       : Colors.grey[700],
                                 ),
@@ -327,93 +304,104 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     );
   }
 
-  Widget _buildProviderSelectionStep() {
-    if (_isLoading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: widget.selectedService.color),
-            SizedBox(height: 16),
-            Text('Finding nearby providers...'),
-          ],
+  Widget buildProviderSelectionStep() {
+    final userLat = widget.userLocation?.latitude ?? -1.2921;
+    final userLng = widget.userLocation?.longitude ?? 36.8219;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Map always visible
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          child: ProviderMapWidget(
+            providers: _nearbyProviders.map((p) => p.toJson()).toList(),
+            initialLat: userLat,
+            initialLng: userLng,
+            onMarkerTap: (idx) {
+              setState(() {
+                _selectedProvider = _nearbyProviders[idx];
+              });
+            },
+          ),
         ),
-      );
-    }
-
-    if (_nearbyProviders.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.person_search, size: 64, color: Colors.grey[400]),
-            SizedBox(height: 16),
-            Text(
-              'No providers found nearby',
-              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+        if (_isLoading)
+          Center(
+            child: Column(
+              children: [
+                CircularProgressIndicator(color: widget.selectedService.color),
+                SizedBox(height: 16),
+                Text('Finding nearby providers...'),
+              ],
             ),
-            SizedBox(height: 8),
-            Text(
-              'We\'ll search for providers in a wider area',
-              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadNearbyProviders,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: widget.selectedService.color,
-              ),
-              child: Text('Search Again'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Padding(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Choose your provider',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
+          )
+        else if (_nearbyProviders.isEmpty)
+          Center(
+            child: Column(
+              children: [
+                Icon(Icons.person_search, size: 64, color: Colors.grey[400]),
+                SizedBox(height: 16),
+                Text('No providers found nearby',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+                SizedBox(height: 8),
+                Text('We\'ll search for providers in a wider area',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[500])),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: loadNearbyProviders,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: widget.selectedService.color,
+                  ),
+                  child: Text('Search Again'),
                 ),
-              ),
-              Spacer(),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.green[100],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${_nearbyProviders.length} available',
+              ],
+            ),
+          )
+        else ...[
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+            child: Row(
+              children: [
+                Text(
+                  'Choose your provider',
                   style: TextStyle(
-                    color: Colors.green[700],
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                    color: Colors.grey[800],
                   ),
                 ),
-              ),
-            ],
+                Spacer(),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.green[100],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${_nearbyProviders.length} available',
+                    style: TextStyle(
+                      color: Colors.green[700],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          
           SizedBox(height: 20),
-          
-          Expanded(
+          Container(
+            height:
+                320, // Set a fixed height or use MediaQuery for dynamic sizing
             child: ListView.builder(
               itemCount: _nearbyProviders.length,
               itemBuilder: (context, index) {
                 final provider = _nearbyProviders[index];
                 final isSelected = _selectedProvider?.id == provider.id;
-                final distance = provider.metadata['distance'] ?? 'N/A';
-                
+                // Show distance as N/A if null or missing, else show rounded to 2 decimals
+                final distance = (provider.distance != null)
+                    ? provider.distance!.toStringAsFixed(2)
+                    : 'N/A';
                 return Container(
                   margin: EdgeInsets.only(bottom: 16),
                   child: Material(
@@ -425,7 +413,8 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? widget.selectedService.color.withOpacity(0.1)
+                              ? widget.selectedService.color
+                                  .withAlpha((0.1 * 255).round())
                               : Colors.white,
                           border: Border.all(
                             color: isSelected
@@ -449,23 +438,24 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                             CircleAvatar(
                               radius: 30,
                               backgroundColor: widget.selectedService.color,
-                              backgroundImage: provider.profileImage != null && provider.profileImage!.isNotEmpty
+                              backgroundImage: provider.profileImage != null &&
+                                      provider.profileImage!.isNotEmpty
                                   ? NetworkImage(provider.profileImage!)
                                   : null,
-                              child: provider.profileImage == null || provider.profileImage!.isEmpty
+                              child: (provider.profileImage == null ||
+                                      provider.profileImage!.isEmpty)
                                   ? Text(
-                                      provider.name[0].toUpperCase(),
+                                      widget.selectedService.name
+                                          .substring(0, 1),
                                       style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
                                         fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey[800],
                                       ),
                                     )
                                   : null,
                             ),
-                            
                             SizedBox(width: 16),
-                            
                             // Provider Info
                             Expanded(
                               child: Column(
@@ -485,15 +475,19 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                                       ),
                                       if (provider.isVerified)
                                         Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
                                             color: Colors.blue[100],
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(Icons.verified, size: 12, color: Colors.blue[700]),
+                                              Icon(Icons.verified,
+                                                  size: 12,
+                                                  color: Colors.blue[700]),
                                               SizedBox(width: 2),
                                               Text(
                                                 'Verified',
@@ -508,13 +502,12 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                                         ),
                                     ],
                                   ),
-                                  
                                   SizedBox(height: 4),
-                                  
                                   // Rating and Distance
                                   Row(
                                     children: [
-                                      Icon(Icons.star, color: Colors.orange, size: 16),
+                                      Icon(Icons.star,
+                                          color: Colors.orange, size: 16),
                                       SizedBox(width: 4),
                                       Text(
                                         '${provider.rating} (${provider.totalRatings} reviews)',
@@ -524,10 +517,13 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                                         ),
                                       ),
                                       SizedBox(width: 12),
-                                      Icon(Icons.location_on, color: Colors.grey[600], size: 16),
+                                      Icon(Icons.location_on,
+                                          color: Colors.grey[600], size: 16),
                                       SizedBox(width: 4),
                                       Text(
-                                        '${distance} km away',
+                                        distance == 'N/A'
+                                            ? 'Distance N/A'
+                                            : '$distance km away',
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey[600],
@@ -535,9 +531,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                                       ),
                                     ],
                                   ),
-                                  
                                   SizedBox(height: 4),
-                                  
                                   // Experience and Rate
                                   Row(
                                     children: [
@@ -562,12 +556,12 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                                 ],
                               ),
                             ),
-                            
                             // Selection Indicator
                             Radio<String>(
                               value: provider.id,
                               groupValue: _selectedProvider?.id,
-                              onChanged: (value) => setState(() => _selectedProvider = provider),
+                              onChanged: (value) =>
+                                  setState(() => _selectedProvider = provider),
                               activeColor: widget.selectedService.color,
                             ),
                           ],
@@ -580,11 +574,11 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
             ),
           ),
         ],
-      ),
+      ],
     );
   }
 
-  Widget _buildScheduleStep() {
+  Widget buildScheduleStep() {
     return Padding(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -598,9 +592,9 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               color: Colors.grey[800],
             ),
           ),
-          
+
           SizedBox(height: 20),
-          
+
           // Urgent Service Toggle
           Container(
             padding: EdgeInsets.all(16),
@@ -647,52 +641,58 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               ],
             ),
           ),
-          
+
           SizedBox(height: 20),
-          
+
           if (!_isUrgent) ...[
             // Date Selection
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: ListTile(
                 leading: Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: widget.selectedService.color.withOpacity(0.1),
+                    color: widget.selectedService.color
+                        .withAlpha((0.1 * 255).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.calendar_today, color: widget.selectedService.color),
+                  child: Icon(Icons.calendar_today,
+                      color: widget.selectedService.color),
                 ),
                 title: Text('Select Date'),
-                subtitle: Text(_selectedDate != null 
+                subtitle: Text(_selectedDate != null
                     ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
                     : 'Choose a date'),
-                onTap: _selectDate,
+                onTap: selectDate,
                 trailing: Icon(Icons.arrow_forward_ios, size: 16),
               ),
             ),
-            
+
             SizedBox(height: 16),
-            
+
             // Time Selection
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: ListTile(
                 leading: Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: widget.selectedService.color.withOpacity(0.1),
+                    color: widget.selectedService.color
+                        .withAlpha((0.1 * 255).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.access_time, color: widget.selectedService.color),
+                  child: Icon(Icons.access_time,
+                      color: widget.selectedService.color),
                 ),
                 title: Text('Select Time'),
-                subtitle: Text(_selectedTime != null 
+                subtitle: Text(_selectedTime != null
                     ? '${_selectedTime!.hour}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
                     : 'Choose a time'),
-                onTap: _selectTime,
+                onTap: selectTime,
                 trailing: Icon(Icons.arrow_forward_ios, size: 16),
               ),
             ),
@@ -724,14 +724,14 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                   ),
                 ],
               ),
-            ),
-          ],
+            )
+          ]
         ],
       ),
     );
   }
 
-  Widget _buildLocationStep() {
+  Widget buildLocationStep() {
     return Padding(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -745,56 +745,63 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               color: Colors.grey[800],
             ),
           ),
-          
+
           SizedBox(height: 20),
-          
+
           // Location Input
           TextField(
             decoration: InputDecoration(
               labelText: 'Service Address',
               hintText: 'Enter your address or location',
-              prefixIcon: Icon(Icons.location_on, color: widget.selectedService.color),
+              prefixIcon:
+                  Icon(Icons.location_on, color: widget.selectedService.color),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: widget.selectedService.color, width: 2),
+                borderSide:
+                    BorderSide(color: widget.selectedService.color, width: 2),
               ),
             ),
             onChanged: (value) => setState(() => _location = value),
             maxLines: 2,
           ),
-          
+
           SizedBox(height: 20),
-          
+
           // Additional Notes
           TextField(
             decoration: InputDecoration(
               labelText: 'Additional Notes (Optional)',
-              hintText: 'Any specific requirements, instructions, or details...',
+              hintText:
+                  'Any specific requirements, instructions, or details...',
               prefixIcon: Icon(Icons.note, color: widget.selectedService.color),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: widget.selectedService.color, width: 2),
+                borderSide:
+                    BorderSide(color: widget.selectedService.color, width: 2),
               ),
             ),
             onChanged: (value) => setState(() => _notes = value),
             maxLines: 4,
           ),
-          
+
           SizedBox(height: 24),
-          
+
           // Price Estimation
           Container(
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: widget.selectedService.color.withOpacity(0.1),
+              color:
+                  widget.selectedService.color.withAlpha((0.1 * 255).round()),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: widget.selectedService.color.withOpacity(0.2)),
+              border: Border.all(
+                  color: widget.selectedService.color
+                      .withAlpha((0.2 * 255).round())),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -857,7 +864,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     );
   }
 
-  Widget _buildConfirmationStep() {
+  Widget buildConfirmationStep() {
     return Padding(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -871,41 +878,24 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               color: Colors.grey[800],
             ),
           ),
-          
           SizedBox(height: 20),
-          
           Expanded(
             child: SingleChildScrollView(
               child: Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
                 child: Padding(
                   padding: EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Service Details
-                      _buildConfirmationSection(
+                      buildConfirmationSection(
                         'Service',
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.selectedService.name,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            if (_selectedSubService != null)
-                              Text(
-                                _selectedSubService!,
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                          ],
-                        ),
+                        Text(widget.selectedService.name),
                       ),
-                      
-                      // Provider Details
                       if (_selectedProvider != null)
-                        _buildConfirmationSection(
+                        buildConfirmationSection(
                           'Provider',
                           Row(
                             children: [
@@ -924,18 +914,21 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                                   children: [
                                     Text(
                                       _selectedProvider!.name,
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
                                     ),
                                     Row(
                                       children: [
-                                        Icon(Icons.star, size: 14, color: Colors.orange),
+                                        Icon(Icons.star,
+                                            size: 14, color: Colors.orange),
                                         Text(
                                           ' ${_selectedProvider!.rating}',
                                           style: TextStyle(fontSize: 12),
                                         ),
                                         if (_selectedProvider!.isVerified) ...[
                                           SizedBox(width: 8),
-                                          Icon(Icons.verified, size: 14, color: Colors.blue),
+                                          Icon(Icons.verified,
+                                              size: 14, color: Colors.blue),
                                           Text(
                                             ' Verified',
                                             style: TextStyle(fontSize: 12),
@@ -949,16 +942,15 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                             ],
                           ),
                         ),
-                      
-                      // Schedule
-                      _buildConfirmationSection(
+                      buildConfirmationSection(
                         'Schedule',
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (_isUrgent) ...[
+                            if (_isUrgent)
                               Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: Colors.red[100],
                                   borderRadius: BorderRadius.circular(8),
@@ -966,7 +958,8 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.emergency, size: 16, color: Colors.red[700]),
+                                    Icon(Icons.emergency,
+                                        size: 16, color: Colors.red[700]),
                                     SizedBox(width: 4),
                                     Text(
                                       'URGENT - Within 2 hours',
@@ -978,8 +971,8 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                                     ),
                                   ],
                                 ),
-                              ),
-                            ] else ...[
+                              )
+                            else ...[
                               if (_selectedDate != null)
                                 Text(
                                   '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
@@ -994,24 +987,17 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                           ],
                         ),
                       ),
-                      
-                      // Location
                       if (_location.isNotEmpty)
-                        _buildConfirmationSection(
+                        buildConfirmationSection(
                           'Location',
                           Text(_location),
                         ),
-                      
-                      // Notes
                       if (_notes.isNotEmpty)
-                        _buildConfirmationSection(
+                        buildConfirmationSection(
                           'Notes',
                           Text(_notes),
                         ),
-                      
                       Divider(),
-                      
-                      // Total Cost
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -1038,14 +1024,11 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               ),
             ),
           ),
-          
           SizedBox(height: 20),
-          
-          // Confirm Button
-          Container(
+          SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _confirmBooking,
+              onPressed: confirmBooking,
               style: ElevatedButton.styleFrom(
                 backgroundColor: widget.selectedService.color,
                 foregroundColor: Colors.white,
@@ -1076,7 +1059,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     );
   }
 
-  Widget _buildConfirmationSection(String title, Widget content) {
+  Widget buildConfirmationSection(String title, Widget content) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 12),
       child: Column(
@@ -1097,7 +1080,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     );
   }
 
-  Widget _buildBottomNavigation() {
+  Widget buildBottomNavigation() {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1116,7 +1099,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
           if (_currentStep > 0)
             Expanded(
               child: OutlinedButton(
-                onPressed: _previousStep,
+                onPressed: previousStep,
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -1130,12 +1113,10 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                 ),
               ),
             ),
-          
           if (_currentStep > 0) SizedBox(width: 16),
-          
           Expanded(
             child: ElevatedButton(
-              onPressed: _canProceed() ? _nextStep : null,
+              onPressed: canProceed() ? nextStep : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: widget.selectedService.color,
                 foregroundColor: Colors.white,
@@ -1146,7 +1127,9 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
                 elevation: 0,
               ),
               child: Text(
-                _currentStep == _stepTitles.length - 1 ? 'Confirm Booking' : 'Next',
+                _currentStep == _stepTitles.length - 1
+                    ? 'Confirm Booking'
+                    : 'Next',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -1159,7 +1142,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     );
   }
 
-  bool _canProceed() {
+  bool canProceed() {
     switch (_currentStep) {
       case 0:
         return _selectedSubService != null;
@@ -1176,18 +1159,18 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     }
   }
 
-  void _nextStep() {
+  void nextStep() {
     if (_currentStep < _stepTitles.length - 1) {
       _pageController.nextPage(
         duration: Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
-      _confirmBooking();
+      confirmBooking();
     }
   }
 
-  void _previousStep() {
+  void previousStep() {
     if (_currentStep > 0) {
       _pageController.previousPage(
         duration: Duration(milliseconds: 300),
@@ -1196,7 +1179,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     }
   }
 
-  Future<void> _selectDate() async {
+  Future<void> selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now().add(Duration(days: 1)),
@@ -1218,7 +1201,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     }
   }
 
-  Future<void> _selectTime() async {
+  Future<void> selectTime() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -1238,39 +1221,98 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
     }
   }
 
-  Future<void> _confirmBooking() async {
+  // Replace withOpacity with withValues to fix deprecation warnings
+  Color getColorWithOpacity(Color color, double opacity) {
+    return color.withValues(
+      alpha: (opacity * 255).round().toDouble(),
+      red: color.red.toDouble(),
+      green: color.green.toDouble(),
+      blue: color.blue.toDouble(),
+    );
+  }
+
+  Future<void> loadNearbyProviders() async {
+    setState(() {
+      _isLoading = true;
+      _nearbyProviders.clear();
+      _selectedProvider = null;
+    });
+
+    try {
+      final providers = await _proximityService.getNearbyProviders(
+        serviceType: widget.selectedService.id,
+        latitude: widget.userLocation?.latitude,
+        longitude: widget.userLocation?.longitude,
+      );
+      print('[UI] Providers loaded: count = [32m${providers.length}[0m');
+      if (!mounted) return;
+      setState(() {
+        _nearbyProviders.addAll(providers);
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      print('[UI] Error loading providers: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load providers. Please try again.')),
+      );
+    }
+  }
+
+  Future<void> confirmBooking() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Create booking data
       final bookingData = {
         'serviceType': widget.selectedService.id,
+        'serviceName': widget.selectedService.name,
         'subService': _selectedSubService,
         'providerId': _selectedProvider?.id,
-        'scheduledDate': _isUrgent ? null : _selectedDate?.toIso8601String(),
-        'scheduledTime': _isUrgent ? null : _selectedTime?.format(context),
-        'location': _location,
+        'provider': _selectedProvider?.id,
+        'clientId': widget.user.id,
+        'client': widget.user.id,
+        'schedule': {
+          'date': _selectedDate?.toIso8601String(),
+          'time': _selectedTime?.format(context),
+        },
+        'scheduledDate': _selectedDate?.toIso8601String(),
+        'scheduledTime': _selectedTime?.format(context),
+        'location': {
+          'type': 'Point',
+          'coordinates': [
+            widget.userLocation?.longitude ?? 0.0,
+            widget.userLocation?.latitude ?? 0.0,
+          ],
+          'address': _location,
+        },
         'notes': _notes,
         'isUrgent': _isUrgent,
-        'estimatedPrice': _isUrgent ? widget.selectedService.basePrice * 1.2 : widget.selectedService.basePrice,
+        'estimatedPrice': _isUrgent
+            ? widget.selectedService.basePrice * 1.2
+            : widget.selectedService.basePrice,
         'status': 'pending',
+        'services': [], // Add your actual list if available
       };
 
-      // Create booking via API
-      final booking = await _bookingService.createBooking(bookingData);
+      await _bookingService.createBooking(bookingData);
 
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
 
-      // Show success dialog
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1297,7 +1339,7 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               ),
               SizedBox(height: 8),
               Text(
-                _isUrgent 
+                _isUrgent
                     ? 'Your urgent booking has been submitted. A provider will contact you within 30 minutes.'
                     : 'Your booking has been confirmed. The provider will contact you shortly to confirm the schedule.',
                 textAlign: TextAlign.center,
@@ -1310,7 +1352,8 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
-                Navigator.pushReplacementNamed(context, '/bookings', arguments: widget.user);
+                Navigator.pushReplacementNamed(context, '/bookings',
+                    arguments: widget.user);
               },
               style: TextButton.styleFrom(
                 backgroundColor: widget.selectedService.color,
@@ -1326,11 +1369,11 @@ class _EnhancedBookingScreenState extends State<EnhancedBookingScreen> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
 
-      // Show error dialog
       showDialog(
         context: context,
         builder: (context) => AlertDialog(

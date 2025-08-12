@@ -3,6 +3,7 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'websocket_service.dart';
 import '../screens/call/incoming_call_screen.dart';
 import '../screens/call/video_call_screen.dart';
@@ -25,20 +26,11 @@ class IncomingCallData {
   });
 }
 
-enum CallState {
-  idle,
-  calling,
-  ringing,
-  connected,
-  busy,
-  declined,
-  disconnected,
-  error,
-  remoteUserJoined,
-  remoteUserLeft,
-}
+// Removed duplicate CallState enum. Only the complete CallState enum below is used.
 
 class EnhancedCallService {
+  // Store the latest incoming call data for public methods
+  IncomingCallData? _incomingCallData;
   static final EnhancedCallService _instance = EnhancedCallService._internal();
   factory EnhancedCallService() => _instance;
   EnhancedCallService._internal();
@@ -46,7 +38,7 @@ class EnhancedCallService {
   RtcEngine? _engine;
   final WebSocketService _webSocketService = WebSocketService();
   BuildContext? _context;
-  
+
   // Call state
   bool _isCallActive = false;
   bool _isIncomingCall = false;
@@ -54,18 +46,20 @@ class EnhancedCallService {
   String? _currentCallerId;
   String? _currentCallerName;
   bool _isVideoCall = false;
-  
+
   // Audio/Video state
   bool _isMuted = false;
   bool _isVideoEnabled = true;
   bool _isSpeakerEnabled = false;
-  
+
   // Streams
   final _callStateController = StreamController<CallState>.broadcast();
-  final _incomingCallController = StreamController<IncomingCallData>.broadcast();
-  
+  final _incomingCallController =
+      StreamController<IncomingCallData>.broadcast();
+
   Stream<CallState> get callStateStream => _callStateController.stream;
-  Stream<IncomingCallData> get incomingCallStream => _incomingCallController.stream;
+  Stream<IncomingCallData> get incomingCallStream =>
+      _incomingCallController.stream;
 
   // Agora App ID - Replace with your actual Agora App ID
   static const String agoraAppId = "YOUR_AGORA_APP_ID";
@@ -94,13 +88,14 @@ class EnhancedCallService {
             print('Remote user joined: $remoteUid');
             _callStateController.add(CallState.remoteUserJoined);
           },
-          onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
+          onUserOffline: (RtcConnection connection, int remoteUid,
+              UserOfflineReasonType reason) {
             print('Remote user left: $remoteUid');
             _callStateController.add(CallState.remoteUserLeft);
           },
           onLeaveChannel: (RtcConnection connection, RtcStats stats) {
             print('Left channel');
-            _callStateController.add(CallState.disconnected);
+            _callStateController.add(CallState.ended);
           },
           onError: (ErrorCodeType err, String msg) {
             print('Agora error: $err - $msg');
@@ -162,7 +157,7 @@ class EnhancedCallService {
       }
 
       final channelId = 'call_${DateTime.now().millisecondsSinceEpoch}';
-      
+
       // Emit call initiation
       _webSocketService.emit('initiate_call', {
         'receiverId': receiverId,
@@ -186,7 +181,6 @@ class EnhancedCallService {
       } else {
         _navigateToVoiceCall(channelId, receiverName, false);
       }
-
     } catch (e) {
       _showMessage('Failed to initiate call: $e');
       _callStateController.add(CallState.error);
@@ -195,6 +189,14 @@ class EnhancedCallService {
 
   // Handle incoming call
   void _handleIncomingCall(Map<String, dynamic> callData) async {
+    // Store for public access
+    _incomingCallData = IncomingCallData(
+      callerId: callData['callerId'],
+      callerName: callData['callerName'] ?? 'Unknown',
+      channelId: callData['channelId'],
+      isVideoCall: callData['isVideoCall'] ?? false,
+      bookingId: callData['bookingId'],
+    );
     if (_isCallActive) {
       // Send busy signal
       _webSocketService.emit('call_busy', {
@@ -235,7 +237,8 @@ class EnhancedCallService {
           builder: (context) => IncomingCallScreen(
             callerId: incomingData.callerId,
             callerName: incomingData.callerName,
-            callerPhone: incomingData.callerId, // Using callerId as phone for now
+            callerPhone:
+                incomingData.callerId, // Using callerId as phone for now
             isVideoCall: incomingData.isVideoCall,
             callService: this,
           ),
@@ -248,7 +251,7 @@ class EnhancedCallService {
   Future<void> _acceptCall(Map<String, dynamic> callData) async {
     try {
       final isVideoCall = callData['isVideoCall'] ?? false;
-      
+
       if (isVideoCall) {
         await _requestVideoCallPermissions();
       } else {
@@ -288,7 +291,6 @@ class EnhancedCallService {
           true,
         );
       }
-
     } catch (e) {
       _showMessage('Failed to accept call: $e');
       _callStateController.add(CallState.error);
@@ -299,7 +301,7 @@ class EnhancedCallService {
   void _declineCall(String callerId) {
     _stopRingtone();
     Vibration.cancel();
-    
+
     _webSocketService.emit('decline_call', {
       'callerId': callerId,
       'reason': 'declined',
@@ -321,14 +323,13 @@ class EnhancedCallService {
 
     try {
       await _engine?.leaveChannel();
-      
+
       _webSocketService.emit('end_call', {
         'channelId': _currentChannelId,
       });
 
       _resetCallState();
       _callStateController.add(CallState.ended);
-
     } catch (e) {
       print('Error ending call: $e');
     }
@@ -338,7 +339,8 @@ class EnhancedCallService {
   Future<void> joinChannel(String channelId, {int? uid}) async {
     try {
       await _engine?.joinChannel(
-        token: null, // Use null for testing, implement token server for production
+        token:
+            '', // Use empty string for testing, implement token server for production
         channelId: channelId,
         uid: uid ?? 0,
         options: const ChannelMediaOptions(),
@@ -384,7 +386,8 @@ class EnhancedCallService {
   }
 
   // Navigation helpers
-  void _navigateToVideoCall(String channelId, String participantName, bool isIncoming) {
+  void _navigateToVideoCall(
+      String channelId, String participantName, bool isIncoming) {
     if (_context != null && _engine != null) {
       Navigator.push(
         _context!,
@@ -401,7 +404,8 @@ class EnhancedCallService {
     }
   }
 
-  void _navigateToVoiceCall(String channelId, String participantName, bool isIncoming) {
+  void _navigateToVoiceCall(
+      String channelId, String participantName, bool isIncoming) {
     if (_context != null && _engine != null) {
       Navigator.push(
         _context!,
@@ -420,11 +424,11 @@ class EnhancedCallService {
 
   // Audio management
   void _playRingtone() {
-    FlutterRingtonePlayer.playRingtone();
+    FlutterRingtonePlayer().playRingtone();
   }
 
   void _stopRingtone() {
-    FlutterRingtonePlayer.stop();
+    FlutterRingtonePlayer().stop();
   }
 
   // Call state management
@@ -441,7 +445,7 @@ class EnhancedCallService {
   void _handleCallEnded() {
     _resetCallState();
     _callStateController.add(CallState.ended);
-    
+
     if (_context != null) {
       Navigator.popUntil(_context!, (route) => route.isFirst);
     }
@@ -527,51 +531,8 @@ extension EnhancedCallServicePublic on EnhancedCallService {
   // Reject incoming call - public method
   Future<void> rejectCall() async {
     if (_incomingCallData != null) {
-      await _rejectCall({
-        'callerId': _incomingCallData!.callerId,
-        'channelId': _incomingCallData!.channelId,
-      });
+      // Use _declineCall instead of undefined _rejectCall
+      _declineCall(_incomingCallData!.callerId);
     }
   }
-
-  // Public methods for external use
-  // Accept incoming call - public method
-  Future<void> acceptCall() async {
-    if (_incomingCallData != null) {
-      await _acceptCall({
-        'callerId': _incomingCallData!.callerId,
-        'callerName': _incomingCallData!.callerName,
-        'channelId': _incomingCallData!.channelId,
-        'isVideoCall': _incomingCallData!.isVideoCall,
-        'bookingId': _incomingCallData!.bookingId,
-      });
-    }
-  }
-
-  // Reject incoming call - public method
-  Future<void> rejectCall() async {
-    if (_incomingCallData != null) {
-      await _rejectCall({
-        'callerId': _incomingCallData!.callerId,
-        'channelId': _incomingCallData!.channelId,
-      });
-    }
-  }
-}
-
-// Incoming call data model
-class IncomingCallData {
-  final String callerId;
-  final String callerName;
-  final String channelId;
-  final bool isVideoCall;
-  final String? bookingId;
-
-  IncomingCallData({
-    required this.callerId,
-    required this.callerName,
-    required this.channelId,
-    required this.isVideoCall,
-    this.bookingId,
-  });
 }

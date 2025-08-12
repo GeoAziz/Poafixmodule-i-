@@ -12,12 +12,12 @@ class ServiceProviderListScreen extends StatefulWidget {
   final String clientId;
 
   const ServiceProviderListScreen({
-    Key? key,
+    super.key,
     required this.serviceType,
     required this.selectedServices,
     required this.initialLocation,
     required this.clientId,
-  }) : super(key: key);
+  });
 
   @override
   _ServiceProviderListScreenState createState() =>
@@ -53,15 +53,17 @@ class _ServiceProviderListScreenState extends State<ServiceProviderListScreen> {
       print('Radius: $_maxDistance');
 
       final fetchedProviders = await ProviderService.getNearbyProviders(
-        latitude: widget.initialLocation.latitude,
-        longitude: widget.initialLocation.longitude,
         serviceType: widget.serviceType.toLowerCase(), // Important: lowercase
+        location: {
+          'lat': widget.initialLocation.latitude,
+          'lng': widget.initialLocation.longitude,
+        },
         radius: _maxDistance,
       );
 
       if (mounted) {
         setState(() {
-          providers = fetchedProviders;
+          providers = List<Map<String, dynamic>>.from(fetchedProviders);
           isLoading = false;
           if (providers.isNotEmpty) {
             _updateMapMarkers();

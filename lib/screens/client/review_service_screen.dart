@@ -8,10 +8,10 @@ class ReviewServiceScreen extends StatefulWidget {
   final String providerId;
 
   const ReviewServiceScreen({
-    Key? key,
+    super.key,
     required this.bookingId,
     required this.providerId,
-  }) : super(key: key);
+  });
 
   @override
   _ReviewServiceScreenState createState() => _ReviewServiceScreenState();
@@ -74,7 +74,7 @@ class _ReviewServiceScreenState extends State<ReviewServiceScreen> {
         providerId: widget.providerId,
         bookingId: widget.bookingId,
         rating: _rating,
-        review: _reviewController.text,
+        reviewText: _reviewController.text,
       );
 
       Navigator.pop(context, true);

@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import '../models/message_model.dart';
 import '../models/chat_model.dart';
+import '../models/chat_message.dart';
 import 'websocket_service.dart';
 import 'api_config.dart';
 
@@ -17,18 +18,24 @@ class MessagingService {
 
   final _storage = const FlutterSecureStorage();
   final _webSocketService = WebSocketService();
-  
+
   // Stream controllers
   final _messageStreamController = StreamController<MessageModel>.broadcast();
-  final _chatListStreamController = StreamController<List<ChatModel>>.broadcast();
-  final _typingStreamController = StreamController<Map<String, dynamic>>.broadcast();
-  final _onlineStatusStreamController = StreamController<Map<String, dynamic>>.broadcast();
+  final _chatListStreamController =
+      StreamController<List<ChatModel>>.broadcast();
+  final _typingStreamController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  final _onlineStatusStreamController =
+      StreamController<Map<String, dynamic>>.broadcast();
 
   // Streams
   Stream<MessageModel> get messageStream => _messageStreamController.stream;
-  Stream<List<ChatModel>> get chatListStream => _chatListStreamController.stream;
-  Stream<Map<String, dynamic>> get typingStream => _typingStreamController.stream;
-  Stream<Map<String, dynamic>> get onlineStatusStream => _onlineStatusStreamController.stream;
+  Stream<List<ChatModel>> get chatListStream =>
+      _chatListStreamController.stream;
+  Stream<Map<String, dynamic>> get typingStream =>
+      _typingStreamController.stream;
+  Stream<Map<String, dynamic>> get onlineStatusStream =>
+      _onlineStatusStreamController.stream;
 
   // Local cache
   final Map<String, List<MessageModel>> _messageCache = {};
@@ -86,12 +93,12 @@ class MessagingService {
         final chats = (data['data'] as List)
             .map((chat) => ChatModel.fromJson(chat))
             .toList();
-        
+
         // Update cache
         for (final chat in chats) {
           _chatCache[chat.id] = chat;
         }
-        
+
         _chatListStreamController.add(chats);
         return chats;
       }
@@ -140,11 +147,13 @@ class MessagingService {
   }
 
   // Message Management
-  Future<List<MessageModel>> getMessages(String chatId, {int page = 1, int limit = 50}) async {
+  Future<List<MessageModel>> getMessages(String chatId,
+      {int page = 1, int limit = 50}) async {
     try {
       final token = await _storage.read(key: 'auth_token');
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/chats/$chatId/messages?page=$page&limit=$limit'),
+        Uri.parse(
+            '${ApiConfig.baseUrl}/chats/$chatId/messages?page=$page&limit=$limit'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -156,18 +165,18 @@ class MessagingService {
         final messages = (data['data'] as List)
             .map((message) => MessageModel.fromJson(message))
             .toList();
-        
+
         // Update cache
         if (_messageCache[chatId] == null) {
           _messageCache[chatId] = [];
         }
-        
+
         if (page == 1) {
           _messageCache[chatId] = messages;
         } else {
           _messageCache[chatId]!.addAll(messages);
         }
-        
+
         return messages;
       }
       throw Exception('Failed to load messages');
@@ -218,12 +227,12 @@ class MessagingService {
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
         final message = MessageModel.fromJson(data['data']);
-        
+
         // Update local cache
         if (_messageCache[chatId] != null) {
           _messageCache[chatId]!.insert(0, message);
         }
-        
+
         return message;
       }
       throw Exception('Failed to send message');
@@ -239,13 +248,13 @@ class MessagingService {
         'POST',
         Uri.parse('${ApiConfig.baseUrl}/chats/$chatId/upload'),
       );
-      
+
       request.headers['Authorization'] = 'Bearer $token';
       request.files.add(await http.MultipartFile.fromPath('file', file.path));
-      
+
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(responseBody);
         return data['fileUrl'];
@@ -265,7 +274,7 @@ class MessagingService {
     try {
       // Upload image first
       final imageUrl = await uploadFile(imageFile, chatId: chatId);
-      
+
       // Send message with image
       return await sendMessage(
         chatId: chatId,
@@ -288,7 +297,7 @@ class MessagingService {
     try {
       // Upload file first
       final fileUrl = await uploadFile(file, chatId: chatId);
-      
+
       // Send message with file
       return await sendMessage(
         chatId: chatId,
@@ -307,7 +316,8 @@ class MessagingService {
     try {
       final token = await _storage.read(key: 'auth_token');
       await http.patch(
-        Uri.parse('${ApiConfig.baseUrl}/chats/$chatId/messages/$messageId/read'),
+        Uri.parse(
+            '${ApiConfig.baseUrl}/chats/$chatId/messages/$messageId/read'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -380,11 +390,11 @@ class MessagingService {
     final chatId = data['chatId'];
     final messageId = data['messageId'];
     final status = data['status'];
-    
+
     if (_messageCache[chatId] != null) {
-      final messageIndex = _messageCache[chatId]!
-          .indexWhere((msg) => msg.id == messageId);
-      
+      final messageIndex =
+          _messageCache[chatId]!.indexWhere((msg) => msg.id == messageId);
+
       if (messageIndex != -1) {
         final oldMessage = _messageCache[chatId]![messageIndex];
         final updatedMessage = MessageModel(
@@ -407,7 +417,7 @@ class MessagingService {
             orElse: () => oldMessage.status,
           ),
         );
-        
+
         _messageCache[chatId]![messageIndex] = updatedMessage;
       }
     }
@@ -424,7 +434,7 @@ class MessagingService {
         providerId: chat.providerId,
         providerName: chat.providerName,
         serviceType: chat.serviceType,
-        lastMessage: message,
+        lastMessage: ChatMessage.fromJson(message.toJson()),
         createdAt: chat.createdAt,
         updatedAt: DateTime.now(),
         unreadCount: chat.unreadCount + 1,
@@ -443,13 +453,14 @@ class MessagingService {
   }
 
   // Search functionality
-  Future<List<MessageModel>> searchMessages(String query, {String? chatId}) async {
+  Future<List<MessageModel>> searchMessages(String query,
+      {String? chatId}) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      final url = chatId != null 
+      final url = chatId != null
           ? '${ApiConfig.baseUrl}/chats/$chatId/messages/search?q=$query'
           : '${ApiConfig.baseUrl}/messages/search?q=$query';
-          
+
       final response = await http.get(
         Uri.parse(url),
         headers: {

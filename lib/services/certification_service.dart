@@ -9,7 +9,7 @@ class CertificationService {
   Future<List<Map<String, dynamic>>> getProviderCertifications(
       String providerId) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('No auth token found');
 
       final response = await http.get(

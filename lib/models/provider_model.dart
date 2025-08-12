@@ -21,7 +21,7 @@ class ProviderModel {
   final List<String>? skills; // Add this field
   final int? experience; // Add this field
   final String? portfolio; // Add this field
-  final Map<String, dynamic>? availability; // Add this field
+  final dynamic availability; // Accepts both List and Map
 
   ProviderModel({
     required this.id,

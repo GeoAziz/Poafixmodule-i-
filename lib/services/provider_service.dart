@@ -21,9 +21,9 @@ class ProviderService {
   }) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/providers/search'),
+        Uri.parse('${ApiConfig.baseUrl}/api/providers/search/advanced'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -61,7 +61,7 @@ class ProviderService {
   }) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/providers/compare-prices'),
         headers: {
@@ -95,7 +95,7 @@ class ProviderService {
   }) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final queryParams = <String, String>{
         if (serviceType != null) 'serviceType': serviceType,
         if (location != null) 'location': location,
@@ -105,7 +105,7 @@ class ProviderService {
 
       final uri = Uri.parse('${ApiConfig.baseUrl}/providers/top-rated')
           .replace(queryParameters: queryParams);
-      
+
       final response = await http.get(
         uri,
         headers: {
@@ -118,7 +118,8 @@ class ProviderService {
         final data = json.decode(response.body);
         return data['data'] ?? [];
       } else {
-        throw Exception('Failed to get top-rated providers: ${response.statusCode}');
+        throw Exception(
+            'Failed to get top-rated providers: ${response.statusCode}');
       }
     } catch (e) {
       print('Error in getTopRatedProviders: $e');
@@ -134,7 +135,7 @@ class ProviderService {
   }) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final queryParams = <String, String>{
         if (serviceType != null) 'serviceType': serviceType,
         if (location != null) 'location': location,
@@ -143,7 +144,7 @@ class ProviderService {
 
       final uri = Uri.parse('${ApiConfig.baseUrl}/providers/available-now')
           .replace(queryParameters: queryParams);
-      
+
       final response = await http.get(
         uri,
         headers: {
@@ -156,7 +157,8 @@ class ProviderService {
         final data = json.decode(response.body);
         return data['data'] ?? [];
       } else {
-        throw Exception('Failed to get available providers: ${response.statusCode}');
+        throw Exception(
+            'Failed to get available providers: ${response.statusCode}');
       }
     } catch (e) {
       print('Error in getAvailableNowProviders: $e');
@@ -165,10 +167,11 @@ class ProviderService {
   }
 
   // Get provider ratings and reviews
-  static Future<Map<String, dynamic>> getProviderRatingsAndReviews(String providerId) async {
+  static Future<Map<String, dynamic>> getProviderRatingsAndReviews(
+      String providerId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/providers/$providerId/ratings-reviews'),
         headers: {
@@ -180,7 +183,8 @@ class ProviderService {
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
-        throw Exception('Failed to get ratings and reviews: ${response.statusCode}');
+        throw Exception(
+            'Failed to get ratings and reviews: ${response.statusCode}');
       }
     } catch (e) {
       print('Error in getProviderRatingsAndReviews: $e');
@@ -196,7 +200,7 @@ class ProviderService {
   ) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.put(
         Uri.parse('${ApiConfig.baseUrl}/providers/$providerId/location'),
         headers: {
@@ -222,44 +226,42 @@ class ProviderService {
   }
 
   // Get nearby providers
-  static Future<List<Map<String, dynamic>>> getNearbyProviders({
-    required double latitude,
-    required double longitude,
-    double radius = 10.0,
-    String? serviceType,
-    int limit = 10,
+  static Future<List<dynamic>> getNearbyProviders({
+    required String serviceType,
+    Map<String, double>? location,
+    double radius = 10,
   }) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
-      final queryParams = {
-        'latitude': latitude.toString(),
-        'longitude': longitude.toString(),
-        'radius': radius.toString(),
-        'limit': limit.toString(),
-        if (serviceType != null) 'serviceType': serviceType,
-      };
-      
-      final uri = Uri.parse('${ApiConfig.baseUrl}/providers/nearby')
-          .replace(queryParameters: queryParams);
-      
-      final response = await http.get(
-        uri,
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/providers/search/advanced'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
+        body: json.encode({
+          'serviceType': serviceType,
+          'location': location,
+          'radius': radius,
+        }),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data['providers'] ?? []);
+        if (data is Map<String, dynamic> &&
+            data['data'] != null &&
+            data['data']['providers'] != null) {
+          return data['data']['providers'] as List<dynamic>;
+        } else {
+          print('No providers found or unexpected response: $data');
+          return [];
+        }
       } else {
-        throw Exception('Failed to get nearby providers: ${response.statusCode}');
+        throw Exception('Failed to search providers: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error in getNearbyProviders: $e');
-      throw Exception('Network error: $e');
+      print('Error in searchProvidersWithFilters: $e');
+      return [];
     }
   }
 }

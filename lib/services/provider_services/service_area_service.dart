@@ -11,7 +11,7 @@ class ProviderServiceAreaService {
     required double radius,
   }) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final providerId = await _storage.read(key: 'userId');
 
       if (token == null || providerId == null) {

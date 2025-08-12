@@ -1,9 +1,10 @@
+import '../../models/service_category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/user_model.dart';
 import '../../models/provider_model.dart';
-import '../../services/enhanced_proximity_service.dart';
+import '../../services/proximity_service.dart';
 import '../booking/enhanced_booking_screen.dart';
 
 class XComboProviderSearchScreen extends StatefulWidget {
@@ -12,44 +13,52 @@ class XComboProviderSearchScreen extends StatefulWidget {
   final User user;
 
   const XComboProviderSearchScreen({
-    Key? key,
+    super.key,
     required this.serviceId,
     required this.serviceName,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
-  _XComboProviderSearchScreenState createState() => _XComboProviderSearchScreenState();
+  _XComboProviderSearchScreenState createState() =>
+      _XComboProviderSearchScreenState();
 }
 
-class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen> {
+class _XComboProviderSearchScreenState
+    extends State<XComboProviderSearchScreen> {
+  @override
+  void initState() {
+    super.initState();
+    print('[UI] Entered XComboProviderSearchScreen for service: '
+        '${widget.serviceName} (id: ${widget.serviceId})');
+    _loadProviders();
+  }
+
   GoogleMapController? _mapController;
   List<ProviderModel> _providers = [];
   bool _isLoading = true;
   Position? _currentLocation;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadProviders();
-  }
 
   Future<void> _loadProviders() async {
     setState(() => _isLoading = true);
     try {
       _currentLocation = await Geolocator.getCurrentPosition();
       final providers = await ProximityService.getNearbyProviders(
-        serviceId: widget.serviceId,
+        serviceType: widget.serviceName,
         latitude: _currentLocation?.latitude,
         longitude: _currentLocation?.longitude,
-        radius: 10.0,
+        radiusKm: 5.0,
       );
+      print(
+          '[UI] XComboProviderSearchScreen loaded providers: count = [32m${providers.length}[0m');
       setState(() {
-        _providers = providers;
+        _providers = List<ProviderModel>.from(providers);
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
+      print('[UI] Error loading providers: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading providers: ${e.toString()}')),
       );
@@ -60,7 +69,10 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
     return _providers.map((provider) {
       return Marker(
         markerId: MarkerId(provider.id),
-        position: LatLng(provider.latitude, provider.longitude),
+        position: LatLng(
+          provider.location.latitude,
+          provider.location.longitude,
+        ),
         infoWindow: InfoWindow(title: provider.name),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
       );
@@ -79,7 +91,7 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
           : Column(
               children: [
                 // Top: Map
-                Container(
+                SizedBox(
                   height: MediaQuery.of(context).size.height * 0.4,
                   child: GoogleMap(
                     initialCameraPosition: CameraPosition(
@@ -100,19 +112,21 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
                     itemBuilder: (context, index) {
                       final provider = _providers[index];
                       return Card(
-                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: ListTile(
                           leading: CircleAvatar(
                             backgroundImage: provider.profileImage != null
                                 ? NetworkImage(provider.profileImage!)
                                 : null,
                             child: provider.profileImage == null
-                                ? Text(provider.name.substring(0, 1).toUpperCase())
+                                ? Text(
+                                    provider.name.substring(0, 1).toUpperCase())
                                 : null,
                           ),
                           title: Text(provider.name),
                           subtitle: Text(
-                            '⭐ ${provider.rating} • ${provider.distance.toStringAsFixed(1)} km away\nKSh ${provider.hourlyRate}/hour',
+                            '⭐ ${provider.rating} • ${provider.distance?.toStringAsFixed(1) ?? "-"} km away\nKSh ${provider.hourlyRate}/hour',
                           ),
                           trailing: Icon(Icons.arrow_forward_ios),
                           onTap: () {
@@ -120,9 +134,20 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
                               context,
                               MaterialPageRoute(
                                 builder: (context) => EnhancedBookingScreen(
-                                  serviceId: widget.serviceId,
-                                  serviceName: widget.serviceName,
                                   user: widget.user,
+                                  selectedService: ServiceCategoryModel(
+                                    id: widget.serviceId,
+                                    name: widget.serviceName,
+                                    icon: Icons.miscellaneous_services,
+                                    color: Colors.blue,
+                                    description: '',
+                                    basePrice: 0.0,
+                                    nearbyProviders: 0,
+                                    rating: 0.0,
+                                    estimatedTime: '',
+                                    subServices: [],
+                                  ),
+                                  userLocation: _currentLocation,
                                 ),
                               ),
                             );

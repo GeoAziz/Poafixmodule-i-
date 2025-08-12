@@ -32,7 +32,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
 
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
       final userType = await _storage.read(key: 'userType');
 

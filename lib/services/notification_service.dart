@@ -27,7 +27,7 @@ class NotificationService {
 
   Future<void> connectWebSocket() async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('No auth token found');
 
       final wsUrl = ApiConfig.baseUrl.replaceFirst('http', 'ws') + '/ws';
@@ -77,7 +77,7 @@ class NotificationService {
     String? recipientModel, // Make recipientModel optional
   }) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final userType = await _storage.read(key: 'userType');
       if (token == null) {
         throw Exception('No auth token found');
@@ -131,7 +131,7 @@ class NotificationService {
 
   Future<void> markAsRead(String notificationId) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       if (token == null) {
         throw Exception('No auth token found');
       }
@@ -203,7 +203,7 @@ class NotificationService {
 
   Future<void> createNotification(Map<String, dynamic> notificationData) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/api/notifications'),
         headers: {

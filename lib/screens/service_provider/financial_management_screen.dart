@@ -30,7 +30,7 @@ class _FinancialManagementScreenState extends State<FinancialManagementScreen> {
 
   Future<void> _loadData() async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
 
       if (token == null) {

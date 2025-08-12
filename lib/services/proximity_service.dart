@@ -13,7 +13,7 @@ class ProximityService {
   static Future<List<ServiceCategory>> getServicesWithProximity({
     double? latitude,
     double? longitude,
-    double radius = 10.0, // km
+    double radius = 5.0, // km (default 5km)
   }) async {
     try {
       // Get user location if not provided
@@ -24,23 +24,26 @@ class ProximityService {
       }
 
       final token = await _storage.read(key: 'auth_token');
-      
+      print('🔑 [ProximityService] Token for proximity request: $token');
+      final headers = {
+        'Content-Type': 'application/json',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      };
+      print('📡 [ProximityService] Headers for proximity request: $headers');
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/services/proximity?lat=$latitude&lng=$longitude&radius=$radius'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
+        Uri.parse(
+            '${ApiConfig.baseUrl}/api/services/proximity?lat=$latitude&lng=$longitude&radius=5000'),
+        headers: headers,
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<ServiceCategory> services = [];
-        
+
         for (var serviceData in data['services']) {
           services.add(ServiceCategory.fromJson(serviceData));
         }
-        
+
         return services;
       } else {
         // Return default services if API fails
@@ -57,7 +60,7 @@ class ProximityService {
     required String serviceType,
     double? latitude,
     double? longitude,
-    double radiusKm = 10.0,
+    double radiusKm = 5.0, // Default 5km
   }) async {
     try {
       // Get user location if not provided
@@ -68,35 +71,37 @@ class ProximityService {
       }
 
       final token = await _storage.read(key: 'auth_token');
-      
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/providers/nearby').replace(
-          queryParameters: {
-            'serviceType': serviceType,
-            'latitude': latitude.toString(),
-            'longitude': longitude.toString(),
-            'radius': (radiusKm * 1000).toString(), // Convert km to meters
-            'limit': '20',
+      final headers = {
+        'Content-Type': 'application/json',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/providers/search/advanced'),
+        headers: headers,
+        body: json.encode({
+          'serviceType': serviceType,
+          'location': {
+            'latitude': latitude,
+            'longitude': longitude,
           },
-        ),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
+          'radius': radiusKm,
+        }),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data is List) {
-          return data;
+        if (data is Map<String, dynamic> &&
+            data['data'] != null &&
+            data['data']['providers'] != null) {
+          return data['data']['providers'] as List<dynamic>;
+        } else {
+          print('No providers found or unexpected response: $data');
+          return [];
         }
-        // If the response is a map with a providers array
-        if (data is Map<String, dynamic> && data.containsKey('providers')) {
-          return data['providers'] as List<dynamic>;
-        }
-        return [];
       } else {
-        print('Error getting nearby providers: ${response.statusCode}');
+        print(
+            'Error getting nearby providers: ${response.statusCode} - ${response.body}');
         return [];
       }
     } catch (e) {
@@ -119,12 +124,14 @@ class ProximityService {
       }
 
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/providers/availability?service=$serviceId&lat=$latitude&lng=$longitude'),
+        Uri.parse(
+            '${ApiConfig.baseUrl}/api/providers/availability?service=$serviceId&lat=$latitude&lng=$longitude'),
         headers: {
           'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
         },
       );
 
@@ -156,12 +163,13 @@ class ProximityService {
   }) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.put(
         Uri.parse('${ApiConfig.baseUrl}/api/users/location'),
         headers: {
           'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
         },
         body: json.encode({
           'latitude': latitude,
@@ -196,7 +204,8 @@ class ProximityService {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permissions are permanently denied, we cannot request permissions.');
+      throw Exception(
+          'Location permissions are permanently denied, we cannot request permissions.');
     }
 
     return await Geolocator.getCurrentPosition(

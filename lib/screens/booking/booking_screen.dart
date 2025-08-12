@@ -359,7 +359,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 final email = await storage.read(key: 'email');
                 final userType = await storage.read(key: 'userType');
                 final phone = await storage.read(key: 'phone');
-                final token = await storage.read(key: 'token');
+                final token = await storage.read(key: 'auth_token');
 
                 Navigator.of(context).pop(); // Close dialog
                 Navigator.pushReplacement(
@@ -404,7 +404,7 @@ class _BookingScreenState extends State<BookingScreen> {
               final email = await storage.read(key: 'email');
               final userType = await storage.read(key: 'userType');
               final phone = await storage.read(key: 'phone');
-              final token = await storage.read(key: 'token');
+              final token = await storage.read(key: 'auth_token');
 
               // Close dialog first
               Navigator.pop(context);
@@ -438,7 +438,7 @@ class _BookingScreenState extends State<BookingScreen> {
               final email = await storage.read(key: 'email');
               final userType = await storage.read(key: 'userType');
               final phone = await storage.read(key: 'phone');
-              final token = await storage.read(key: 'token');
+              final token = await storage.read(key: 'auth_token');
 
               // Close dialog first
               Navigator.pop(context);

@@ -32,7 +32,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
   Future<void> _checkAuthAndLoadDocuments() async {
     try {
       final token = await _storage.read(key: 'auth_token') ??
-          await _storage.read(key: 'token');
+          await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
 
       print('🔑 Initial Auth Check:');

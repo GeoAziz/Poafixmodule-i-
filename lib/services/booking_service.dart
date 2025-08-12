@@ -115,7 +115,7 @@ class BookingService {
   Future<Map<String, dynamic>> createBooking(
       Map<String, dynamic> bookingData) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('No auth token found');
 
       // Format the data according to server requirements
@@ -198,7 +198,7 @@ class BookingService {
   Future<void> _sendProviderNotification(
       String providerId, String serviceType, String bookingId) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       if (token == null) return;
 
       final response = await http.post(
@@ -252,7 +252,7 @@ class BookingService {
 
   Future<void> rejectBooking(String bookingId) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
 
       if (token == null || userId == null) {
@@ -311,7 +311,7 @@ class BookingService {
 
   Future<List<Booking>> getClientBookings(String clientId) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final userType = await _storage.read(key: 'userType');
 
       if (token == null) throw Exception('No auth token found');
@@ -356,7 +356,7 @@ class BookingService {
 
   Future<List<Booking>> getProviderBookings() async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final providerId = await _storage.read(key: 'userId');
 
       if (token == null || providerId == null) {
@@ -436,7 +436,7 @@ class BookingService {
 
   Future<void> cancelBooking(String bookingId) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
 
       if (token == null || userId == null) {
@@ -544,7 +544,7 @@ class BookingService {
   }
 
   Future<Map<String, String>> _getHeaders() async {
-    final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
     if (token == null) throw Exception('No authentication token found');
 
     return {

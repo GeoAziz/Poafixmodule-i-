@@ -9,7 +9,7 @@ class AvailabilityService {
   Future<List<Map<String, dynamic>>> getProviderAvailability(
       String providerId) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('No auth token found');
 
       final response = await http.get(

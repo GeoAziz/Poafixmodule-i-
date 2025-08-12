@@ -40,7 +40,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
 
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
       final userType = await _storage.read(key: 'userType');
 
@@ -111,7 +111,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<String?> _getToken() async {
-    return widget.user?.token ?? await _storage.read(key: 'token');
+  return widget.user?.token ?? await _storage.read(key: 'auth_token');
   }
 
   @override
@@ -334,7 +334,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _markAsRead(String notificationId) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('No auth token found');
 
       await http.patch(

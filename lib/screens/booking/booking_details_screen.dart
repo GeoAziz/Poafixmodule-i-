@@ -3,16 +3,17 @@ import 'package:geolocator/geolocator.dart';
 import '../../core/models/user_model.dart' show UserModel;
 import '../../models/service_category.dart';
 import '../../services/proximity_service.dart';
+import '../../widgets/provider_map_widget.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
   final UserModel user;
   final ServiceCategory selectedService;
 
   const BookingDetailsScreen({
-    Key? key,
+    super.key,
     required this.user,
     required this.selectedService,
-  }) : super(key: key);
+  });
 
   @override
   _BookingDetailsScreenState createState() => _BookingDetailsScreenState();
@@ -20,7 +21,7 @@ class BookingDetailsScreen extends StatefulWidget {
 
 class _BookingDetailsScreenState extends State<BookingDetailsScreen>
     with TickerProviderStateMixin {
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int _currentStep = 0;
 
   // Booking data
@@ -33,6 +34,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
   double _estimatedPrice = 0;
   List<Map<String, dynamic>> _nearbyProviders = [];
   bool _isLoadingProviders = false;
+  double? _userLat;
+  double? _userLng;
 
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
@@ -80,34 +83,27 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
       Position? position = await _getCurrentLocation();
 
       if (position != null) {
-        // Ensure correct auth header and API usage
+        _userLat = position.latitude;
+        _userLng = position.longitude;
         final providersData = await ProximityService.getNearbyProviders(
           serviceType: widget.selectedService.id,
-          latitude: position.latitude,
-          longitude: position.longitude,
+          latitude: _userLat,
+          longitude: _userLng,
           radiusKm: 10.0,
         );
-
-        // Robust parsing: handle both List<Map> and List<ProviderModel>
-        if (providersData is List) {
-          if (providersData.isNotEmpty && providersData.first is Map) {
-            setState(() {
-              _nearbyProviders = List<Map<String, dynamic>>.from(providersData);
-            });
-          } else if (providersData.isNotEmpty &&
-              providersData.first.runtimeType
-                  .toString()
-                  .contains('ProviderModel')) {
-            setState(() {
-              _nearbyProviders = providersData
-                  .map((p) => (p as dynamic).toJson() as Map<String, dynamic>)
-                  .toList();
-            });
-          } else {
-            setState(() {
-              _nearbyProviders = [];
-            });
-          }
+        if (providersData.isNotEmpty && providersData.first is Map) {
+          setState(() {
+            _nearbyProviders = List<Map<String, dynamic>>.from(providersData);
+          });
+        } else if (providersData.isNotEmpty &&
+            providersData.first.runtimeType
+                .toString()
+                .contains('ProviderModel')) {
+          setState(() {
+            _nearbyProviders = providersData
+                .map((p) => (p as dynamic).toJson() as Map<String, dynamic>)
+                .toList();
+          });
         } else {
           setState(() {
             _nearbyProviders = [];
@@ -323,7 +319,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
                 ),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -340,6 +336,17 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 20),
+          // Map widget at the top
+          if (!_isLoadingProviders && _nearbyProviders.isNotEmpty)
+            ProviderMapWidget(
+              providers: _nearbyProviders,
+              initialLat: _userLat ?? -1.2921,
+              initialLng: _userLng ?? 36.8219,
+              onMarkerTap: (index) {
+                // Optionally scroll to card or highlight
+              },
+            ),
+          SizedBox(height: 16),
           _isLoadingProviders
               ? Center(
                   child: Column(
@@ -563,7 +570,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
             ),
           ),
           SizedBox(height: 20),
-          Container(
+          SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _confirmBooking,

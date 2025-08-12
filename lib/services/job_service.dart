@@ -130,7 +130,7 @@ class JobService {
 
   Future<List<Job>> getProviderJobs() async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final providerId = await _storage.read(key: 'userId');
 
       if (token == null || providerId == null) {
@@ -164,7 +164,7 @@ class JobService {
   }) async {
     try {
       // First try to get token from storage directly
-      final token = await _storage.read(key: 'token') ??
+  final token = await _storage.read(key: 'auth_token') ??
           await _storage.read(key: 'auth_token');
 
       // If still null, try auth service

@@ -54,7 +54,7 @@ class AuthService {
   Future<String?> getToken() async {
     try {
       // Try multiple token keys
-      final token = await _storage.read(key: 'token') ??
+  final token = await _storage.read(key: 'auth_token') ??
           await _storage.read(key: 'auth_token');
 
       print(
@@ -585,7 +585,7 @@ class AuthService {
       print('Saving auth data for user: $userData');
 
       // Store essential auth data
-      await storage.write(key: 'token', value: authData['token']);
+  await storage.write(key: 'auth_token', value: authData['token']);
       await storage.write(key: 'userType', value: userType);
       await storage.write(key: 'userId', value: userId);
       await storage.write(key: 'isLoggedIn', value: 'true');
@@ -622,7 +622,7 @@ class AuthService {
   static Future<bool> verifyAuthState() async {
     try {
       final storage = const FlutterSecureStorage();
-      final token = await storage.read(key: 'token');
+  final token = await storage.read(key: 'auth_token');
       final userType = await storage.read(key: 'userType');
       final isLoggedIn = await storage.read(key: 'isLoggedIn');
 
@@ -712,7 +712,7 @@ class AuthService {
       print('Storing login data: $data');
 
       // Store basic auth data
-      await _storage.write(key: 'token', value: data['token']);
+  await _storage.write(key: 'auth_token', value: data['token']);
       await _storage.write(key: 'userType', value: data['userType']);
 
       // Store user data
@@ -768,7 +768,7 @@ class AuthService {
       print('Saving provider auth data: $data');
 
       // Save token and userType first
-      await _storage.write(key: 'token', value: data['token']);
+  await _storage.write(key: 'auth_token', value: data['token']);
       await _storage.write(
           key: 'userType', value: 'service-provider'); // Fixed value
       await _storage.write(
@@ -793,7 +793,7 @@ class AuthService {
 
   static Future<Map<String, String?>> getAuthCredentials() async {
     return {
-      'token': await _storage.read(key: 'token'),
+  'token': await _storage.read(key: 'auth_token'),
       'userType': await _storage.read(key: 'userType'),
       'userId': await _storage.read(key: 'userId'),
       'businessName': await _storage.read(key: 'businessName'),
@@ -835,7 +835,7 @@ class AuthService {
         final data = json.decode(response.body);
 
         // Store auth data
-        await _storage.write(key: 'token', value: data['token']);
+  await _storage.write(key: 'auth_token', value: data['token']);
         await _storage.write(key: 'userId', value: data['user']['_id']);
         await _storage.write(key: 'userType', value: 'service-provider');
 
@@ -871,7 +871,7 @@ class AuthService {
         final data = json.decode(response.body);
 
         // Store auth data
-        await _storage.write(key: 'token', value: data['token']);
+  await _storage.write(key: 'auth_token', value: data['token']);
         await _storage.write(key: 'userId', value: data['provider']['id']);
         await _storage.write(key: 'userType', value: data['userType']);
         await _storage.write(
@@ -908,7 +908,7 @@ class AuthService {
         final data = json.decode(response.body);
 
         // Store auth data
-        await _storage.write(key: 'token', value: data['token']);
+  await _storage.write(key: 'auth_token', value: data['token']);
         await _storage.write(key: 'userId', value: data['user']['id']);
         await _storage.write(key: 'userType', value: data['userType']);
         await _storage.write(key: 'name', value: data['user']['name']);
@@ -928,7 +928,7 @@ class AuthService {
     Map<String, dynamic> updateData,
   ) async {
     try {
-      final token = await _storage.read(key: 'token');
+  final token = await _storage.read(key: 'auth_token');
       final response = await http.put(
         Uri.parse('${ApiConfig.baseUrl}/api/users/$userId/profile'),
         headers: {
