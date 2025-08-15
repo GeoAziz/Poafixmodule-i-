@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:poafix/models/client.dart';
+import '../../models/client.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 class ClientService {
@@ -29,9 +29,11 @@ class ClientService {
       final response = await http.get(Uri.parse(url));
 
       print(
-          "Response Status: ${response.statusCode}"); // Log response status code
+        "Response Status: ${response.statusCode}",
+      ); // Log response status code
       print(
-          "Response Body: ${response.body}"); // Log the response body to check for errors
+        "Response Body: ${response.body}",
+      ); // Log the response body to check for errors
 
       if (response.statusCode == 200) {
         // Successful response, return the parsed data
@@ -39,11 +41,14 @@ class ClientService {
       } else {
         // Log any non-200 response and provide a detailed exception
         print(
-            'Error: Failed to load client data, Status Code: ${response.statusCode}');
+          'Error: Failed to load client data, Status Code: ${response.statusCode}',
+        );
         print(
-            'Response Body: ${response.body}'); // Print the error response body
+          'Response Body: ${response.body}',
+        ); // Print the error response body
         throw Exception(
-            'Failed to load client data: ${response.statusCode} - ${response.body}');
+          'Failed to load client data: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       // Log the error with more specific information
@@ -53,8 +58,9 @@ class ClientService {
   }
 
   Future<List<Client>> getClients() async {
-    final response =
-        await http.get(Uri.parse('http://10.0.2.2:5000/api/clients'));
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:5000/api/clients'),
+    );
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((json) => Client.fromJson(json)).toList();

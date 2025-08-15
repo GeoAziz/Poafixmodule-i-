@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../models/booking.dart';
 import '../../services/booking_service.dart';
-import '../../services/auth_storage.dart';
 import '../../services/websocket_service.dart';
 // Add this import
 import '../home/home_screen.dart'; // Add this import
 // Add this import
 import '../../widgets/booking_card.dart';
 import '../../models/user_model.dart'; // Update import
+import '../client/client_notifications_screen.dart';
+import '../../widgets/bottomnavbar.dart';
+import '../../widgets/client_sidepanel.dart';
 
 class BookingsScreen extends StatefulWidget {
   final User user;
   final bool showNavigation; // Add this parameter
 
   const BookingsScreen({
-    Key? key,
+    super.key,
     required this.user,
     this.showNavigation = false, // Default to false
-  }) : super(key: key);
+  });
 
   @override
   _BookingsScreenState createState() => _BookingsScreenState();
@@ -48,7 +50,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
     try {
       // Get credentials using the same keys used in login
       final userId = await _storage.read(key: 'userId');
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       final userType = await _storage.read(key: 'userType');
 
       print('Loading credentials from storage:');
@@ -115,9 +117,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
 
         // Debug log the results
         print('Loaded ${_bookings.length} bookings');
-        _bookings.forEach((booking) {
+        for (var booking in _bookings) {
           print('Booking ID: ${booking.id}, Status: ${booking.status}');
-        });
+        }
       }
     } catch (e) {
       print('Error loading bookings: $e');
@@ -146,32 +148,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
   }
 
   Widget _buildDrawer() {
-    return Drawer(
-      child: ListView(
-        children: [
-          UserAccountsDrawerHeader(
-            accountName: Text(_profileData?['name'] ?? 'User'),
-            accountEmail: Text(_profileData?['email'] ?? 'user@example.com'),
-            currentAccountPicture: CircleAvatar(
-              child: Text(
-                (_profileData?['name'] ?? 'U').substring(0, 1).toUpperCase(),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.home),
-            title: Text('Home'),
-            onTap: () => Navigator.pushReplacementNamed(context, '/home'),
-          ),
-          ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Profile'),
-            onTap: () => Navigator.pushNamed(context, '/profile'),
-          ),
-          // ...other drawer items...
-        ],
-      ),
-    );
+  return ClientSidePanel(user: widget.user, parentContext: context);
   }
 
   @override
@@ -179,30 +156,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bookings'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            // Create User object from stored data
-            final name = await _storage.read(key: 'name') ?? '';
-            final email = await _storage.read(key: 'email') ?? '';
-            final userType = await _storage.read(key: 'userType') ?? '';
-
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(
-                  user: User(
-                    id: _userId ?? '',
-                    name: name,
-                    email: email,
-                    userType: userType,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+        // Drawer icon will appear automatically
       ),
+      drawer: ClientSidePanel(user: widget.user, parentContext: context),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -210,50 +166,49 @@ class _BookingsScreenState extends State<BookingsScreen> {
               child: _error != null
                   ? _buildErrorView()
                   : _bookings.isEmpty
-                      ? _buildEmptyView()
-                      : _buildBookingsList(),
+                  ? _buildEmptyView()
+                  : _buildBookingsList(),
             ),
-      bottomNavigationBar: widget.showNavigation
-          ? BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              currentIndex: _currentIndex,
-              onTap: (index) {
-                setState(() => _currentIndex = index);
-                switch (index) {
-                  case 0:
-                    Navigator.pushReplacementNamed(context, '/home', arguments: widget.user);
-                    break;
-                  case 1:
-                    Navigator.pushReplacementNamed(context, '/select-service', arguments: widget.user); // ✅ Fixed route with user argument
-                    break;
-                  case 2:
-                    // Already on bookings screen
-                    break;
-                  case 3:
-                    Navigator.pushReplacementNamed(context, '/profile', arguments: widget.user);
-                    break;
-                }
-              },
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Home',
+      bottomNavigationBar: FunctionalBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() => _currentIndex = index);
+          switch (index) {
+            case 0:
+              Navigator.pushReplacementNamed(
+                context,
+                '/home',
+                arguments: widget.user,
+              );
+              break;
+            case 1:
+              Navigator.pushReplacementNamed(
+                context,
+                '/select-service',
+                arguments: widget.user,
+              );
+              break;
+            case 2:
+              // Already on bookings screen
+              break;
+            case 3:
+              Navigator.pushReplacementNamed(
+                context,
+                '/profile',
+                arguments: widget.user,
+              );
+              break;
+            case 4:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ClientNotificationsScreen(),
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.search),
-                  label: 'Search',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.book),
-                  label: 'Bookings',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.account_circle),
-                  label: 'Profile',
-                ),
-              ],
-            )
-          : null, // Conditionally show the bottom navigation bar
+              );
+              break;
+          }
+        },
+      ),
     );
   }
 
@@ -308,12 +263,14 @@ class _BookingsScreenState extends State<BookingsScreen> {
           ),
         ),
         SizedBox(height: 8),
-        ...bookings.map((booking) => BookingCard(
-              booking: booking,
-              onCancel: booking.status.toLowerCase() == 'pending'
-                  ? () => _showCancelDialog(booking)
-                  : null,
-            )),
+        ...bookings.map(
+          (booking) => BookingCard(
+            booking: booking,
+            onCancel: booking.status.toLowerCase() == 'pending'
+                ? () => _showCancelDialog(booking)
+                : null,
+          ),
+        ),
       ],
     );
   }
@@ -358,10 +315,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 }
               }
             },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text('Yes'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
           ),
         ],
       ),
@@ -406,9 +361,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
           SizedBox(height: 8),
           Text(
             'Your bookings will appear here',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
           ),
         ],
       ),
@@ -429,9 +384,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
           SizedBox(height: 8),
           Text(
             _error ?? 'Failed to load bookings',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 16),

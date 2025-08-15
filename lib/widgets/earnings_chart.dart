@@ -3,13 +3,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EarningsChart extends StatelessWidget {
-  final List<double> weeklyData;
-  final double maxY;
+  final List<dynamic> data;
 
   const EarningsChart({
     Key? key,
-    this.weeklyData = const [0, 0, 0, 0, 0, 0, 0],
-    this.maxY = 5000,
+    required this.data,
   }) : super(key: key);
 
   @override
@@ -30,54 +28,111 @@ class EarningsChart extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            Container(
+            SizedBox(
               height: 200,
               child: LineChart(
                 LineChartData(
-                  gridData: const FlGridData(show: false),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: true,
+                    horizontalInterval: 1,
+                    verticalInterval: 1,
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: Colors.grey.withOpacity(0.2),
+                        strokeWidth: 1,
+                      );
+                    },
+                    getDrawingVerticalLine: (value) {
+                      return FlLine(
+                        color: Colors.grey.withOpacity(0.2),
+                        strokeWidth: 1,
+                      );
+                    },
+                  ),
                   titlesData: FlTitlesData(
-                    leftTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                    show: true,
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        switch (value.toInt()) {
-                          case 0:
-                            return const Text('Mon');
-                          case 1:
-                            return const Text('Tue');
-                          case 2:
-                            return const Text('Wed');
-                          case 3:
-                            return const Text('Thu');
-                          case 4:
-                            return const Text('Fri');
-                          case 5:
-                            return const Text('Sat');
-                          case 6:
-                            return const Text('Sun');
-                          default:
-                            return const Text('');
-                        }
-                      },
-                    )),
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        interval: 1,
+                        getTitlesWidget: (value, meta) {
+                          const style = TextStyle(
+                            color: Color(0xff68737d),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          );
+                          Widget text;
+                          switch (value.toInt()) {
+                            case 0:
+                              text = const Text('Mon', style: style);
+                              break;
+                            case 2:
+                              text = const Text('Wed', style: style);
+                              break;
+                            case 4:
+                              text = const Text('Fri', style: style);
+                              break;
+                            case 6:
+                              text = const Text('Sun', style: style);
+                              break;
+                            default:
+                              text = const Text('', style: style);
+                              break;
+                          }
+                          return text;
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1,
+                        reservedSize: 42,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            '\$${value.toInt()}k',
+                            style: GoogleFonts.poppins(
+                              color: Color(0xff68737d),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                    border:
+                        Border.all(color: const Color(0xff37434d), width: 1),
                   ),
                   minX: 0,
                   maxX: 6,
                   minY: 0,
-                  maxY: maxY,
+                  maxY: 6,
                   lineBarsData: [
                     LineChartBarData(
-                      spots: weeklyData.asMap().entries.map((entry) {
-                        return FlSpot(entry.key.toDouble(), entry.value);
+                      spots: data.map((point) {
+                        return FlSpot(
+                          point['x'].toDouble(),
+                          point['y'].toDouble(),
+                        );
                       }).toList(),
                       isCurved: true,
-                      color: Theme.of(context).primaryColor,
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).primaryColor,
+                          Theme.of(context).primaryColor.withOpacity(0.5),
+                        ],
+                      ),
                       barWidth: 3,
                       isStrokeCapRound: true,
                       dotData: FlDotData(show: true),
@@ -85,7 +140,7 @@ class EarningsChart extends StatelessWidget {
                         show: true,
                         gradient: LinearGradient(
                           colors: [
-                            Theme.of(context).primaryColor.withOpacity(0.3),
+                            Theme.of(context).primaryColor.withOpacity(0.2),
                             Theme.of(context).primaryColor.withOpacity(0.0),
                           ],
                           begin: Alignment.topCenter,

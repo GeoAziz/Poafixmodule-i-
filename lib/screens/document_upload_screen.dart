@@ -10,6 +10,8 @@ import '../services/document_sync_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class DocumentUploadScreen extends StatefulWidget {
+  const DocumentUploadScreen({super.key});
+
   @override
   _DocumentUploadScreenState createState() => _DocumentUploadScreenState();
 }
@@ -20,6 +22,8 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
   final _storage = const FlutterSecureStorage();
   List<ProviderDocument> _documents = [];
   bool _isLoading = true;
+  bool _isUploading = false;
+  String? _uploadingDocType;
 
   @override
   void initState() {
@@ -121,14 +125,14 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
       if (result != null) {
         final file = File(result.files.single.path!);
 
-        // Validate document
         await _documentService.validateDocument(file, documentType);
-
-        // Compress if it's an image
         final compressedFile = await CompressionService.compressFile(file);
         if (compressedFile == null) return;
 
-        setState(() => _isLoading = true);
+        setState(() {
+          _isUploading = true;
+          _uploadingDocType = documentType;
+        });
 
         final success = await _documentService.uploadDocument(
           documentType: documentType,
@@ -139,7 +143,6 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
         );
 
         if (success) {
-          // Cache document locally
           await DocumentCacheService.cacheDocument(
             ProviderDocument(
               id: DateTime.now().toString(),
@@ -151,7 +154,6 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
             ),
             compressedFile.path,
           );
-
           _showSuccess('Document uploaded successfully');
           _loadDocuments();
         }
@@ -159,7 +161,11 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
     } catch (e) {
       _showError(e.toString());
     } finally {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isUploading = false;
+        _uploadingDocType = null;
+        _isLoading = false;
+      });
     }
   }
 
@@ -235,27 +241,52 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: _checkAuthAndLoadDocuments,
+            tooltip: 'Refresh',
           ),
         ],
       ),
-      body: _isLoading
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading documents...'),
-                ],
+      body: Stack(
+        children: [
+          _isLoading
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Loading documents...'),
+                    ],
+                  ),
+                )
+              : _documents.isEmpty
+                  ? _buildEmptyState()
+                  : _buildDocumentList(),
+          if (_isUploading)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                height: 80,
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 16),
+                      Text('Uploading $_uploadingDocType...'),
+                    ],
+                  ),
+                ),
               ),
-            )
-          : _documents.isEmpty
-              ? _buildEmptyState()
-              : _buildDocumentList(),
+            ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _pickAndUploadFile('Business License'),
+        onPressed: () => _pickAndUploadMultipleFiles('Business License'),
         label: Text('Upload'),
-        icon: Icon(Icons.upload_file),
+        icon: Icon(Icons.upload_file, semanticLabel: 'Upload Document'),
       ),
     );
   }
@@ -331,38 +362,95 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
   }
 
   Widget _buildDocumentCard(String documentType, ProviderDocument? document) {
+    final status = document?.status ?? 'pending';
+    final isExpiring = document?.expiryDate != null &&
+        document!.expiryDate!.difference(DateTime.now()).inDays <= 7;
+    final statusColor = {
+          'verified': Colors.green,
+          'pending': Colors.orange,
+          'rejected': Colors.red,
+        }[status] ??
+        Colors.grey;
+    final statusIcon = {
+          'verified': Icons.check_circle,
+          'pending': Icons.hourglass_top,
+          'rejected': Icons.cancel,
+        }[status] ??
+        Icons.help;
+
     return Card(
       margin: EdgeInsets.only(bottom: 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: Icon(_getDocumentIcon(documentType)),
+            leading: Semantics(
+              label: '$documentType Icon',
+              child: Icon(_getDocumentIcon(documentType)),
+            ),
             title: Text(documentType),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Status: ${_getStatusText(document?.status)}'),
-                if (document?.adminComment != null)
-                  Text(
-                    'Comment: ${document!.adminComment}',
-                    style: TextStyle(color: Colors.red),
+                Row(
+                  children: [
+                    Icon(statusIcon,
+                        color: statusColor,
+                        size: 18,
+                        semanticLabel: 'Status Icon'),
+                    SizedBox(width: 4),
+                    Text(
+                      _getStatusText(status),
+                      style: TextStyle(
+                          color: statusColor, fontWeight: FontWeight.bold),
+                    ),
+                    if (isExpiring)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          'Expiring soon!',
+                          style: TextStyle(
+                              color: Colors.red, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                  ],
+                ),
+                if (document?.adminComment != null && status == 'rejected')
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      'Reason: ${document!.adminComment}',
+                      style: TextStyle(
+                          color: Colors.red, fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                if (document?.expiryDate != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2.0),
+                    child: Text(
+                      'Expires: ${document!.expiryDate!.toLocal().toString().split(' ')[0]}',
+                      style: TextStyle(
+                          color: isExpiring ? Colors.red : Colors.grey),
+                    ),
                   ),
               ],
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (document?.fileUrl != null)
-                  IconButton(
-                    icon: Icon(Icons.remove_red_eye),
-                    onPressed: () => _previewDocument(document!),
+                if (document?.fileUrl != null && document!.fileUrl.isNotEmpty)
+                  Semantics(
+                    label: 'Preview Document',
+                    child: IconButton(
+                      icon: Icon(Icons.remove_red_eye),
+                      onPressed: () => _previewDocument(document!),
+                    ),
                   ),
                 _buildUploadButton(documentType, document),
               ],
             ),
           ),
-          if (document?.status == 'rejected')
+          if (status == 'rejected')
             Container(
               color: Colors.red.shade50,
               width: double.infinity,
@@ -423,12 +511,17 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
 
   Widget _buildUploadButton(String documentType, ProviderDocument? document) {
     if (document?.status == 'verified') {
-      return Icon(Icons.check_circle, color: Colors.green);
+      return Semantics(
+        label: 'Verified',
+        child: Icon(Icons.check_circle, color: Colors.green),
+      );
     }
-
-    return ElevatedButton(
-      onPressed: () => _pickAndUploadFile(documentType),
-      child: Text(document != null ? 'Re-upload' : 'Upload'),
+    return Semantics(
+      label: document != null ? 'Re-upload Document' : 'Upload Document',
+      child: ElevatedButton(
+        onPressed: () => _pickAndUploadFile(documentType),
+        child: Text(document != null ? 'Re-upload' : 'Upload'),
+      ),
     );
   }
 

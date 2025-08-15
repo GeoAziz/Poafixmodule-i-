@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Add this import for kDebugMode
 import 'package:lottie/lottie.dart';
-import 'package:poafix/screens/service_provider/service_provider_screen.dart'
-    as sp;
-import 'package:poafix/services/auth_service.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../service_provider/service_provider_screen.dart' as sp;
+import '../../services/auth_service.dart';
 import '../../services/api_config.dart';
 import '../home/home_screen.dart';
 import '../../models/user_model.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -72,10 +70,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
@@ -209,23 +204,23 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Lottie.asset(
                       'assets/animations/profile.json',
                       repeat: true,
-                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                        'assets/poafix_logo.jpg',
-                        width: 80,
-                      ),
+                      errorBuilder: (context, error, stackTrace) =>
+                          Image.asset('assets/poafix_logo.jpg', width: 80),
                     ),
                   ),
                   const SizedBox(height: 24),
                   Text(
                     'Welcome Back!',
-                    style: theme.textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Sign in to continue',
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(color: Colors.grey[600]),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
                   ),
                   const SizedBox(height: 32),
                   // Email field with validation

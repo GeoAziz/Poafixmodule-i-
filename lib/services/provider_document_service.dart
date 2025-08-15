@@ -44,7 +44,7 @@ class ProviderDocumentService {
         throw Exception('Authentication required');
       }
       final response = await _client.get(
-        Uri.parse('${ApiConfig.baseUrl}/provider-documents/$providerId'),
+        Uri.parse('${ApiConfig.baseUrl}/api/provider-documents/$providerId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ class ProviderDocumentService {
       if (token == null || providerId == null) {
         throw Exception('Authentication required');
       }
-      var uri = Uri.parse('${ApiConfig.baseUrl}/provider-documents/upload');
+      var uri = Uri.parse('${ApiConfig.baseUrl}/api/provider-documents/upload');
       var request = http.MultipartRequest('POST', uri)
         ..headers.addAll({'Authorization': 'Bearer $token'})
         ..fields['providerId'] = providerId

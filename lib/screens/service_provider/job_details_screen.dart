@@ -12,10 +12,10 @@ class JobDetailsScreen extends StatefulWidget {
   final JobService jobService;
 
   const JobDetailsScreen({
-    Key? key,
+    super.key,
     required this.job,
     required this.jobService,
-  }) : super(key: key);
+  });
 
   @override
   State<JobDetailsScreen> createState() => _JobDetailsScreenState();
@@ -306,7 +306,7 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> {
       margin: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          Container(
+          SizedBox(
             height: 200,
             child: FlutterMap(
               options: MapOptions(

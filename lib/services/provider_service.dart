@@ -202,7 +202,7 @@ class ProviderService {
       final token = await _storage.read(key: 'auth_token');
 
       final response = await http.put(
-        Uri.parse('${ApiConfig.baseUrl}/providers/$providerId/location'),
+        Uri.parse('${ApiConfig.baseUrl}/api/providers/$providerId/location'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

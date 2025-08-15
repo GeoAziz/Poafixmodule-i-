@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "561314373498",
+    "project_id": "poafix",
+    "storage_bucket": "poafix.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:561314373498:android:1822379f2a2f7aaf7fc0c3",
+        "android_client_info": {
+          "package_name": "com.example.poafix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "561314373498-7nc1s955fi748pq43pi2dsv0lianscmt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.poafix",
+            "certificate_hash": "85a1a2f767f512ea45b6457b95b5f1fb3cdc76ba"
+          }
+        },
+        {
+          "client_id": "561314373498-pluhr0s4r9a5ntcgfsjpdpgto8br6076.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFNmUDrt5H0G8S5hyrDVvQfobVWbR6mkI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "561314373498-4j4asqhsk0rqoffetc3fm2up5f7s07rn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

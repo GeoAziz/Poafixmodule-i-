@@ -22,7 +22,7 @@ class AdvancedSearchScreen extends StatefulWidget {
 
 class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
   final _searchController = TextEditingController();
-  
+
   // Search filters
   String _selectedService = '';
   double _maxDistance = 5.0; // km
@@ -31,11 +31,11 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
   bool _isAvailableNow = false;
   bool _isVerified = false;
   String _sortBy = 'distance'; // distance, rating, price, availability
-  
+
   // Location data
   LatLng? _selectedLocation;
   String _locationText = 'Current Location';
-  
+
   // Service types
   final List<String> _serviceTypes = [
     'Plumbing',
@@ -83,7 +83,7 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
       '/location-picker',
       arguments: _selectedLocation,
     );
-    
+
     if (result != null && result is Map) {
       setState(() {
         _selectedLocation = LatLng(result['lat'], result['lng']);
@@ -148,7 +148,8 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                   children: [
                     const Text(
                       'What service do you need?',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     TextField(
@@ -163,9 +164,9 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Service type selection
             Card(
               child: Padding(
@@ -175,7 +176,8 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                   children: [
                     const Text(
                       'Service Category',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
@@ -200,9 +202,9 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Location selection
             Card(
               child: Padding(
@@ -212,7 +214,8 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                   children: [
                     const Text(
                       'Location',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     GestureDetector(
@@ -237,9 +240,9 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Filters
             Card(
               child: Padding(
@@ -249,12 +252,14 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                   children: [
                     const Text(
                       'Filters',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Distance filter
-                    Text('Maximum Distance: ${_maxDistance.toStringAsFixed(1)} km'),
+                    Text(
+                        'Maximum Distance: ${_maxDistance.toStringAsFixed(1)} km'),
                     Slider(
                       value: _maxDistance,
                       min: 1.0,
@@ -266,9 +271,9 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                         });
                       },
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Rating filter
                     const Text('Minimum Rating'),
                     RatingBar.builder(
@@ -288,11 +293,12 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                         });
                       },
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Price range filter
-                    Text('Price Range: KES ${_priceRange.start.round()} - KES ${_priceRange.end.round()}'),
+                    Text(
+                        'Price Range: KES ${_priceRange.start.round()} - KES ${_priceRange.end.round()}'),
                     RangeSlider(
                       values: _priceRange,
                       min: 0,
@@ -308,9 +314,9 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                         });
                       },
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Quick filters
                     CheckboxListTile(
                       title: const Text('Available Now'),
@@ -321,7 +327,7 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                         });
                       },
                     ),
-                    
+
                     CheckboxListTile(
                       title: const Text('Verified Providers Only'),
                       value: _isVerified,
@@ -331,9 +337,9 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                         });
                       },
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Sort options
                     const Text('Sort By'),
                     DropdownButtonFormField<String>(
@@ -342,11 +348,18 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                         border: OutlineInputBorder(),
                       ),
                       items: const [
-                        DropdownMenuItem(value: 'distance', child: Text('Distance')),
-                        DropdownMenuItem(value: 'rating', child: Text('Highest Rating')),
-                        DropdownMenuItem(value: 'price_low', child: Text('Price: Low to High')),
-                        DropdownMenuItem(value: 'price_high', child: Text('Price: High to Low')),
-                        DropdownMenuItem(value: 'availability', child: Text('Availability')),
+                        DropdownMenuItem(
+                            value: 'distance', child: Text('Distance')),
+                        DropdownMenuItem(
+                            value: 'rating', child: Text('Highest Rating')),
+                        DropdownMenuItem(
+                            value: 'price_low',
+                            child: Text('Price: Low to High')),
+                        DropdownMenuItem(
+                            value: 'price_high',
+                            child: Text('Price: High to Low')),
+                        DropdownMenuItem(
+                            value: 'availability', child: Text('Availability')),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -358,9 +371,9 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Search button
             SizedBox(
               width: double.infinity,
@@ -432,7 +445,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   Future<void> _searchProviders() async {
     setState(() => _isLoading = true);
     try {
-      final providersResponse = await ProviderService.searchProvidersWithFilters(
+      final providersResponse =
+          await ProviderService.searchProvidersWithFilters(
         serviceType: widget.serviceType,
         location: {
           'lat': widget.location.latitude,
@@ -489,7 +503,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.search_off, size: 64, color: Colors.grey),
+                          const Icon(Icons.search_off,
+                              size: 64, color: Colors.grey),
                           const SizedBox(height: 16),
                           const Text('No providers found'),
                           const SizedBox(height: 8),
@@ -512,7 +527,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                             children: [
                               Text(
                                 '${_providers.length} providers found',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
                               ),
                               const Spacer(),
                               TextButton(
@@ -522,7 +538,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                             ],
                           ),
                         ),
-                        
+
                         // Results list
                         Expanded(
                           child: ListView.builder(
@@ -531,7 +547,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               return ProviderSearchCard(
                                 provider: _providers[index],
                                 searchLocation: widget.location,
-                                onTap: () => _navigateToBooking(_providers[index]),
+                                onTap: () =>
+                                    _navigateToBooking(_providers[index]),
                               );
                             },
                           ),
@@ -592,12 +609,13 @@ class ProviderSearchCard extends StatelessWidget {
                     backgroundColor: Colors.blue[100],
                     child: Text(
                       (provider['businessName'] ?? 'P')[0].toUpperCase(),
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  
+
                   const SizedBox(width: 16),
-                  
+
                   // Provider info
                   Expanded(
                     child: Column(
@@ -622,9 +640,9 @@ class ProviderSearchCard extends StatelessWidget {
                               ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 4),
-                        
+
                         Text(
                           provider['serviceOffered'] ?? 'Service',
                           style: TextStyle(
@@ -632,9 +650,9 @@ class ProviderSearchCard extends StatelessWidget {
                             fontSize: 14,
                           ),
                         ),
-                        
+
                         const SizedBox(height: 8),
-                        
+
                         // Rating and distance
                         Row(
                           children: [
@@ -672,14 +690,15 @@ class ProviderSearchCard extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Price and availability
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: isAvailable ? Colors.green[100] : Colors.red[100],
                       borderRadius: BorderRadius.circular(12),
@@ -687,15 +706,14 @@ class ProviderSearchCard extends StatelessWidget {
                     child: Text(
                       isAvailable ? 'Available' : 'Busy',
                       style: TextStyle(
-                        color: isAvailable ? Colors.green[700] : Colors.red[700],
+                        color:
+                            isAvailable ? Colors.green[700] : Colors.red[700],
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  
                   const Spacer(),
-                  
                   if (provider['basePrice'] != null)
                     Text(
                       'From KES ${provider['basePrice']}',
@@ -715,18 +733,30 @@ class ProviderSearchCard extends StatelessWidget {
   }
 
   double _calculateDistance() {
-    if (provider['location'] == null || provider['location']['coordinates'] == null) {
+    try {
+      if (provider['location'] == null ||
+          provider['location']['coordinates'] == null) {
+        return 0.0;
+      }
+
+      final coordinates = provider['location']['coordinates'] as List;
+      if (coordinates.length < 2) {
+        return 0.0;
+      }
+
+      final providerLng = (coordinates[0] as num).toDouble();
+      final providerLat = (coordinates[1] as num).toDouble();
+
+      return Geolocator.distanceBetween(
+            searchLocation.latitude,
+            searchLocation.longitude,
+            providerLat,
+            providerLng,
+          ) /
+          1000; // Convert to kilometers
+    } catch (e) {
+      print('Error calculating distance: $e');
       return 0.0;
     }
-    
-    final providerLat = provider['location']['coordinates'][1].toDouble();
-    final providerLng = provider['location']['coordinates'][0].toDouble();
-    
-    return Geolocator.distanceBetween(
-      searchLocation.latitude,
-      searchLocation.longitude,
-      providerLat,
-      providerLng,
-    ) / 1000; // Convert to kilometers
   }
 }

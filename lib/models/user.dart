@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../core/models/user_model.dart';
 
 class User {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ServicePreferencesScreen extends StatefulWidget {
+  const ServicePreferencesScreen({super.key});
+
   @override
   _ServicePreferencesScreenState createState() =>
       _ServicePreferencesScreenState();

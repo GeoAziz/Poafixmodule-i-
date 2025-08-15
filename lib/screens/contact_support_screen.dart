@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactSupportScreen extends StatefulWidget {
-  const ContactSupportScreen({Key? key}) : super(key: key);
+  const ContactSupportScreen({super.key});
 
   @override
   State<ContactSupportScreen> createState() => _ContactSupportScreenState();

@@ -5,11 +5,13 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../location/location_picker_screen.dart';
 import '../../services/location_service.dart';
+import '../../widgets/bottomnavbar.dart';
+import '../../widgets/client_sidepanel.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user; // Accept user argument
 
-  ProfileScreen({Key? key, required this.user}) : super(key: key);
+  const ProfileScreen({super.key, required this.user});
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -24,7 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _confirmPasswordController = TextEditingController();
   File? _profileImage;
   Map<String, dynamic>? _profileData;
-  Map<String, dynamic> _stats = {};
+  final Map<String, dynamic> _stats = {};
   bool _isLoading = true;
 
   @override
@@ -72,13 +74,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       await _authStorage.updateProfile(updates);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated successfully')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Profile updated successfully')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to update profile: $e')));
     }
   }
 
@@ -91,26 +93,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
         newPassword: _newPasswordController.text,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Password changed successfully')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Password changed successfully')));
 
       // Clear password fields
       _currentPasswordController.clear();
       _newPasswordController.clear();
       _confirmPasswordController.clear();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to change password: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to change password: $e')));
     }
   }
 
   bool _validatePasswordForm() {
     if (_newPasswordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Passwords do not match')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Passwords do not match')));
       return false;
     }
 
@@ -142,8 +144,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showEditProfileDialog() {
     final nameController = TextEditingController(text: _profileData?['name']);
     final emailController = TextEditingController(text: _profileData?['email']);
-    final phoneController =
-        TextEditingController(text: _profileData?['phoneNumber']);
+    final phoneController = TextEditingController(
+      text: _profileData?['phoneNumber'],
+    );
 
     showDialog(
       context: context,
@@ -177,8 +180,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     final ImagePicker picker = ImagePicker();
-                    final XFile? image =
-                        await picker.pickImage(source: ImageSource.gallery);
+                    final XFile? image = await picker.pickImage(
+                      source: ImageSource.gallery,
+                    );
                     if (image != null) {
                       setState(() {
                         _profileImage = File(image.path);
@@ -262,15 +266,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-        automaticallyImplyLeading: true,
-      ),
+      appBar: AppBar(title: Text('Profile'), automaticallyImplyLeading: true),
+  drawer: ClientSidePanel(user: widget.user, parentContext: context),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _buildProfileAvatar(), // Add this new section
+              _buildProfileAvatar(),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -289,6 +291,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: FunctionalBottomNavBar(
+        currentIndex: 3,
+        unreadCount: 0, // You can pass the actual unread count if available
+        user: widget.user,
+        onTap: (index) {
+          if (index == 3) return; // Already on profile
+          switch (index) {
+            case 0:
+              Navigator.pushReplacementNamed(
+                context,
+                '/home',
+                arguments: widget.user,
+              );
+              break;
+            case 1:
+              Navigator.pushReplacementNamed(
+                context,
+                '/select-service', // Use correct route name
+                arguments: widget.user,
+              );
+              break;
+            case 2:
+              Navigator.pushReplacementNamed(
+                context,
+                '/bookings',
+                arguments: widget.user,
+              );
+              break;
+            case 4:
+              Navigator.pushNamed(
+                context,
+                '/notifications',
+                arguments: widget.user,
+              );
+              break;
+          }
+        },
       ),
     );
   }
@@ -321,9 +361,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           Text(
             _profileData?['email'] ?? '',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
           ),
         ],
       ),
@@ -346,9 +386,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildInfoRow('Location', _profileData?['location'] ?? 'Not set'),
             if (_profileData?['userType'] == 'service-provider') ...[
               _buildInfoRow(
-                  'Business Name', _profileData?['businessName'] ?? 'Not set'),
+                'Business Name',
+                _profileData?['businessName'] ?? 'Not set',
+              ),
               _buildInfoRow(
-                  'Service Type', _profileData?['serviceOffered'] ?? 'Not set'),
+                'Service Type',
+                _profileData?['serviceOffered'] ?? 'Not set',
+              ),
             ],
           ],
         ),
@@ -382,7 +426,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildStatsSection() {
-    return Container(
+    return SizedBox(
       height: 100,
       child: ListView(
         scrollDirection: Axis.horizontal,
@@ -405,16 +449,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Text(
               value,
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text(label, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),
@@ -464,22 +504,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final locations = snapshot.data ?? [];
 
         if (locations.isEmpty) {
-          return Center(
-            child: Text('No saved locations yet'),
-          );
+          return Center(child: Text('No saved locations yet'));
         }
 
         return Column(
           children: locations
-              .map((location) => ListTile(
-                    leading: Icon(Icons.location_on),
-                    title: Text(location['name'] ?? ''),
-                    subtitle: Text(location['address'] ?? ''),
-                    trailing: IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () => _editLocation(location),
-                    ),
-                  ))
+              .map(
+                (location) => ListTile(
+                  leading: Icon(Icons.location_on),
+                  title: Text(location['name'] ?? ''),
+                  subtitle: Text(location['address'] ?? ''),
+                  trailing: IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () => _editLocation(location),
+                  ),
+                ),
+              )
               .toList(),
         );
       },
@@ -495,9 +535,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              decoration: InputDecoration(labelText: 'Location Name'),
-            ),
+            TextField(decoration: InputDecoration(labelText: 'Location Name')),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
@@ -527,10 +565,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _editLocation(Map<String, dynamic> location) async {
-    final TextEditingController nameController =
-        TextEditingController(text: location['name']);
-    final TextEditingController addressController =
-        TextEditingController(text: location['address']);
+    final TextEditingController nameController = TextEditingController(
+      text: location['name'],
+    );
+    final TextEditingController addressController = TextEditingController(
+      text: location['address'],
+    );
 
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
@@ -588,13 +628,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (result != null) {
       // Update the location in storage and state
       final locations = await _locationService.getSavedLocations();
-      final index =
-          locations.indexWhere((loc) => loc['name'] == location['name']);
+      final index = locations.indexWhere(
+        (loc) => loc['name'] == location['name'],
+      );
       if (index != -1) {
-        locations[index] = {
-          ...locations[index],
-          ...result,
-        };
+        locations[index] = {...locations[index], ...result};
         await _locationService.saveLocations(locations);
         setState(() {}); // Refresh UI
       }
@@ -605,14 +643,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Actions',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text('Actions', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         _buildActionTile('Edit Profile', Icons.edit, _showEditProfileDialog),
         _buildActionTile(
-            'Change Password', Icons.lock, _showChangePasswordDialog),
+          'Change Password',
+          Icons.lock,
+          _showChangePasswordDialog,
+        ),
         _buildActionTile('Notifications', Icons.notifications, () {
           // TODO: Implement notifications settings
         }),

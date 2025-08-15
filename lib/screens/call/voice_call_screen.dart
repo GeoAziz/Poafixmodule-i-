@@ -10,13 +10,13 @@ class VoiceCallScreen extends StatefulWidget {
   final VoidCallback onCallEnded;
 
   const VoiceCallScreen({
-    Key? key,
+    super.key,
     required this.channelId,
     required this.calleeName,
     required this.isIncoming,
     required this.engine,
     required this.onCallEnded,
-  }) : super(key: key);
+  });
 
   @override
   _VoiceCallScreenState createState() => _VoiceCallScreenState();

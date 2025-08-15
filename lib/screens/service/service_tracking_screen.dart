@@ -7,8 +7,7 @@ import '../../providers/booking_notifier.dart';
 class ServiceTrackingScreen extends StatefulWidget {
   final Booking booking;
 
-  const ServiceTrackingScreen({Key? key, required this.booking})
-      : super(key: key);
+  const ServiceTrackingScreen({super.key, required this.booking});
 
   @override
   _ServiceTrackingScreenState createState() => _ServiceTrackingScreenState();
@@ -33,8 +32,9 @@ class _ServiceTrackingScreenState extends State<ServiceTrackingScreen> {
         body: Consumer<BookingNotifier>(
           builder: (context, notifier, child) {
             final booking = notifier.currentBooking;
-            if (booking == null)
+            if (booking == null) {
               return const Center(child: CircularProgressIndicator());
+            }
 
             return Column(
               children: [
@@ -94,7 +94,7 @@ class _ServiceTrackingScreenState extends State<ServiceTrackingScreen> {
           children: [
             Text('Service: ${booking.serviceType}'),
             Text('Time: ${booking.scheduledTime}'),
-            if (booking.notes != null) Text('Notes: ${booking.notes}'),
+            Text('Notes: ${booking.notes}'),
           ],
         ),
       ),

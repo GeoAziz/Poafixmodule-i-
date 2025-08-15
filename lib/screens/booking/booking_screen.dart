@@ -24,7 +24,7 @@ class BookingScreen extends StatefulWidget {
   final String? selectedService;
 
   const BookingScreen({
-    Key? key,
+    super.key,
     this.provider,
     this.serviceOffered,
     this.providerName,
@@ -33,7 +33,7 @@ class BookingScreen extends StatefulWidget {
     this.selectedServices,
     this.user,
     this.selectedService,
-  }) : super(key: key);
+  });
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -53,6 +53,27 @@ class _BookingScreenState extends State<BookingScreen> {
 
   // Add clientId field
   String? _effectiveClientId;
+    // Track if clientId is loaded and valid
+    bool get _isClientIdReady => _effectiveClientId != null && _effectiveClientId!.isNotEmpty;
+
+  // Always load clientId from secure storage before booking submission
+  Future<void> _ensureClientIdLoaded() async {
+    if (_effectiveClientId == null || _effectiveClientId!.isEmpty) {
+      final clientId = await _storage.read(key: 'userId');
+      print('[DEBUG] _ensureClientIdLoaded: Read clientId from storage: $clientId');
+      if (clientId != null && clientId.isNotEmpty) {
+        setState(() {
+          _effectiveClientId = clientId;
+        });
+        print('[DEBUG] Loaded client ID (on demand): $_effectiveClientId');
+      } else {
+        print('[DEBUG] No client ID found in storage (on demand)');
+        _showErrorDialog('Client ID not found. Please login again.');
+      }
+    } else {
+      print('[DEBUG] _ensureClientIdLoaded: _effectiveClientId already set: $_effectiveClientId');
+    }
+  }
 
   final BookingService _bookingService = BookingService();
   bool _isInitialized = false;
@@ -82,20 +103,19 @@ class _BookingScreenState extends State<BookingScreen> {
   Future<void> _loadClientId() async {
     try {
       final storage = const FlutterSecureStorage();
-      // Change key to match what was stored in login screen
       final clientId = await storage.read(key: 'userId');
-
+      print('[DEBUG] _loadClientId: Read clientId from storage: $clientId');
       if (clientId != null && clientId.isNotEmpty) {
         setState(() {
           _effectiveClientId = clientId;
         });
-        print('Loaded client ID: $_effectiveClientId');
+        print('[DEBUG] Loaded client ID: $_effectiveClientId');
       } else {
-        print('No client ID found in storage');
+        print('[DEBUG] No client ID found in storage');
         _showErrorDialog('Client ID not found. Please login again.');
       }
     } catch (e) {
-      print('Error loading client ID: $e');
+      print('[DEBUG] Error loading client ID: $e');
       _showErrorDialog('Error loading client information');
     }
   }
@@ -136,14 +156,18 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Future<void> _submitBooking() async {
-    // Add debug log
     print('🔄 Starting booking submission...');
-
+    await _ensureClientIdLoaded();
+    print('[DEBUG] _submitBooking: _effectiveClientId after ensure: $_effectiveClientId');
+    if (!_isClientIdReady) {
+      print('[DEBUG] _submitBooking: clientId not ready, aborting booking submission');
+      _showErrorDialog('Client ID not loaded. Please login again.');
+      return;
+    }
     if (!_validateBooking()) {
       print('❌ Validation failed, stopping submission');
       return;
     }
-
     setState(() => _isLoading = true);
 
     try {
@@ -546,15 +570,15 @@ class _BookingScreenState extends State<BookingScreen> {
               child: _isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: _submitBooking,
+                      onPressed: _isClientIdReady ? _submitBooking : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: _isClientIdReady ? Colors.green : Colors.grey,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 50,
                           vertical: 15,
                         ),
                       ),
-                      child: const Text('Confirm Booking'),
+                      child: Text(_isClientIdReady ? 'Confirm Booking' : 'Loading Client Info...'),
                     ),
             ),
           ],

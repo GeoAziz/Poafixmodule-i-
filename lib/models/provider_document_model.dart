@@ -24,16 +24,16 @@ class ProviderDocument {
 
   factory ProviderDocument.fromJson(Map<String, dynamic> json) {
     return ProviderDocument(
-      id: json['id'] ?? '',
-      providerId: json['providerId'] ?? '',
-      documentType: json['documentType'] ?? '',
-      fileUrl: json['fileUrl'] ?? '',
+      id: json['_id'] ?? json['id'] ?? '',
+      providerId: json['providerId']?.toString() ?? '',
+      documentType: json['type'] ?? json['documentType'] ?? '',
+      fileUrl: json['documentUrl'] ?? json['fileUrl'] ?? '',
       status: json['status'] ?? 'pending',
-      uploadedAt: DateTime.parse(json['uploadedAt']),
+      uploadedAt: DateTime.parse(json['createdAt'] ?? json['uploadedAt']),
       verifiedAt: json['verifiedAt'] != null
           ? DateTime.parse(json['verifiedAt'])
           : null,
-      adminComment: json['adminComment'],
+      adminComment: json['verificationNotes'] ?? json['adminComment'],
       expiryDate: json['expiryDate'] != null
           ? DateTime.parse(json['expiryDate'])
           : null,

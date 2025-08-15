@@ -4,16 +4,24 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../services/notification_service.dart';
 import '../../models/notification_model.dart';
 
+// Remove duplicate imports and move all imports to the top
+
 class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
+
   @override
-  _NotificationsScreenState createState() => _NotificationsScreenState();
+  NotificationsScreenState createState() => NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class NotificationsScreenState extends State<NotificationsScreen> {
   final NotificationService _notificationService = NotificationService();
   bool _isLoading = true;
   String? _error;
   List<NotificationModel> _notifications = [];
+
+  int _getUnreadCount() {
+    return _notifications.where((n) => !(n.read ?? false)).length;
+  }
 
   @override
   void initState() {
@@ -32,8 +40,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       // Replace 'yourRecipientId' with actual user ID from storage or auth
       final String? userId = await _getUserId();
       if (userId == null) throw Exception('User ID not found');
-      final notifications =
-          await _notificationService.getNotifications(recipientId: userId);
+      final notifications = await _notificationService.getNotifications(
+        recipientId: userId,
+        recipientModel:
+            'provider', // Replace 'provider' with the correct model if needed
+      );
 
       if (mounted) {
         setState(() {
@@ -103,12 +114,52 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       );
     }
 
-    return ListView.builder(
-      itemCount: _notifications.length,
-      itemBuilder: (context, index) {
-        final notification = _notifications[index];
-        return _buildNotificationCard(notification);
-      },
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Text(
+                'Notifications',
+                style: GoogleFonts.poppins(
+                    fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              Spacer(),
+              AnimatedSwitcher(
+                duration: Duration(milliseconds: 400),
+                transitionBuilder: (child, anim) =>
+                    ScaleTransition(scale: anim, child: child),
+                child: _getUnreadCount() > 0
+                    ? Container(
+                        key: ValueKey<int>(_getUnreadCount()),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          '${_getUnreadCount()} Unread',
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: _notifications.length,
+            itemBuilder: (context, index) {
+              final notification = _notifications[index];
+              return _buildNotificationCard(notification);
+            },
+          ),
+        ),
+      ],
     );
   }
 

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../services/mpesa_service.dart';
 import 'package:lottie/lottie.dart';
+import 'package:logger/logger.dart';
 
 class ServicePaymentScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
   final double amount;
 
   const ServicePaymentScreen({
-    Key? key,
+    super.key,
     required this.booking,
     required this.amount,
-  }) : super(key: key);
+  });
 
   @override
   State<ServicePaymentScreen> createState() => _ServicePaymentScreenState();
@@ -19,6 +20,7 @@ class ServicePaymentScreen extends StatefulWidget {
 class _ServicePaymentScreenState extends State<ServicePaymentScreen> {
   final _phoneController = TextEditingController();
   bool _isProcessing = false;
+  final Logger _logger = Logger();
 
   Future<void> _initiatePayment() async {
     if (_phoneController.text.isEmpty) {
@@ -39,6 +41,7 @@ class _ServicePaymentScreenState extends State<ServicePaymentScreen> {
 
       if (!mounted) return;
 
+      _logger.i('Payment initiated for booking ${widget.booking['_id']}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('Payment initiated. Check your phone for STK push')),
@@ -48,6 +51,7 @@ class _ServicePaymentScreenState extends State<ServicePaymentScreen> {
       _pollPaymentStatus(widget.booking['_id']);
     } catch (e) {
       if (!mounted) return;
+      _logger.e('Payment initiation failed: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Payment initiation failed: ${e.toString()}')),
       );
@@ -67,15 +71,36 @@ class _ServicePaymentScreenState extends State<ServicePaymentScreen> {
         if (status['status'] == 'completed') {
           completed = true;
           if (!mounted) return;
+          _logger.i('Payment completed for booking $bookingId');
           Navigator.of(context).popUntil((route) => route.isFirst);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Payment completed successfully')),
           );
+          // TODO: Trigger booking/job status refresh here
+        } else if (status['status'] == 'failed') {
+          if (!mounted) return;
+          _logger.w('Payment failed for booking $bookingId');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Payment failed. Please try again.')),
+          );
+          break;
         }
       } catch (e) {
-        print('Error checking payment status: $e');
+        _logger.e('Error checking payment status: $e');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error checking payment status: $e')),
+        );
       }
       attempts++;
+    }
+    if (!completed && mounted) {
+      _logger.w('Payment polling timed out for booking $bookingId');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Payment not completed. Please check your phone or try again.')),
+      );
     }
   }
 

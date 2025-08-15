@@ -3,6 +3,8 @@ import '../models/client.dart'; // Correct import for Client model
 import 'services/client_service.dart'; // Correct import for ClientService
 
 class ClientsScreen extends StatefulWidget {
+  const ClientsScreen({super.key});
+
   @override
   _ClientsScreenState createState() => _ClientsScreenState();
 }

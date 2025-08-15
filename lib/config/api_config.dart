@@ -3,15 +3,26 @@ import '../services/network_service.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiConfig {
+  // Payment API endpoints (replace with your actual endpoints)
+  static const String mpesaPaymentUrl = 'https://api.mpesa.com/v1/payments';
+  static const String airtelPaymentUrl =
+      'https://api.airtelmoney.com/v1/payments';
+  static const String equitelPaymentUrl = 'https://api.equitel.com/v1/payments';
+  static const String kcbMpesaPaymentUrl =
+      'https://api.kcbmpesa.com/v1/payments';
+  static const String paypalPaymentUrl = 'https://api.paypal.com/v1/payments';
+  // Payment API key (replace with your actual key or load from env)
+  static const String paymentApiKey = 'YOUR_API_KEY';
   static final NetworkService _networkService = NetworkService();
-  
+
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const int maxRetries = 3;
   static const Duration retryDelay = Duration(seconds: 2);
 
   /// Get the current working base URL
   static String get baseUrl {
-    return _networkService.baseUrl ?? 'http://10.0.2.2:5000'; // Default for emulator
+    return _networkService.baseUrl ??
+        'http://10.0.2.2:5000'; // Default for emulator
   }
 
   /// Initialize network discovery (call this on app start)
@@ -19,9 +30,9 @@ class ApiConfig {
     if (kDebugMode) {
       print('🔄 Initializing network discovery...');
     }
-    
+
     final discoveredUrl = await _networkService.discoverBackendUrl();
-    
+
     if (kDebugMode) {
       if (discoveredUrl != null) {
         print('✅ Network initialization complete. Base URL: $discoveredUrl');

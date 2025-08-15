@@ -6,6 +6,8 @@ import '../../models/user_model.dart';
 import '../../screens/client/edit_profile_screen.dart';
 
 class ClientProfileScreen extends StatefulWidget {
+  const ClientProfileScreen({super.key});
+
   @override
   _ClientProfileScreenState createState() => _ClientProfileScreenState();
 }
@@ -116,8 +118,8 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
             right: 0,
             child: FloatingActionButton.small(
               onPressed: () => _handleEditProfile(user),
-              child: Icon(Icons.edit),
               backgroundColor: Theme.of(context).primaryColor,
+              child: Icon(Icons.edit),
             ),
           ),
         ],
@@ -205,7 +207,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
 class _FullScreenImage extends StatelessWidget {
   final String? imageUrl;
 
-  const _FullScreenImage({Key? key, this.imageUrl}) : super(key: key);
+  const _FullScreenImage({super.key, this.imageUrl});
 
   @override
   Widget build(BuildContext context) {

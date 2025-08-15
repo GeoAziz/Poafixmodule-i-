@@ -7,9 +7,9 @@ class ServiceProviderListScreen extends StatefulWidget {
   final String serviceType;
 
   const ServiceProviderListScreen({
-    Key? key,
+    super.key,
     required this.serviceType,
-  }) : super(key: key);
+  });
 
   @override
   _ServiceProviderListScreenState createState() =>

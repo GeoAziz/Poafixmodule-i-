@@ -6,10 +6,10 @@ class JobCalendarEvent extends StatelessWidget {
   final VoidCallback? onTap;
 
   const JobCalendarEvent({
-    Key? key,
+    super.key,
     required this.booking,
     this.onTap,
-  }) : super(key: key);
+  });
 
   Color _getStatusColor() {
     switch (booking.status.toLowerCase()) {

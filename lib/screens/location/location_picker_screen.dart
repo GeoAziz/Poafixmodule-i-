@@ -8,10 +8,10 @@ class LocationPickerScreen extends StatefulWidget {
   final String? locationName;
 
   const LocationPickerScreen({
-    Key? key,
+    super.key,
     this.initialLocation,
     this.locationName,
-  }) : super(key: key);
+  });
 
   @override
   _LocationPickerScreenState createState() => _LocationPickerScreenState();

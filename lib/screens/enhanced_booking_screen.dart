@@ -781,8 +781,9 @@ class EnhancedBookingScreenState extends State<EnhancedBookingScreen>
             SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
-                if (!mounted)
+                if (!mounted) {
                   return; // Guard against using context after dispose
+                }
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   '/home',
@@ -927,10 +928,11 @@ class EnhancedBookingScreenState extends State<EnhancedBookingScreen>
         );
       }
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
+      }
     }
   }
 }

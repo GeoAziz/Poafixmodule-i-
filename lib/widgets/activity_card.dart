@@ -10,14 +10,14 @@ class ActivityCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const ActivityCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.date,
     required this.time,
     required this.clientName,
     required this.status,
     this.onTap,
-  }) : super(key: key);
+  });
 
   Color _getStatusColor() {
     switch (status.toLowerCase()) {

@@ -6,6 +6,8 @@ import '../../config/api_config.dart';
 import '../../services/websocket_service.dart';
 
 class FinancialManagementScreen extends StatefulWidget {
+  const FinancialManagementScreen({super.key});
+
   @override
   _FinancialManagementScreenState createState() =>
       _FinancialManagementScreenState();
@@ -228,7 +230,7 @@ class _FinancialManagementScreenState extends State<FinancialManagementScreen> {
                   },
                 ),
               ),
-            Container(
+            SizedBox(
               height: 120,
               child: ListView(
                 scrollDirection: Axis.horizontal,
@@ -288,7 +290,7 @@ class _FinancialManagementScreenState extends State<FinancialManagementScreen> {
   }
 
   Widget _buildSummaryCards() {
-    return Container(
+    return SizedBox(
       height: 120,
       child: ListView(
         scrollDirection: Axis.horizontal,

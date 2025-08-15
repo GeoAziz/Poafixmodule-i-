@@ -12,7 +12,7 @@ class ProviderBaseScreen extends StatelessWidget {
   final String providerId; // Add providerId parameter
 
   const ProviderBaseScreen({
-    Key? key,
+    super.key,
     required this.title,
     required this.body,
     this.actions,
@@ -21,7 +21,7 @@ class ProviderBaseScreen extends StatelessWidget {
     this.showAppBar = true, // Default to true
     this.currentIndex = 0, // Add default value
     this.providerId = '', // Add default value
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

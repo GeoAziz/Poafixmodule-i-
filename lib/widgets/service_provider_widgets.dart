@@ -7,11 +7,11 @@ class GlassContainer extends StatelessWidget {
   final EdgeInsets margin;
 
   const GlassContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.margin = const EdgeInsets.all(8),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +41,11 @@ class AnimatedStatusBadge extends StatelessWidget {
   final String inactiveText;
 
   const AnimatedStatusBadge({
-    Key? key,
+    super.key,
     required this.isActive,
     this.activeText = 'Online',
     this.inactiveText = 'Offline',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,7 @@ class StatCard extends StatelessWidget {
   final String label;
   final Color? color;
 
-  const StatCard({
+  const StatCard({super.key, 
     required this.icon,
     required this.value,
     required this.label,
@@ -129,7 +129,7 @@ class AppointmentCard extends StatelessWidget {
   final String status;
   final VoidCallback onTap;
 
-  const AppointmentCard({
+  const AppointmentCard({super.key, 
     required this.title,
     required this.date,
     required this.time,

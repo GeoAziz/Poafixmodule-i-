@@ -18,8 +18,11 @@ void main() {
     });
 
     test('URL should not contain double slashes', () {
-      expect(url.contains('//api.'), false,
-          reason: 'URL should not have double slashes except after protocol');
+      expect(
+        url.contains('//api.'),
+        false,
+        reason: 'URL should not have double slashes except after protocol',
+      );
     });
   });
 

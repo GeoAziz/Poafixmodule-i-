@@ -3,6 +3,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../services/provider_services/service_area_service.dart';
 
 class ServiceAreasScreen extends StatefulWidget {
+  const ServiceAreasScreen({super.key});
+
   @override
   _ServiceAreasScreenState createState() => _ServiceAreasScreenState();
 }

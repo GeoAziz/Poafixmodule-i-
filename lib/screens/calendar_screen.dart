@@ -8,6 +8,8 @@ import '../widgets/job_calendar_event.dart';
 import '../widgets/provider_base_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
+  const CalendarScreen({super.key});
+
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
 }
@@ -103,8 +105,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEventDialog(context),
-        child: Icon(Icons.add),
         tooltip: 'Block Time',
+        child: Icon(Icons.add),
       ),
     );
   }

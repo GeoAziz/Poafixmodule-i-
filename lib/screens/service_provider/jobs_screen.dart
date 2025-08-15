@@ -15,7 +15,7 @@ import '../../services/service_request.service.dart';
 
 extension StringExtension on String {
   String capitalize() {
-    return "${this[0].toUpperCase()}${this.substring(1)}";
+    return "${this[0].toUpperCase()}${substring(1)}";
   }
 }
 
@@ -23,9 +23,9 @@ class JobsScreen extends StatefulWidget {
   final String providerId;
 
   const JobsScreen({
-    Key? key,
+    super.key,
     required this.providerId,
-  }) : super(key: key);
+  });
 
   @override
   _JobsScreenState createState() => _JobsScreenState();
@@ -47,7 +47,7 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
   bool _autoRefresh = true;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  bool _isSearching = false;
+  final bool _isSearching = false;
   String _sortBy = 'date'; // 'date', 'status', 'client'
 
   @override
@@ -129,6 +129,9 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
           await _bookingService.getProviderBookings();
 
       print('📦 Received ${bookings.length} bookings');
+      for (var booking in bookings) {
+        print('DEBUG Booking: id=${booking.id}, status=${booking.status}');
+      }
 
       if (!mounted) return;
 
@@ -162,10 +165,12 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
 
   List<Booking> _filterBookings(String status) {
     print('🔍 Filtering bookings for status: $status');
-    final filtered = _bookings
-        .where(
-            (booking) => booking.status.toLowerCase() == status.toLowerCase())
-        .toList();
+    final filtered = _bookings.where((booking) {
+      final match = booking.status.toLowerCase() == status.toLowerCase();
+      print(
+          'DEBUG Filter: id=${booking.id}, status=${booking.status}, match=$match');
+      return match;
+    }).toList();
     print('📊 Found ${filtered.length} bookings with status: $status');
     return filtered;
   }
@@ -305,8 +310,8 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
                           _buildDetailRow('Time', booking.displayScheduledTime),
                           _buildDetailRow('Phone', booking.clientPhone),
                           _buildDetailRow('Address', booking.displayAddress),
-                          if (booking.notes?.isNotEmpty ?? false)
-                            _buildDetailRow('Notes', booking.notes!),
+                          if (booking.notes.isNotEmpty ?? false)
+                            _buildDetailRow('Notes', booking.notes),
                           SizedBox(height: 16),
                           _buildActionButtons(booking),
                         ],
@@ -602,8 +607,8 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
             _buildDetailRow('Time', booking.displayScheduledTime),
             _buildDetailRow('Location',
                 booking.location?['address'] ?? 'No address provided'),
-            if (booking.notes?.isNotEmpty == true)
-              _buildDetailRow('Notes', booking.notes!),
+            if (booking.notes.isNotEmpty == true)
+              _buildDetailRow('Notes', booking.notes),
             _buildDetailRow('Amount', '\$${booking.amount.toStringAsFixed(2)}'),
           ],
         ),
@@ -790,7 +795,7 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
         providerId: widget.providerId,
       );
 
-      if (response != null && response['success']) {
+      if (response['success']) {
         final booking = response['booking'];
         if (booking != null && booking['clientId'] != null) {
           // Create notification only if we have valid booking data

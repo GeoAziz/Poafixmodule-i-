@@ -7,8 +7,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poafix/models/user_model.dart';
-import 'package:poafix/screens/home/home_screen.dart';
+import '../lib/models/user_model.dart';
+import '../lib/screens/home/home_screen.dart';
 
 void main() {
   testWidgets('Home screen shows welcome message', (WidgetTester tester) async {
@@ -19,11 +19,7 @@ void main() {
       userType: 'client',
     );
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: HomeScreen(user: user),
-      ),
-    );
+    await tester.pumpWidget(MaterialApp(home: HomeScreen(user: user)));
 
     expect(find.text('Welcome back, Test User! 😊'), findsOneWidget);
   });

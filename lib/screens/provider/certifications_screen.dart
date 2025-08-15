@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/certification_service.dart';
 
 class CertificationsScreen extends StatefulWidget {
+  const CertificationsScreen({super.key});
+
   @override
   _CertificationsScreenState createState() => _CertificationsScreenState();
 }

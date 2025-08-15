@@ -8,10 +8,10 @@ class NetworkStatusWidget extends StatefulWidget {
   final VoidCallback? onTap;
 
   const NetworkStatusWidget({
-    Key? key,
+    super.key,
     this.showDetails = false,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   State<NetworkStatusWidget> createState() => _NetworkStatusWidgetState();
@@ -232,7 +232,7 @@ class _NetworkStatusWidgetState extends State<NetworkStatusWidget> {
 }
 
 class NetworkDebugScreen extends StatelessWidget {
-  const NetworkDebugScreen({Key? key}) : super(key: key);
+  const NetworkDebugScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -284,7 +284,7 @@ class NetworkDebugScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(vertical: 2),
                             child: Text('${entry.key}: ${entry.value}'),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),

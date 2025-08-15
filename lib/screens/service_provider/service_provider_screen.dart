@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:poafix/screens/my_service_screen.dart';
-import 'package:poafix/screens/settings_screen.dart';
-import 'package:poafix/screens/calendar_screen.dart';
-import 'package:poafix/screens/contact_support_screen.dart';
+import '../my_service_screen.dart';
+import '../settings_screen.dart';
+import '../contact_support_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 // Add this import
 // For Lottie animation
@@ -10,15 +9,17 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-import 'package:poafix/services/location_service.dart';
+import '../../services/location_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../widgets/service_provider_widgets.dart';
 import 'jobs_screen.dart';
 import '../../widgets/activity_card.dart';
 import '../../services/provider_location_service.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart'; // Add this import
-import '../../screens/auth/login_screen.dart'; // Add this import
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../../screens/auth/login_screen.dart';
+import '../../widgets/earnings_chart.dart';
+import '../../models/user_model.dart' as poafix;
 // Updated import path
 import '../../services/provider_service.dart';
 import '../../services/websocket_service.dart';
@@ -32,6 +33,7 @@ import '../notification_screen.dart'; // Update import path
 import '../../services/auth_service.dart'; // Add this import
 import '../document_upload_screen.dart'; // Add this import
 import '../../services/provider_document_service.dart'; // Add this import
+// <-- Add this import for User model
 
 final StreamController<Position> locationUpdateController =
     StreamController<Position>.broadcast();
@@ -43,12 +45,12 @@ class ServiceProviderScreen extends StatefulWidget {
   final String serviceType;
 
   const ServiceProviderScreen({
-    Key? key,
+    super.key,
     required this.userName,
     required this.userId,
     required this.businessName,
     required this.serviceType,
-  }) : super(key: key);
+  });
 
   @override
   _ServiceProviderScreenState createState() => _ServiceProviderScreenState();
@@ -85,15 +87,30 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   String _providerEmail = '';
   bool _hasDocumentsPending = false;
 
+  final Map<String, dynamic> _analytics = {
+    'monthlyEarnings': 0,
+    'pendingEarnings': 0,
+    'monthlyTarget': 10000,
+    'earningsData': [
+      {'x': 0, 'y': 0},
+      {'x': 1, 'y': 0},
+      {'x': 2, 'y': 0},
+      {'x': 3, 'y': 0},
+      {'x': 4, 'y': 0},
+      {'x': 5, 'y': 0},
+      {'x': 6, 'y': 0},
+    ],
+  };
+
   final PageController _pageController = PageController();
   late TabController _tabController;
 
   List<Widget> get _screens => [
-        _buildDashboardContent(),
-        JobsScreen(providerId: widget.userId),
-        NotificationsScreen(), // Remove user parameter since it's optional now
-        FinancialManagementScreen(),
-      ];
+    _buildDashboardContent(),
+    JobsScreen(providerId: widget.userId),
+    NotificationsScreen(), // Remove user parameter since it's optional now
+    FinancialManagementScreen(),
+  ];
 
   @override
   void initState() {
@@ -169,8 +186,9 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
 
       await _checkLocationPermission();
       if (_locationEnabled) {
-        final wasOnline = await _providerLocationService
-            .checkProviderStatus(_serviceProviderId!);
+        final wasOnline = await _providerLocationService.checkProviderStatus(
+          _serviceProviderId!,
+        );
         if (wasOnline) {
           setState(() => _isOnline = true);
           _startLocationUpdates();
@@ -185,7 +203,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   Future<void> _initializeServices() async {
     try {
       if (!_webSocketService.isConnected) {
-// Ensure userId is valid before connecting
+        // Ensure userId is valid before connecting
         final parsedId = int.tryParse(widget.userId);
         if (parsedId != null) {
           await _webSocketService.connect(widget.userId);
@@ -220,8 +238,8 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   Future<void> _fetchBookings() async {
     try {
       print('Starting to fetch bookings...');
-      final List<dynamic> bookingsData =
-          await _bookingService.getProviderBookings();
+      final List<dynamic> bookingsData = await _bookingService
+          .getProviderBookings();
 
       if (mounted) {
         setState(() {
@@ -341,14 +359,10 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
 
       if (!mounted) return;
 
-      await ProviderService.updateLocation(
-        providerId,
-        {
-          'type': 'Point',
-          'coordinates': [position.longitude, position.latitude]
-        },
-        _isOnline,
-      );
+      await ProviderService.updateLocation(providerId, {
+        'type': 'Point',
+        'coordinates': [position.longitude, position.latitude],
+      }, _isOnline);
 
       setState(() {
         _currentPosition = position;
@@ -368,8 +382,10 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   Future<void> _updateProviderLocation(Map<String, dynamic> location) async {
     try {
       await ProviderService.updateLocation(
-          widget.userId, location, true // or your availability status
-          );
+        widget.userId,
+        location,
+        true, // or your availability status
+      );
     } catch (e) {
       print('Error updating location: $e');
     }
@@ -443,8 +459,11 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
     }
   }
 
-  void _showLocationPermissionDialog(String message,
-      {bool isService = false, bool isPermission = false}) {
+  void _showLocationPermissionDialog(
+    String message, {
+    bool isService = false,
+    bool isPermission = false,
+  }) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -544,10 +563,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
 
   void _navigateToScreen(BuildContext context, Widget screen) {
     Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => screen),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 
   Widget _buildDrawer() {
@@ -595,7 +611,18 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
             _navigateToScreen(context, DocumentUploadScreen());
           }, badge: _hasDocumentsPending), // This is the new item we added
           _drawerItem('Calendar', Icons.calendar_today, () {
-            _navigateToScreen(context, CalendarScreen());
+            Navigator.pop(context);
+            Navigator.pushNamed(
+              context,
+              '/calendar',
+              arguments: poafix.User(
+                id: widget.userId,
+                name: userName ?? widget.userName,
+                email: '',
+                userType: 'provider',
+                phone: '',
+              ),
+            );
           }),
           _drawerItem('Financial Management', Icons.monetization_on, () {
             _navigateToScreen(context, FinancialManagementScreen());
@@ -617,8 +644,12 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
     );
   }
 
-  Widget _drawerItem(String title, IconData icon, VoidCallback onTap,
-      {bool badge = false}) {
+  Widget _drawerItem(
+    String title,
+    IconData icon,
+    VoidCallback onTap, {
+    bool badge = false,
+  }) {
     return InkWell(
       onTap: onTap,
       child: ListTile(
@@ -636,10 +667,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  constraints: BoxConstraints(
-                    minWidth: 12,
-                    minHeight: 12,
-                  ),
+                  constraints: BoxConstraints(minWidth: 12, minHeight: 12),
                 ),
               ),
           ],
@@ -659,10 +687,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SpinKitFadingCircle(
-                color: Colors.white,
-                size: 50.0,
-              ),
+              SpinKitFadingCircle(color: Colors.white, size: 50.0),
               SizedBox(height: 16),
               Text(
                 'Logging out...',
@@ -723,9 +748,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
 
       // Navigate to login screen and clear navigation stack
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => LoginScreen()),
         (Route<dynamic> route) => false,
       );
     } catch (e) {
@@ -760,9 +783,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   }
 
   Widget _buildProfileScreen() {
-    return Center(
-      child: Text('Profile Screen - Coming Soon'),
-    );
+    return Center(child: Text('Profile Screen - Coming Soon'));
   }
 
   PreferredSizeWidget _buildGradientAppBar() {
@@ -788,7 +809,6 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
         ),
       ),
       actions: [
-        _buildOnlineStatusSwitch(),
         IconButton(
           icon: Icon(Icons.notifications),
           onPressed: () => _onItemTapped(2), // Switch to notifications tab
@@ -813,10 +833,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   }
 
   Widget _buildOnlineStatusSwitch() {
-    return Switch(
-      value: _isOnline,
-      onChanged: _toggleOnlineStatus,
-    );
+    return Switch(value: _isOnline, onChanged: _toggleOnlineStatus);
   }
 
   Widget _buildDashboardContent() {
@@ -863,11 +880,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            offset: Offset(0, 4),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: Colors.black12, offset: Offset(0, 4), blurRadius: 8),
         ],
       ),
       child: Column(
@@ -896,10 +909,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
                   children: [
                     Text(
                       'Welcome back,',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
                     ),
                     Text(
                       userName ?? widget.userName,
@@ -917,10 +927,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
           SizedBox(height: 16),
           Text(
             'Here\'s a quick overview of your activities and earnings.',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 16),
           ),
         ],
       ),
@@ -991,47 +998,75 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   }
 
   Widget _buildEarningsOverview() {
-    return GlassContainer(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Earnings Overview',
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+    return Container(
+      margin: EdgeInsets.all(16),
+      child: Card(
+        elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).primaryColor.withOpacity(0.8),
+                Theme.of(context).primaryColor,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildEarningTile(
-                icon: Icons.account_balance_wallet,
-                amount: '\$1,250',
-                label: 'This Month',
-                color: Colors.green,
+              Text(
+                'Earnings Overview',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-              _buildEarningTile(
-                icon: Icons.pending,
-                amount: '\$450',
-                label: 'Pending',
-                color: Colors.orange,
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildEarningTile(
+                    icon: Icons.account_balance_wallet,
+                    amount: 'KES ${_analytics['monthlyEarnings'] ?? 0}',
+                    label: 'This Month',
+                    color: Colors.white,
+                  ),
+                  _buildEarningTile(
+                    icon: Icons.pending,
+                    amount: 'KES ${_analytics['pendingEarnings'] ?? 0}',
+                    label: 'Pending',
+                    color: Colors.white70,
+                  ),
+                ],
               ),
+              SizedBox(height: 16),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value:
+                      (_analytics['monthlyEarnings'] ?? 0) /
+                      (_analytics['monthlyTarget'] ?? 1),
+                  backgroundColor: Colors.white.withOpacity(0.2),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  minHeight: 8,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                '${((_analytics['monthlyEarnings'] ?? 0) / (_analytics['monthlyTarget'] ?? 1) * 100).toStringAsFixed(0)}% of monthly target',
+                style: GoogleFonts.poppins(color: Colors.white70, fontSize: 14),
+              ),
+              SizedBox(height: 16),
+              EarningsChart(data: _analytics['earningsData'] ?? []),
             ],
           ),
-          SizedBox(height: 16),
-          LinearProgressIndicator(
-            value: 0.75,
-            backgroundColor: Colors.grey.shade200,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-          ),
-          SizedBox(height: 8),
-          Text(
-            '75% of monthly target',
-            style: GoogleFonts.poppins(color: Colors.grey[600]),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -1054,12 +1089,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
             color: color,
           ),
         ),
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: GoogleFonts.poppins(color: Colors.grey[600])),
       ],
     );
   }
@@ -1101,7 +1131,22 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
 
   Widget _buildOnlineToggleButton() {
     return FloatingActionButton.extended(
-      onPressed: () => setState(() => _isOnline = !_isOnline),
+      onPressed: () {
+        final newStatus = !_isOnline;
+        print(
+          '[DEBUG] FloatingActionButton pressed. Changing online status to: $newStatus',
+        );
+        setState(() {
+          _isOnline = newStatus;
+        });
+        if (newStatus) {
+          print('[DEBUG] Now ONLINE. Starting location updates...');
+          _startLocationUpdates();
+        } else {
+          print('[DEBUG] Now OFFLINE. Stopping location updates...');
+          _locationUpdateTimer?.cancel();
+        }
+      },
       backgroundColor: _isOnline ? Colors.green : Colors.grey,
       icon: Icon(_isOnline ? Icons.wifi : Icons.wifi_off),
       label: Text(_isOnline ? 'Online' : 'Offline'),
@@ -1129,12 +1174,18 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard), label: 'Dashboard'),
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Jobs'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.notifications), label: 'Notifications'),
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet), label: 'Earnings'),
+            icon: Icon(Icons.account_balance_wallet),
+            label: 'Earnings',
+          ),
         ],
       ),
     );
@@ -1224,13 +1275,9 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
         throw Exception('Invalid provider ID');
       }
 
-      await ProviderService.updateLocation(
-        providerId,
-        {
-          'coordinates': [position.longitude, position.latitude]
-        },
-        value,
-      );
+      await ProviderService.updateLocation(providerId, {
+        'coordinates': [position.longitude, position.latitude],
+      }, value);
 
       setState(() {
         _isOnline = value;
@@ -1274,24 +1321,26 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
         );
       } else if (action == 'reject') {
         await bookingService.rejectBooking(booking.id);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Booking rejected')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Booking rejected')));
       }
       await _fetchBookings(); // Refresh the bookings list
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to ${action} booking: ${e.toString()}')),
+        SnackBar(content: Text('Failed to $action booking: ${e.toString()}')),
       );
     }
   }
 
   Future<void> _loadProviderData() async {
     try {
-      final name = await _storage.read(key: 'provider_name') ??
+      final name =
+          await _storage.read(key: 'provider_name') ??
           await _storage.read(key: 'businessName') ??
           'Service Provider';
-      final email = await _storage.read(key: 'provider_email') ??
+      final email =
+          await _storage.read(key: 'provider_email') ??
           await _storage.read(key: 'email') ??
           'No email';
 
@@ -1308,8 +1357,8 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   }
 
   Future<void> _checkDocuments() async {
-    final needsVerification =
-        await ProviderDocumentService().needsVerification();
+    final needsVerification = await ProviderDocumentService()
+        .needsVerification();
     setState(() => _hasDocumentsPending = needsVerification);
   }
 
@@ -1321,7 +1370,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
 class HomeScreen extends StatelessWidget {
   final String? userName;
 
-  const HomeScreen({Key? key, this.userName}) : super(key: key);
+  const HomeScreen({super.key, this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -1359,14 +1408,16 @@ class HomeScreen extends StatelessWidget {
                     // Open profile settings or detailed profile
                     print("Name tapped");
                   },
-                  child: Text(userName ?? 'Service Provider',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    userName ?? 'Service Provider',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 SizedBox(height: 4),
                 Text(
-                    'Service Description: Expert in home repairs and maintenance.',
-                    style: TextStyle(fontSize: 16)),
+                  'Service Description: Expert in home repairs and maintenance.',
+                  style: TextStyle(fontSize: 16),
+                ),
                 SizedBox(height: 4),
                 Row(
                   children: [
@@ -1375,11 +1426,15 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 8),
-                Text('Contact: johndoe@example.com',
-                    style: TextStyle(fontSize: 16)),
+                Text(
+                  'Contact: johndoe@example.com',
+                  style: TextStyle(fontSize: 16),
+                ),
                 SizedBox(height: 8),
-                Text('Availability: Available Monday to Friday, 9 AM - 6 PM',
-                    style: TextStyle(fontSize: 16)),
+                Text(
+                  'Availability: Available Monday to Friday, 9 AM - 6 PM',
+                  style: TextStyle(fontSize: 16),
+                ),
                 SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -1397,14 +1452,16 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Upcoming Tasks',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  'Upcoming Tasks',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 SizedBox(height: 8),
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: ListTile(
                     title: Text('Task 1: Kitchen Repair'),
                     subtitle: Text('Date: 02/15/2025'),
@@ -1417,7 +1474,8 @@ class HomeScreen extends StatelessWidget {
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: ListTile(
                     title: Text('Task 2: Plumbing Service'),
                     subtitle: Text('Date: 02/17/2025'),
@@ -1435,14 +1493,16 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Earnings Overview',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  'Earnings Overview',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 SizedBox(height: 8),
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: ListTile(
                     title: Text('Total Earnings: \$1200'),
                     subtitle: Text('This month'),
@@ -1451,7 +1511,8 @@ class HomeScreen extends StatelessWidget {
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: ListTile(
                     title: Text('Pending Payment: \$500'),
                     subtitle: Text('Due in 7 days'),
@@ -1465,9 +1526,10 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Client Ratings & Reviews',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  'Client Ratings & Reviews',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 SizedBox(height: 8),
                 Row(
                   children: [
@@ -1479,7 +1541,8 @@ class HomeScreen extends StatelessWidget {
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: ListTile(
                     title: Text('Great service!'),
                     subtitle: Text('John Doe - 5 stars'),
@@ -1488,7 +1551,8 @@ class HomeScreen extends StatelessWidget {
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: ListTile(
                     title: Text('Highly recommend!'),
                     subtitle: Text('Jane Smith - 5 stars'),

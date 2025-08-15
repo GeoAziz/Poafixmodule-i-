@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
-import 'dart:convert';
 import '../../models/chat_room.dart';
 import '../../models/chat_message.dart';
 import '../../models/user_model.dart';
@@ -158,10 +156,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final otherUserName =
-        widget.chatRoom.getOtherUserName(widget.currentUser.id);
-    final otherUserAvatar =
-        widget.chatRoom.getOtherUserAvatar(widget.currentUser.id);
+    final otherUserName = widget.chatRoom.getOtherUserName(
+      widget.currentUser.id,
+    );
+    final otherUserAvatar = widget.chatRoom.getOtherUserAvatar(
+      widget.currentUser.id,
+    );
     final otherUserId = widget.chatRoom.getOtherUserId(widget.currentUser.id);
 
     return Scaffold(
@@ -180,10 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             SizedBox(width: 12),
             Expanded(
-              child: Text(
-                otherUserName,
-                style: TextStyle(fontSize: 16),
-              ),
+              child: Text(otherUserName, style: TextStyle(fontSize: 16)),
             ),
           ],
         ),
@@ -258,10 +255,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Text('Error loading messages'),
             Text(_error!, style: TextStyle(color: Colors.red)),
             SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadMessages,
-              child: Text('Retry'),
-            ),
+            ElevatedButton(onPressed: _loadMessages, child: Text('Retry')),
           ],
         ),
       );
@@ -310,10 +304,7 @@ class _ChatScreenState extends State<ChatScreen> {
             if (showTimestamp) _buildTimestamp(message.timestamp),
             GestureDetector(
               onLongPress: () => _showMessageOptions(message),
-              child: ChatMessageBubble(
-                message: message,
-                isMe: isMe,
-              ),
+              child: ChatMessageBubble(message: message, isMe: isMe),
             ),
           ],
         );
@@ -335,10 +326,7 @@ class _ChatScreenState extends State<ChatScreen> {
       margin: EdgeInsets.symmetric(vertical: 8),
       child: Text(
         timeago.format(timestamp),
-        style: TextStyle(
-          color: Colors.grey[600],
-          fontSize: 12,
-        ),
+        style: TextStyle(color: Colors.grey[600], fontSize: 12),
       ),
     );
   }
@@ -367,8 +355,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 filled: true,
                 fillColor: Colors.grey[100],
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
               ),
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _sendTextMessage(),
@@ -474,9 +464,9 @@ class _ChatScreenState extends State<ChatScreen> {
         content: text,
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send message: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to send message: $e')));
       _messageController.text = text; // Restore message on error
     } finally {
       setState(() => _isSending = false);
@@ -500,9 +490,9 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send image: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to send image: $e')));
     }
   }
 
@@ -518,9 +508,9 @@ class _ChatScreenState extends State<ChatScreen> {
         address: 'Current Location',
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to share location: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to share location: $e')));
     }
   }
 
@@ -540,9 +530,9 @@ class _ChatScreenState extends State<ChatScreen> {
               onTap: () {
                 Clipboard.setData(ClipboardData(text: message.content));
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Message copied')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Message copied')));
               },
             ),
             if (isMe) ...[
@@ -564,13 +554,13 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _deleteMessage(ChatMessage message) async {
     try {
       await _chatService.deleteMessage(message.id);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Message deleted')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Message deleted')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete message')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to delete message')));
     }
   }
 
@@ -596,7 +586,8 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context) => AlertDialog(
         title: Text('Clear Chat'),
         content: Text(
-            'Are you sure you want to clear this chat? This action cannot be undone.'),
+          'Are you sure you want to clear this chat? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -615,8 +606,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showBlockUserDialog() {
-    final otherUserName =
-        widget.chatRoom.getOtherUserName(widget.currentUser.id);
+    final otherUserName = widget.chatRoom.getOtherUserName(
+      widget.currentUser.id,
+    );
 
     showDialog(
       context: context,

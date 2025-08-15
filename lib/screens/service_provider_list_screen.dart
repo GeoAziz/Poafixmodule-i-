@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math';
-import 'package:poafix/screens/booking/booking_screen.dart';
+import 'booking/booking_screen.dart';
 import 'package:lottie/lottie.dart' as lottie;
 import '../services/provider_service.dart';
 
@@ -48,7 +48,8 @@ class _ServiceProviderListScreenState extends State<ServiceProviderListScreen> {
 
       print('DEBUG: Loading providers with params:');
       print(
-          'Location: ${widget.initialLocation.latitude}, ${widget.initialLocation.longitude}');
+        'Location: ${widget.initialLocation.latitude}, ${widget.initialLocation.longitude}',
+      );
       print('Service: ${widget.serviceType}');
       print('Radius: $_maxDistance');
 
@@ -91,7 +92,8 @@ class _ServiceProviderListScreenState extends State<ServiceProviderListScreen> {
         if (provider['location'] == null ||
             provider['location']['coordinates'] == null) {
           print(
-              'Invalid location data for provider: ${provider['businessName']}');
+            'Invalid location data for provider: ${provider['businessName']}',
+          );
           continue;
         }
 
@@ -125,9 +127,7 @@ class _ServiceProviderListScreenState extends State<ServiceProviderListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Available ${widget.serviceType} Providers'),
-      ),
+      appBar: AppBar(title: Text('Available ${widget.serviceType} Providers')),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : Column(
@@ -198,13 +198,13 @@ class _ServiceProviderListScreenState extends State<ServiceProviderListScreen> {
         return Card(
           margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: ListTile(
-            leading: CircleAvatar(
-              child: Text(provider['name']?[0] ?? 'P'),
+            leading: CircleAvatar(child: Text(provider['name']?[0] ?? 'P')),
+            title: Text(
+              provider['businessName'] ?? provider['name'] ?? 'Unknown',
             ),
-            title:
-                Text(provider['businessName'] ?? provider['name'] ?? 'Unknown'),
-            subtitle:
-                Text('Rating: ${provider['rating']?.toStringAsFixed(1)} ★'),
+            subtitle: Text(
+              'Rating: ${provider['rating']?.toStringAsFixed(1)} ★',
+            ),
             trailing: ElevatedButton(
               onPressed: () => _onBookPressed(provider),
               child: Text('Book'),

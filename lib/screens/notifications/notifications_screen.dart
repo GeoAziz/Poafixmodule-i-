@@ -4,6 +4,8 @@ import '../../services/notification_service.dart';
 import '../../models/notification_model.dart';
 
 class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
+
   @override
   _NotificationsScreenState createState() => _NotificationsScreenState();
 }

@@ -11,14 +11,14 @@ class BookingCard extends StatelessWidget {
   final BuildContext? parentContext; // Add this field
 
   const BookingCard({
-    Key? key,
+    super.key,
     required this.booking,
     this.onCancel,
     this.onAccept,
     this.onReject,
     this.isProviderView = false,
     this.parentContext, // Add this parameter
-  }) : super(key: key);
+  });
 
   Color _getStatusColor() {
     switch (booking.status.toLowerCase()) {

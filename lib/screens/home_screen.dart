@@ -6,6 +6,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,6 +17,8 @@ class MyApp extends StatelessWidget {
 }
 
 class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     String serviceProviderName = "John Doe"; // Example service provider name
@@ -44,7 +48,7 @@ class LoginScreen extends StatelessWidget {
 class HomeScreen extends StatelessWidget {
   final String userName; // Accept user name dynamically
 
-  HomeScreen({required this.userName});
+  const HomeScreen({super.key, required this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +119,7 @@ class SectionCard extends StatelessWidget {
   final String content;
   final VoidCallback onPressed;
 
-  const SectionCard({
+  const SectionCard({super.key, 
     required this.title,
     required this.icon,
     required this.content,

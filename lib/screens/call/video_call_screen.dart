@@ -23,9 +23,9 @@ class VideoCallScreen extends StatefulWidget {
 }
 
 class _VideoCallScreenState extends State<VideoCallScreen> {
-  bool _isMuted = false;
-  bool _isVideoEnabled = true;
-  bool _isFrontCamera = true;
+  final bool _isMuted = false;
+  final bool _isVideoEnabled = true;
+  final bool _isFrontCamera = true;
   bool _isConnected = false;
   bool _showControls = true;
   int? _remoteUid;

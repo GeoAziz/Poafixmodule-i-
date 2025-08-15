@@ -1,6 +1,7 @@
 class NotificationModel {
   final String id;
   final String recipientId;
+  final String recipientModel; // Added recipientModel property
   final String type;
   final String title;
   final String message;
@@ -11,6 +12,7 @@ class NotificationModel {
   NotificationModel({
     required this.id,
     required this.recipientId,
+    required this.recipientModel, // Initialize recipientModel
     required this.type,
     required this.title,
     required this.message,
@@ -29,6 +31,7 @@ class NotificationModel {
     final model = NotificationModel(
       id: doc['_id'] ?? '',
       recipientId: doc['recipientId'] ?? '',
+      recipientModel: doc['recipientModel'] ?? 'Unknown', // Map recipientModel
       type: doc['type'] ?? 'SYSTEM_ALERT',
       title: doc['title'] ?? '',
       message: doc['message'] ?? '',

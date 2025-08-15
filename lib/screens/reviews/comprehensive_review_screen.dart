@@ -9,10 +9,10 @@ class ComprehensiveReviewScreen extends StatefulWidget {
   final String providerName;
 
   const ComprehensiveReviewScreen({
-    Key? key,
+    super.key,
     required this.providerId,
     required this.providerName,
-  }) : super(key: key);
+  });
 
   @override
   _ComprehensiveReviewScreenState createState() => _ComprehensiveReviewScreenState();
@@ -354,7 +354,7 @@ class _ComprehensiveReviewScreenState extends State<ComprehensiveReviewScreen>
                   ],
                 ),
               ),
-            ).toList(),
+            ),
           ],
         ),
       ),
@@ -375,7 +375,7 @@ class _ComprehensiveReviewScreenState extends State<ComprehensiveReviewScreen>
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            ...recentExcellent.map((review) => _buildHighlightItem(review)).toList(),
+            ...recentExcellent.map((review) => _buildHighlightItem(review)),
           ],
         ),
       ),
@@ -725,6 +725,8 @@ class _ComprehensiveReviewScreenState extends State<ComprehensiveReviewScreen>
 }
 
 class ReportDialog extends StatefulWidget {
+  const ReportDialog({super.key});
+
   @override
   _ReportDialogState createState() => _ReportDialogState();
 }

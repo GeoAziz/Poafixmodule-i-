@@ -4,7 +4,7 @@ class FadeInAnimation extends StatefulWidget {
   final double delay;
   final Widget child;
 
-  FadeInAnimation({required this.delay, required this.child});
+  const FadeInAnimation({super.key, required this.delay, required this.child});
 
   @override
   _FadeInAnimationState createState() => _FadeInAnimationState();

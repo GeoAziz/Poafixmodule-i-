@@ -9,11 +9,11 @@ class BookingConfirmationScreen extends StatefulWidget {
   final String notes;
 
   const BookingConfirmationScreen({
-    Key? key,
+    super.key,
     required this.provider,
     required this.scheduledTime,
     required this.notes,
-  }) : super(key: key);
+  });
 
   @override
   _BookingConfirmationScreenState createState() =>

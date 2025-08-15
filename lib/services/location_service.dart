@@ -305,7 +305,7 @@ class LocationService {
   }) async {
     try {
       final response = await http.patch(
-        Uri.parse('${ApiConfig.baseUrl}/api/providers/${providerId}/location'),
+        Uri.parse('${ApiConfig.baseUrl}/api/providers/$providerId/location'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'location': {
@@ -322,7 +322,7 @@ class LocationService {
       }
     } catch (e) {
       print('Error updating location: $e');
-      throw e;
+      rethrow;
     }
   }
 

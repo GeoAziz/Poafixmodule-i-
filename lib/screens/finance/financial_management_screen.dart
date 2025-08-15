@@ -9,6 +9,8 @@ import '../../widgets/earnings_chart.dart';
 import '../../widgets/no_records_view.dart';
 
 class FinancialManagementScreen extends StatefulWidget {
+  const FinancialManagementScreen({super.key});
+
   @override
   _FinancialManagementScreenState createState() =>
       _FinancialManagementScreenState();
@@ -57,7 +59,7 @@ class _FinancialManagementScreenState extends State<FinancialManagementScreen>
 
   Future<bool> _verifyCredentials() async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       final userId =
           await _storage.read(key: 'id'); // Changed from 'userId' to 'id'
       final userType = await _storage.read(key: 'userType');
@@ -387,8 +389,7 @@ class _FinancialManagementScreenState extends State<FinancialManagementScreen>
     }
 
     return EarningsChart(
-      weeklyData: _weeklyData,
-      maxY: _weeklyData.reduce((a, b) => a > b ? a : b) * 1.2,
+      data: _weeklyData,
     );
   }
 

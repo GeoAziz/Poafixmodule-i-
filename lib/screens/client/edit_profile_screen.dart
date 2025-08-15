@@ -8,7 +8,7 @@ import 'package:timezone/data/latest.dart' as tz;
 class EditProfileScreen extends StatefulWidget {
   final User user;
 
-  const EditProfileScreen({Key? key, required this.user}) : super(key: key);
+  const EditProfileScreen({super.key, required this.user});
 
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
@@ -24,7 +24,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _selectedTimezone;
   bool _isLoading = false;
 
-  List<String> _communicationOptions = ['SMS', 'Email', 'Both'];
+  final List<String> _communicationOptions = ['SMS', 'Email', 'Both'];
   List<String> _timezones = [];
 
   @override

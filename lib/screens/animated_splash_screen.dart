@@ -4,8 +4,7 @@ import 'dart:async';
 
 class AnimatedSplashScreen extends StatefulWidget {
   final VoidCallback onFinish;
-  const AnimatedSplashScreen({Key? key, required this.onFinish})
-      : super(key: key);
+  const AnimatedSplashScreen({super.key, required this.onFinish});
 
   @override
   _AnimatedSplashScreenState createState() => _AnimatedSplashScreenState();

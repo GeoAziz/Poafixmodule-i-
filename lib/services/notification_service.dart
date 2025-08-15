@@ -3,14 +3,16 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import '../config/api_config.dart';
 import '../models/notification_model.dart';
 
 class NotificationService {
   final _storage = const FlutterSecureStorage();
+  final Logger _logger = Logger();
   WebSocketChannel? _channel;
-  StreamController<List<NotificationModel>> _notificationStreamController =
-      StreamController.broadcast();
+  final StreamController<List<NotificationModel>>
+      _notificationStreamController = StreamController.broadcast();
 
   Stream<List<NotificationModel>> get notificationStream =>
       _notificationStreamController.stream;
@@ -27,11 +29,11 @@ class NotificationService {
 
   Future<void> connectWebSocket() async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('No auth token found');
 
-      final wsUrl = ApiConfig.baseUrl.replaceFirst('http', 'ws') + '/ws';
-      print('🔗 Connecting to WebSocket: $wsUrl');
+      final wsUrl = '${ApiConfig.baseUrl.replaceFirst('http', 'ws')}/ws';
+      _logger.i('Connecting to WebSocket: $wsUrl');
 
       _channel = WebSocketChannel.connect(
         Uri.parse(wsUrl),
@@ -40,7 +42,7 @@ class NotificationService {
 
       _channel?.stream.listen(
         (event) {
-          print('📩 WebSocket event received: $event');
+          _logger.i('WebSocket event received: $event');
           final data = json.decode(event);
 
           // Handle different notification types
@@ -58,54 +60,44 @@ class NotificationService {
           }
         },
         onError: (error) {
-          print('❌ WebSocket error: $error');
+          _logger.e('WebSocket error: $error');
           _reconnectWebSocket();
         },
         onDone: () {
-          print('🔌 WebSocket connection closed');
+          _logger.w('WebSocket connection closed');
           _reconnectWebSocket();
         },
       );
     } catch (e) {
-      print('❌ WebSocket connection error: $e');
+      _logger.e('WebSocket connection error: $e');
       _reconnectWebSocket();
     }
   }
 
   Future<List<NotificationModel>> getNotifications({
     required String recipientId,
-    String? recipientModel, // Make recipientModel optional
+    required String recipientModel, // Make recipientModel mandatory
   }) async {
     try {
-  final token = await _storage.read(key: 'auth_token');
-      final userType = await _storage.read(key: 'userType');
+      final token = await _storage.read(key: 'auth_token');
       if (token == null) {
         throw Exception('No auth token found');
       }
 
-      // Map userType to correct recipientModel
-      final effectiveRecipientModel = recipientModel ??
-          (userType?.toLowerCase() == 'client' ? 'Client' : 'User');
-
-      print('🔍 Fetching notifications with:');
-      print('RecipientId: $recipientId');
-      print('RecipientModel: $recipientModel');
+      _logger.i(
+          'Fetching notifications for RecipientId: $recipientId, RecipientModel: $recipientModel');
 
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/api/notifications').replace(
           queryParameters: {
             'recipientId': recipientId,
-            'recipientModel': effectiveRecipientModel,
+            'recipientModel': recipientModel,
           },
         ),
         headers: {
           'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
         },
       );
-
-      print('📡 Response status: ${response.statusCode}');
-      print('📦 Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -113,25 +105,26 @@ class NotificationService {
             .map((json) => NotificationModel.fromJson(json))
             .toList();
 
-        print('📬 Parsed ${notifications.length} notifications');
-        notifications.forEach((n) {
-          print('📌 Notification: ${n.title} - ${n.message}');
-        });
+        _logger.i('Parsed ${notifications.length} notifications');
+        for (var n in notifications) {
+          _logger.d('Notification: ${n.title} - ${n.message}');
+        }
 
         return notifications;
       } else {
+        _logger.e('Failed to fetch notifications: ${response.statusCode}');
         throw Exception(
             'Failed to fetch notifications: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Error fetching notifications: $e');
+      _logger.e('Error fetching notifications: $e');
       rethrow;
     }
   }
 
   Future<void> markAsRead(String notificationId) async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       if (token == null) {
         throw Exception('No auth token found');
       }
@@ -146,6 +139,7 @@ class NotificationService {
       );
 
       if (response.statusCode != 200) {
+        _logger.e('Failed to mark notification as read');
         throw Exception('Failed to mark notification as read');
       }
 
@@ -156,7 +150,7 @@ class NotificationService {
       );
       _notificationStreamController.add(notifications);
     } catch (e) {
-      print('❌ Error marking notification as read: $e');
+      _logger.e('Error marking notification as read: $e');
       rethrow;
     }
   }
@@ -175,10 +169,13 @@ class NotificationService {
         read: false,
         createdAt: DateTime.now(),
         recipientId: await _storage.read(key: 'userId') ?? '',
+        recipientModel: await _storage.read(key: 'userType') ?? 'User',
       );
 
       // Add to stream
       _notificationStreamController.add([notification]);
+
+      _logger.i('Notification shown: $title - $body');
 
       // You might want to also persist this notification or show a system notification
       // Here's an example using a local notification plugin:
@@ -197,28 +194,57 @@ class NotificationService {
       //   payload: payload,
       // );
     } catch (e) {
-      print('❌ Error showing notification: $e');
+      _logger.e('Error showing notification: $e');
     }
   }
 
   Future<void> createNotification(Map<String, dynamic> notificationData) async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
+      if (token == null) {
+        throw Exception('No auth token found');
+      }
+
+      if (!notificationData.containsKey('recipientModel')) {
+        throw Exception('recipientModel is required');
+      }
+
+      _logger.i('Creating notification: ${json.encode(notificationData)}');
+
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/api/notifications'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: json.encode(notificationData),
+        body: json.encode({
+          ...notificationData,
+          'createdAt': DateTime.now().toIso8601String(),
+        }),
       );
 
       if (response.statusCode != 201) {
-        throw Exception('Failed to create notification');
+        _logger.e('Failed to create notification: ${response.body}');
+        throw Exception('Failed to create notification: ${response.body}');
+      }
+
+      final responseData = json.decode(response.body);
+      if (responseData['success'] != true) {
+        _logger.e('Server returned error: ${responseData['error']}');
+        throw Exception('Server returned error: ${responseData['error']}');
       }
     } catch (e) {
-      throw Exception('Error creating notification: $e');
+      _logger.e('Error creating notification: $e');
+      rethrow;
     }
+  }
+
+  Future<String> getUserId() async {
+    final userId = await _storage.read(key: 'userId');
+    if (userId == null) {
+      throw Exception('User ID not found');
+    }
+    return userId;
   }
 
   void _handleNewNotification(Map<String, dynamic> payload) {

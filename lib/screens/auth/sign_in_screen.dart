@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
-import 'package:poafix/screens/service_provider/service_provider_screen.dart'
+import '../../screens/service_provider/service_provider_screen.dart'
     as provider;
-import 'package:poafix/screens/home/home_screen.dart';
-import 'package:poafix/services/auth_service.dart';
+import '../../screens/home/home_screen.dart';
+import '../../core/services/auth_service.dart';
 import '../../constants/service_types.dart';
 import '../../models/user_model.dart'; // Update import
 import '../../services/image_helper.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
@@ -39,7 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final List<Map<String, String>> _serviceTypes = ServiceType.all;
   String? _selectedServiceType;
 
-  Map<String, String> _fieldErrors = {};
+  final Map<String, String> _fieldErrors = {};
 
   String? _profileImageBase64;
 
@@ -48,7 +49,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     'UTC',
     'Africa/Nairobi',
     'Africa/Lagos',
-    'Africa/Cairo'
+    'Africa/Cairo',
   ];
 
   @override
@@ -125,63 +126,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Future<void> _handleNavigation(Map<String, dynamic> authData) async {
-    try {
-      // Extract user data with proper fallbacks
-      final userData =
-          authData['provider'] ?? authData['user'] ?? authData['client'];
-
-      if (userData == null) {
-        throw Exception('Invalid response: missing user data');
-      }
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login successful!')),
-      );
-
-      // For service providers, ensure we have the correct data mapping
-      if (isServiceProvider) {
-        final providerData = {
-          'userName': userData['name'] ?? userData['businessName'] ?? '',
-          'userId': userData['id'] ?? userData['_id'] ?? '',
-          'businessName': userData['businessName'] ?? '',
-          'serviceType':
-              userData['serviceType'] ?? userData['serviceOffered'] ?? '',
-        };
-
-        print('Navigating to ServiceProviderScreen with data: $providerData');
-
-        await Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => provider.ServiceProviderScreen(
-              userName: providerData['userName']!,
-              userId: providerData['userId']!,
-              businessName: providerData['businessName']!,
-              serviceType: providerData['serviceType']!,
-            ),
-          ),
-        );
-      } else {
-        // Client navigation remains unchanged
-        await Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(
-              user: User.fromJson(userData),
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      print('Navigation error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error navigating: ${e.toString()}')),
-      );
-    }
-  }
-
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -190,71 +134,52 @@ class _SignUpScreenState extends State<SignUpScreen> {
     try {
       final Map<String, dynamic> locationData = {
         'type': 'Point',
-        'coordinates': <double>[36.8219, -1.2921]
+        'coordinates': <double>[36.8219, -1.2921],
       };
 
-      final response = await authService.signUpWithEmail(
-        name: nameController.text,
-        email: emailController.text.trim(),
-        password: passwordController.text,
-        phoneNumber: phoneController.text,
-        address: addressController.text,
-        location: locationData,
-        profilePicture: _profileImageBase64,
-        backupContact: _backupContactController.text,
-        preferredCommunication: _selectedCommunication,
-        timezone: _selectedTimezone,
-        isProvider: isServiceProvider,
-        businessName: isServiceProvider ? businessNameController.text : null,
-        serviceType: isServiceProvider ? _selectedServiceType : null,
-      );
-
-      if (response['success'] == true) {
-        // Extract data properly from the response
-        final userData =
-            isServiceProvider ? response['provider'] : response['user'];
-
-        if (userData == null) {
-          throw Exception('Invalid response: missing user data');
-        }
-
-        await AuthService.saveAuthData({
-          'token': response['token'],
-          'userType': isServiceProvider ? 'service-provider' : 'client',
-          'user': userData,
-        });
-
-        if (!mounted) return;
-
-        if (isServiceProvider) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => provider.ServiceProviderScreen(
-                userName: userData['name'] ?? '',
-                userId: userData['id'] ?? '',
-                businessName: userData['businessName'] ?? '',
-                serviceType: userData['serviceType'] ?? 'general',
-              ),
+      final userData = {
+        'name': nameController.text,
+        'email': emailController.text.trim(),
+        'password': passwordController.text,
+        'phoneNumber': phoneController.text,
+        'address': addressController.text,
+        'location': locationData,
+        'profilePicture': _profileImageBase64,
+        'backupContact': _backupContactController.text,
+        'preferredCommunication': _selectedCommunication,
+        'timezone': _selectedTimezone,
+        'isProvider': isServiceProvider,
+        'businessName': isServiceProvider ? businessNameController.text : null,
+        'serviceType': isServiceProvider ? _selectedServiceType : null,
+      };
+      await authService.register(userData);
+      if (!mounted) return;
+      if (isServiceProvider) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => provider.ServiceProviderScreen(
+              userName: (userData['name'] ?? '').toString(),
+              userId: (userData['id'] ?? '').toString(),
+              businessName: (userData['businessName'] ?? '').toString(),
+              serviceType: (userData['serviceType'] ?? 'general').toString(),
             ),
-          );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomeScreen(
-                user: User.fromJson(userData),
-              ),
-            ),
-          );
-        }
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(user: User.fromJson(userData)),
+          ),
+        );
       }
     } catch (e) {
       print('❌ Error during signup: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Signup failed: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Signup failed: ${e.toString()}')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -268,10 +193,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         border: OutlineInputBorder(),
       ),
       items: _communicationOptions.map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
+        return DropdownMenuItem<String>(value: value, child: Text(value));
       }).toList(),
       onChanged: (value) => setState(() => _selectedCommunication = value),
       validator: (value) => value == null ? 'Please select a preference' : null,
@@ -286,10 +208,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         border: OutlineInputBorder(),
       ),
       items: _timezones.map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
+        return DropdownMenuItem<String>(value: value, child: Text(value));
       }).toList(),
       onChanged: (value) => setState(() => _selectedTimezone = value),
       validator: (value) => value == null ? 'Please select a timezone' : null,
@@ -318,22 +237,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
               // Common Fields
               buildTextField(nameController, 'Name'),
               buildTextField(
-                  emailController, 'Email', TextInputType.emailAddress),
+                emailController,
+                'Email',
+                TextInputType.emailAddress,
+              ),
               buildPasswordField(),
               buildTextField(
-                  phoneController, 'Phone Number', TextInputType.phone),
-              buildTextField(addressController,
-                  isServiceProvider ? 'Business Address' : 'Address'),
+                phoneController,
+                'Phone Number',
+                TextInputType.phone,
+              ),
+              buildTextField(
+                addressController,
+                isServiceProvider ? 'Business Address' : 'Address',
+              ),
 
               // Service Provider Specific Fields
               if (isServiceProvider) ...[
                 buildTextField(businessNameController, 'Business Name'),
                 SizedBox(height: 16),
                 buildTextField(
-                    businessAddressController, // Changed from addressController
-                    'Business Address',
-                    TextInputType.streetAddress,
-                    'Enter your business location'),
+                  businessAddressController, // Changed from addressController
+                  'Business Address',
+                  TextInputType.streetAddress,
+                  'Enter your business location',
+                ),
                 SizedBox(height: 16),
                 _buildServiceTypeDropdown(),
                 SizedBox(height: 16),
@@ -344,8 +272,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 16),
               _buildTimezoneSelector(),
               const SizedBox(height: 16),
-              buildTextField(_backupContactController, 'Backup Contact',
-                  TextInputType.phone, 'Alternative phone number'),
+              buildTextField(
+                _backupContactController,
+                'Backup Contact',
+                TextInputType.phone,
+                'Alternative phone number',
+              ),
 
               SizedBox(height: 20),
 
@@ -370,14 +302,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget buildTextField(TextEditingController controller, String label,
-      [TextInputType type = TextInputType.text, String? hintText]) {
+  Widget buildTextField(
+    TextEditingController controller,
+    String label, [
+    TextInputType type = TextInputType.text,
+    String? hintText,
+  ]) {
     // Convert label to field name format
     String fieldName = label.toLowerCase().replaceAll(' ', '');
     bool isRequired = isServiceProvider
         ? true
         : // All fields required for service provider
-        !label.startsWith('Business'); // Optional for clients
+          !label.startsWith('Business'); // Optional for clients
 
     return TextFormField(
       controller: controller,
@@ -423,8 +359,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       decoration: InputDecoration(
         labelText: 'Password',
         suffixIcon: IconButton(
-          icon:
-              Icon(_passwordVisible ? Icons.visibility : Icons.visibility_off),
+          icon: Icon(
+            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
           onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
         ),
       ),

@@ -50,29 +50,32 @@ class AuthStorage {
   }
 
   Future<Map<String, String?>> getCredentials() async {
-    final credentials = await Future.wait([
-      _storage.read(key: KEY_AUTH_TOKEN),
-      _storage.read(key: KEY_USER_ID),
-      _storage.read(key: KEY_USER_TYPE),
-      _storage.read(key: KEY_NAME),
-      _storage.read(key: KEY_EMAIL),
-      _storage.read(key: KEY_BUSINESS_NAME),
-    ]);
+    final token = await _storage.read(key: KEY_AUTH_TOKEN);
+    String? userId = await _storage.read(key: KEY_USER_ID);
+    // Fallback: check for 'userId' if 'user_id' is null
+    if (userId == null) {
+      userId = await _storage.read(key: 'userId');
+    }
+    final userType = await _storage.read(key: KEY_USER_TYPE);
+    final name = await _storage.read(key: KEY_NAME);
+    final email = await _storage.read(key: KEY_EMAIL);
+    final businessName = await _storage.read(key: KEY_BUSINESS_NAME);
+    final serviceType = await _storage.read(key: 'service_type');
 
     // Debug log
     print('Raw credentials from storage:');
-    print('Token: ${credentials[0]}');
-    print('UserID: ${credentials[1]}');
-    print('UserType: ${credentials[2]}');
+    print('Token: $token');
+    print('UserID: $userId');
+    print('UserType: $userType');
 
     return {
-      'auth_token': credentials[0],
-      'user_id': credentials[1],
-      'userType': credentials[2], // This matches the key used in login response
-      'name': credentials[3],
-      'email': credentials[4],
-      'business_name': credentials[5],
-      'service_type': await _storage.read(key: 'service_type'),
+      'auth_token': token,
+      'user_id': userId,
+      'userType': userType,
+      'name': name,
+      'email': email,
+      'business_name': businessName,
+      'service_type': serviceType,
     };
   }
 

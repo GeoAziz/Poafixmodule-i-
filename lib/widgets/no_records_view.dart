@@ -7,10 +7,10 @@ class NoRecordsView extends StatelessWidget {
   final String submessage;
 
   const NoRecordsView({
-    Key? key,
+    super.key,
     this.message = 'No transactions yet',
     this.submessage = 'Your transactions will appear here',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

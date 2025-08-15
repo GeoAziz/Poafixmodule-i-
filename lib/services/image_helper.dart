@@ -1,5 +1,4 @@
 import 'package:image_picker/image_picker.dart';
-import 'package:image/image.dart' as img;
 import 'dart:io';
 import 'dart:convert';
 

@@ -10,12 +10,12 @@ class RatingScreen extends StatefulWidget {
   final String? serviceType;
 
   const RatingScreen({
-    Key? key,
+    super.key,
     required this.bookingId,
     required this.providerId,
     this.providerName,
     this.serviceType,
-  }) : super(key: key);
+  });
 
   @override
   _RatingScreenState createState() => _RatingScreenState();

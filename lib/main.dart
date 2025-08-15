@@ -1,32 +1,35 @@
 import 'package:flutter/material.dart';
-import 'screens/animated_splash_screen.dart';
+import 'app_root.dart';
 import 'models/user_model.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart' as client;
-import 'screens/service_provider/service_provider_screen.dart';
+import 'screens/profile/profile_screen.dart';
 import 'services/auth_storage.dart';
 import 'screens/bookings/bookings_screen.dart';
 import 'services/api_config.dart';
-import 'screens/profile/profile_screen.dart';
 import 'screens/proximity_service_selection_screen.dart';
 import 'screens/enhanced_booking_screen.dart';
+import 'screens/notifications/provider_notifications_screen.dart';
+import 'screens/enhanced_calendar_screen.dart';
+import 'screens/services/service_selection_screen.dart';
+import 'screens/client/client_notifications_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize network discovery
   print('🚀 Initializing PoaFix App...');
   await ApiConfig.initialize();
-  
+
   // Print network status for debugging
   final networkStatus = await ApiConfig.getNetworkStatus();
   print('🌐 Network Status: $networkStatus');
-  
-  runApp(const PoaFixApp());
+
+  runApp(AppRoot(child: const PoaFixApp()));
 }
 
 class PoaFixApp extends StatelessWidget {
-  const PoaFixApp({Key? key}) : super(key: key);
+  const PoaFixApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,32 +40,36 @@ class PoaFixApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: SplashWrapper(),
+      home: AuthenticationWrapper(),
       onGenerateRoute: (settings) {
         print('⚡ Generating route for: ${settings.name}');
-
         return MaterialPageRoute(
           builder: (context) => FutureBuilder(
-            future:
-                Future.delayed(Duration(milliseconds: 300)), // Smooth transition
+            future: Future.delayed(Duration(milliseconds: 300)),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Scaffold(body: Center(child: CircularProgressIndicator()));
+                return Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
               }
-
               switch (settings.name) {
                 case '/home':
                   final user = settings.arguments as User?;
-                  return client.HomeScreen(
-                    user: user ?? User.empty(),
-                  );
-
+                  return client.HomeScreen(user: user ?? User.empty());
+                case '/profile':
+                  final user = settings.arguments as User?;
+                  if (user != null && user.userType == 'client') {
+                    return ProfileScreen(user: user);
+                  }
+                  return AuthenticationWrapper();
                 case '/proximity-services':
                   final user = settings.arguments as User?;
                   return ProximityServiceSelectionScreen(
                     user: user ?? User.empty(),
                   );
-
+                case '/select-service':
+                  final user = settings.arguments as User?;
+                  return ServiceSelectionScreen(user: user ?? User.empty());
                 case '/enhanced-booking':
                   final arguments = settings.arguments as Map<String, dynamic>?;
                   return EnhancedBookingScreen(
@@ -70,31 +77,23 @@ class PoaFixApp extends StatelessWidget {
                     serviceName: arguments?['serviceName'] ?? 'Service',
                     user: arguments?['user'] ?? User.empty(),
                   );
-
+                case '/calendar':
+                  final user = settings.arguments as User?;
+                  return EnhancedCalendarScreen(user: user ?? User.empty());
                 case '/bookings':
                   final user = settings.arguments as User?;
                   return BookingsScreen(
                     user: user ?? User.empty(),
                     showNavigation: true,
                   );
-
-                case '/profile':
-                  final user = settings.arguments as User?;
-                  return ProfileScreen(user: user ?? User.empty());
-
+                case '/notifications':
+                  // For client notifications
+                  return const ClientNotificationsScreen();
                 default:
                   return Scaffold(
                     body: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Route ${settings.name} not found'),
-                          ElevatedButton(
-                            onPressed: () =>
-                                Navigator.of(context).pushNamed('/home'),
-                            child: Text('Go Home'),
-                          ),
-                        ],
+                      child: Text(
+                        'Route not found: ' + (settings.name ?? 'Unknown'),
                       ),
                     ),
                   );
@@ -107,33 +106,9 @@ class PoaFixApp extends StatelessWidget {
   }
 }
 
-class SplashWrapper extends StatefulWidget {
-  @override
-  _SplashWrapperState createState() => _SplashWrapperState();
-}
-
-class _SplashWrapperState extends State<SplashWrapper> {
-  bool _showSplash = true;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void _finishSplash() {
-    setState(() { _showSplash = false; });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_showSplash) {
-      return AnimatedSplashScreen(onFinish: _finishSplash);
-    }
-    return AuthenticationWrapper();
-  }
-}
-
 class AuthenticationWrapper extends StatefulWidget {
+  const AuthenticationWrapper({super.key});
+
   @override
   _AuthenticationWrapperState createState() => _AuthenticationWrapperState();
 }
@@ -224,14 +199,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
     if (mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => ServiceProviderScreen(
-            userName: credentials['name'] ?? '',
-            userId: credentials['user_id'] ?? '',
-            businessName: credentials['business_name'] ?? '',
-            serviceType: credentials['service_type'] ?? '',
-          ),
-        ),
+        MaterialPageRoute(builder: (context) => ProviderNotificationsScreen()),
       );
     }
   }
@@ -239,9 +207,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_error != null) {
@@ -261,8 +227,6 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
       );
     }
 
-    return Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

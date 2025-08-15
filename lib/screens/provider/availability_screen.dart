@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/availability_service.dart';
 
 class AvailabilityScreen extends StatefulWidget {
+  const AvailabilityScreen({super.key});
+
   @override
   _AvailabilityScreenState createState() => _AvailabilityScreenState();
 }

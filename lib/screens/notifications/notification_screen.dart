@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import '../../services/notification_service.dart';
 import '../../models/notification_model.dart';
 import '../../models/user_model.dart'; // Update this import
+import '../../widgets/client_sidepanel.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:vibration/vibration.dart';
@@ -13,7 +14,7 @@ import '../../screens/rating/rating_screen.dart'; // Fix import path
 
 class NotificationsScreen extends StatefulWidget {
   final User? user; // This now refers to user_model.dart
-  const NotificationsScreen({Key? key, this.user}) : super(key: key);
+  const NotificationsScreen({super.key, this.user});
 
   @override
   _NotificationsScreenState createState() => _NotificationsScreenState();
@@ -173,7 +174,12 @@ class _NotificationsScreenState extends State<NotificationsScreen>
       if (!mounted) return;
 
       setState(() {
-        _notifications = notifications;
+        // Deduplicate notifications based on their ID
+        final notificationIds = _notifications.map((n) => n.id).toSet();
+        _notifications = [
+          ..._notifications,
+          ...notifications.where((n) => !notificationIds.contains(n.id)),
+        ];
         _isLoading = false;
       });
 
@@ -200,39 +206,6 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     if (difference.inDays == 1) return 'Yesterday';
     if (difference.inDays < 7) return DateFormat('EEEE').format(date);
     return DateFormat('MMMM d, y').format(date);
-  }
-
-  IconData _getNotificationIcon(String type) {
-    switch (type.toLowerCase()) {
-      case 'booking_accepted':
-        return Icons.check_circle;
-      case 'booking_rejected':
-        return Icons.cancel;
-      case 'booking_cancelled':
-        return Icons.remove_circle;
-      case 'job_started':
-        return Icons.play_circle;
-      case 'job_completed':
-        return Icons.task_alt;
-      default:
-        return Icons.notifications;
-    }
-  }
-
-  Color _getNotificationColor(String type) {
-    switch (type.toLowerCase()) {
-      case 'booking_accepted':
-        return Colors.green;
-      case 'booking_rejected':
-      case 'booking_cancelled':
-        return Colors.red;
-      case 'job_started':
-        return Colors.blue;
-      case 'job_completed':
-        return Colors.purple;
-      default:
-        return Colors.grey;
-    }
   }
 
   Widget _buildNotificationList() {
@@ -454,254 +427,6 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     }
   }
 
-  Widget _buildTypeIcon(String type) {
-    IconData icon;
-    Color color;
-
-    switch (type.toUpperCase()) {
-      case 'BOOKING_ACCEPTED':
-        icon = Icons.check_circle;
-        color = Colors.green;
-        break;
-      case 'BOOKING_REJECTED':
-        icon = Icons.cancel;
-        color = Colors.red;
-        break;
-      case 'BOOKING_REQUEST':
-        icon = Icons.schedule;
-        color = Colors.orange;
-        break;
-      case 'SYSTEM_ALERT':
-        icon = Icons.warning;
-        color = Colors.red;
-        break;
-      default:
-        icon = Icons.notifications;
-        color = Colors.blue;
-    }
-
-    return Container(
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon, color: color),
-    );
-  }
-
-  Widget _buildNotificationDetails(Map<String, dynamic> data) {
-    return Container(
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (data['bookingId'] != null)
-            _buildDetailRow('Booking ID', '#${data['bookingId']}'),
-          if (data['status'] != null)
-            _buildDetailRow('Status', data['status'].toString().toUpperCase()),
-          if (data['amount'] != null)
-            _buildDetailRow('Amount', 'KES ${data['amount']}'),
-          if (data['scheduledDate'] != null)
-            _buildDetailRow(
-                'Scheduled',
-                DateFormat('MMM dd, yyyy, hh:mm a')
-                    .format(DateTime.parse(data['scheduledDate']))),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Text(
-            '$label: ',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(color: Colors.grey[800]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPriorityIcon(String type) {
-    IconData icon;
-    Color color;
-    Color backgroundColor;
-
-    switch (type) {
-      case 'BOOKING_REQUEST':
-        icon = Icons.schedule_send;
-        color = Colors.blue;
-        backgroundColor = Colors.blue[50]!;
-        break;
-      case 'BOOKING_ACCEPTED':
-        icon = Icons.check_circle;
-        color = Colors.green;
-        backgroundColor = Colors.green[50]!;
-        break;
-      case 'BOOKING_REJECTED':
-        icon = Icons.cancel;
-        color = Colors.red;
-        backgroundColor = Colors.red[50]!;
-        break;
-      case 'PAYMENT_RECEIVED':
-        icon = Icons.payment;
-        color = Colors.green;
-        backgroundColor = Colors.green[50]!;
-        break;
-      case 'SERVICE_STARTED':
-        icon = Icons.play_circle;
-        color = Colors.blue;
-        backgroundColor = Colors.blue[50]!;
-        break;
-      case 'SERVICE_COMPLETED':
-        icon = Icons.task_alt;
-        color = Colors.purple;
-        backgroundColor = Colors.purple[50]!;
-        break;
-      default:
-        icon = Icons.notifications;
-        color = Colors.grey;
-        backgroundColor = Colors.grey[50]!;
-    }
-
-    return Container(
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        shape: BoxShape.circle,
-        border: Border.all(color: color.withOpacity(0.5)),
-      ),
-      child: Icon(icon, color: color, size: 24),
-    );
-  }
-
-  Widget _buildStatusBadge(String status) {
-    Color color;
-    switch (status.toLowerCase()) {
-      case 'accepted':
-        color = Colors.green;
-        break;
-      case 'rejected':
-        color = Colors.red;
-        break;
-      case 'pending':
-        color = Colors.orange;
-        break;
-      default:
-        color = Colors.grey;
-    }
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.5)),
-      ),
-      child: Text(
-        status.toUpperCase(),
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailRowWithIcon(String label, dynamic value, IconData icon) {
-    final displayValue = value?.toString() ?? 'Not specified';
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Colors.grey[600]),
-        SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-              Text(
-                displayValue,
-                style: TextStyle(
-                  color: Colors.grey[800],
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButtons(
-      NotificationModel notification, Map<String, dynamic> data) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        if (data['bookingId'] != null)
-          TextButton(
-            onPressed: () => _navigateToBooking(data['bookingId']),
-            child: Text('View Booking'),
-          ),
-        if (data['providerPhone'] != null)
-          TextButton(
-            onPressed: () => _contactProvider(data['providerPhone']),
-            child: Text('Contact'),
-          ),
-      ],
-    );
-  }
-
-  // Add these new methods
-  void _navigateToBooking(String bookingId) {
-    // Implement navigation to booking details
-  }
-
-  void _contactProvider(String phone) {
-    // Implement provider contact functionality
-  }
-
-  String _getTimeAgo(DateTime dateTime) {
-    final difference = DateTime.now().difference(dateTime);
-
-    if (difference.inSeconds < 60) {
-      return 'Just now';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return DateFormat('MMM dd, yyyy').format(dateTime);
-    }
-  }
-
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -748,34 +473,19 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     }
   }
 
-  Future<void> _deleteNotification(String notificationId) async {
-    // Implement delete functionality
-  }
+  String _getTimeAgo(DateTime dateTime) {
+    final difference = DateTime.now().difference(dateTime);
 
-  NotificationStyle _getNotificationStyle(String type) {
-    switch (type) {
-      case 'BOOKING_REQUEST':
-        return NotificationStyle(Colors.orange, Icons.schedule_send);
-      case 'BOOKING_ACCEPTED':
-        return NotificationStyle(Colors.green, Icons.check_circle);
-      case 'BOOKING_REJECTED':
-        return NotificationStyle(Colors.red, Icons.cancel);
-      case 'BOOKING_CANCELLED':
-        return NotificationStyle(Colors.grey, Icons.remove_circle);
-      case 'PAYMENT_RECEIVED':
-        return NotificationStyle(Colors.green, Icons.payment);
-      case 'SERVICE_STARTED':
-        return NotificationStyle(Colors.blue, Icons.play_circle);
-      case 'SERVICE_COMPLETED':
-        return NotificationStyle(Colors.purple, Icons.task_alt);
-      case 'SYSTEM_ALERT':
-        return NotificationStyle(Colors.red, Icons.warning);
-      case 'ACCOUNT_BLOCKED':
-        return NotificationStyle(Colors.red, Icons.block);
-      case 'ACCOUNT_UNBLOCKED':
-        return NotificationStyle(Colors.green, Icons.check_circle);
-      default:
-        return NotificationStyle(Colors.blue, Icons.notifications);
+    if (difference.inSeconds < 60) {
+      return 'Just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    } else {
+      return DateFormat('MMM dd, yyyy').format(dateTime);
     }
   }
 
@@ -790,6 +500,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('Notifications'),
+        // Do not override leading so drawer icon appears
         actions: [
           RotationTransition(
             turns: Tween(begin: 0.0, end: 1.0).animate(_refreshIconController),
@@ -800,6 +511,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ),
         ],
       ),
+      drawer: ClientSidePanel(user: widget.user ?? User(id: '', name: '', email: '', userType: ''), parentContext: context),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _buildNotificationList(),
@@ -807,9 +519,75 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   }
 }
 
-class NotificationStyle {
-  final Color color;
-  final IconData icon;
+class ProviderNotificationsScreen extends StatefulWidget {
+  const ProviderNotificationsScreen({super.key});
 
-  NotificationStyle(this.color, this.icon);
+  @override
+  _ProviderNotificationsScreenState createState() =>
+      _ProviderNotificationsScreenState();
+}
+
+class _ProviderNotificationsScreenState
+    extends State<ProviderNotificationsScreen> {
+  final NotificationService _notificationService = NotificationService();
+  List<NotificationModel> _notifications = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotifications();
+  }
+
+  Future<void> _fetchNotifications() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      final userId = await _notificationService.getUserId();
+      final notifications = await _notificationService.getNotifications(
+        recipientId: userId,
+        recipientModel: 'Provider',
+      );
+
+      setState(() {
+        _notifications = notifications;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(child: Text('Error: $_error'));
+    }
+
+    if (_notifications.isEmpty) {
+      return Center(child: Text('No notifications available'));
+    }
+
+    return ListView.builder(
+      itemCount: _notifications.length,
+      itemBuilder: (context, index) {
+        final notification = _notifications[index];
+        return ListTile(
+          title: Text(notification.title),
+          subtitle: Text(notification.message),
+        );
+      },
+    );
+  }
 }

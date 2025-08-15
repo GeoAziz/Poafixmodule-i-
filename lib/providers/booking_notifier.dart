@@ -5,7 +5,7 @@ import '../services/socket_service.dart';
 class BookingNotifier extends ChangeNotifier {
   final SocketService _socketService = SocketService();
   Booking? _currentBooking;
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   Booking? get currentBooking => _currentBooking;
   bool get isLoading => _isLoading;

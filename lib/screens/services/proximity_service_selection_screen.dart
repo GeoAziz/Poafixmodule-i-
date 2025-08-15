@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as MaterialText show Text;
 import 'package:geolocator/geolocator.dart';
 import '../../models/user_model.dart';
 import '../../models/service_category_model.dart';
 import '../../services/enhanced_proximity_service.dart';
-import '../booking/enhanced_booking_screen.dart' as booking;
 import '../booking/enhanced_booking_screen.dart';
-import '../../search/xcombo_provider_search_screen.dart';
 
 class ProximityServiceSelectionScreen extends StatefulWidget {
   final User user;
 
-  const ProximityServiceSelectionScreen({
-    super.key,
-    required this.user,
-  });
+  const ProximityServiceSelectionScreen({super.key, required this.user});
 
   @override
   _ProximityServiceSelectionScreenState createState() =>
@@ -66,8 +60,9 @@ class _ProximityServiceSelectionScreenState
                   child: ListTile(
                     leading: Icon(service.icon, color: service.color),
                     title: Text(service.name),
-                    subtitle:
-                        Text('${service.nearbyProviders} providers nearby'),
+                    subtitle: Text(
+                      '${service.nearbyProviders} providers nearby',
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,

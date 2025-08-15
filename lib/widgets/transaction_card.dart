@@ -11,14 +11,14 @@ class TransactionCard extends StatelessWidget {
   final String? mpesaReference;
 
   const TransactionCard({
-    Key? key,
+    super.key,
     required this.amount,
     required this.date,
     required this.clientName,
     required this.serviceType,
     required this.status,
     this.mpesaReference,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class TransactionCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'KES ${amount}',
+              'KES $amount',
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             ),
             Text(

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../screens/service_provider/jobs_screen.dart';
-import '../screens/calendar_screen.dart';
+import '../screens/enhanced_calendar_screen.dart';
 import '../screens/finance/financial_management_screen.dart';
+import '../models/user_model.dart';
 import '../screens/settings_screen.dart';
 import '../screens/my_service_screen.dart';
 import '../services/auth_service.dart';
@@ -13,11 +14,11 @@ class ProviderDrawer extends StatelessWidget {
   final String providerId;
 
   const ProviderDrawer({
-    Key? key,
+    super.key,
     required this.userName,
     required this.businessName,
     required this.providerId,
-  }) : super(key: key);
+  });
 
   void _navigateToScreen(BuildContext context, Widget screen) {
     Navigator.pop(context); // Close drawer first
@@ -67,10 +68,20 @@ class ProviderDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.calendar_today),
             title: Text('Calendar'),
-            onTap: () => _navigateToScreen(
-              context,
-              CalendarScreen(),
-            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(
+                context,
+                '/calendar',
+                arguments: User(
+                  id: providerId,
+                  name: userName,
+                  email: '',
+                  userType: 'provider',
+                  phone: '',
+                ),
+              );
+            },
           ),
           ListTile(
             leading: Icon(Icons.business),

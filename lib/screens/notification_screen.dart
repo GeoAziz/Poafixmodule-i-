@@ -11,7 +11,7 @@ class NotificationsScreen extends StatefulWidget {
 
   final User? user;
 
-  const NotificationsScreen({Key? key, this.user}) : super(key: key);
+  const NotificationsScreen({super.key, this.user});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();

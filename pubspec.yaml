@@ -1,76 +1,7 @@
-name: poafix
-description: On-demand home services app connecting clients with service providers.
-
+name: poafixmodule
 publish_to: 'none'
-version: 0.0.1+1
-
 environment:
-  sdk: ">=2.19.0 <4.0.0"
-
-dependencies:
-  flutter:
-    sdk: flutter
-  google_fonts: ^6.2.1
-  provider: ^6.1.2
-  cupertino_icons: ^1.0.8
-  animate_do: ^3.3.4
-  scrollable_positioned_list: ^0.3.8
-  font_awesome_flutter: ^10.8.0
-  dio: ^5.7.0
-  flutter_secure_storage: ^9.2.4
-  http: ^1.3.0
-  shared_preferences: ^2.2.2
-  fl_chart: ^0.70.2
-  jwt_decoder: ^2.0.1
-  syncfusion_flutter_charts: ^28.1.39
-  google_maps_flutter: ^2.10.1
-  url_launcher: ^6.1.14
-  flutter_dotenv: ^5.0.2
-  geolocator: ^10.1.0
-  image_picker: ^1.1.2
-  device_info_plus: ^11.2.1
-  flutter_spinkit: ^5.2.1
-  lottie: ^3.3.1
-  flutter_map: ^8.0.0
-  latlong2: ^0.9.1
-  connectivity_plus: ^6.1.3
-  flutter_staggered_animations: ^1.1.1
-  timeago: ^3.2.2
-  glassmorphism: ^3.0.0
-  shimmer: ^3.0.0
-  mongo_dart: ^0.10.4
-  web_socket_channel: ^3.0.2
-  socket_io_client: ^3.0.2
-  flutter_local_notifications: ^19.0.0
-  table_calendar: ^3.2.0
-  simple_animations: ^5.1.0
-  flutter_slidable: ^4.0.0
-  grouped_list: ^6.0.0
-  vibration: ^3.1.3
-  file_picker: ^9.2.1
-  open_file: ^3.5.10
-  flutter_image_compress: ^2.4.0
-  sqflite: ^2.4.1
-  flutter_rating_bar: ^4.0.1
-  cached_network_image: ^3.4.1
-  animations: ^2.0.11
-  firebase_auth: ^5.6.2
-  agora_rtc_engine: ^6.3.2
-  intl: ^0.20.1
-  permission_handler: ^11.0.1
-  flutter_ringtone_player: ^4.0.0+3
-  path_provider: ^2.1.4
-  path: ^1.9.0
-  http_parser: ^4.0.2
-  image: ^4.2.0
-  logging: ^1.2.0
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_launcher_icons: ^0.13.1
-  flutter_lints: ^5.0.0
-  test: ^1.24.9
+  sdk: '^3.8.0'
 
 flutter:
   uses-material-design: true
@@ -80,7 +11,55 @@ flutter:
     - assets/icons/logo.png
     - assets/animations/loading.json
     - assets/animations/profile.json
+    - assets/animations/empty_jobs.json
     - assets/illustrations/login_animation.json
     - assets/images/
     - assets/icons/
+dependencies:
+  flutter:
+    sdk: flutter
+  intl: ^0.19.0
+  http: ^1.2.1
+  google_fonts: ^6.2.0
+  lottie: ^2.7.0
+  sqflite: ^2.3.2
+  path: ^1.9.0
+  geolocator: ^11.0.0
+  google_maps_flutter: ^2.6.0
+  flutter_rating_bar: ^4.0.1
+  flutter_image_compress: ^2.1.0
+  web_socket_channel: ^2.4.0
+  logger: ^2.0.2
+  socket_io_client: ^2.0.3
+  dio: ^5.4.3
+  flutter_secure_storage: ^9.0.0
+  firebase_auth: ^4.19.2
+  shared_preferences: ^2.2.2
+  fl_chart: ^0.66.0
+  timeago: ^3.6.0
+  table_calendar: ^3.0.9
+  agora_rtc_engine: ^6.2.6
+  image_picker: ^1.1.2
+  connectivity_plus: ^6.1.5
+  device_info_plus: ^10.1.2
+  jwt_decoder: ^2.0.1
+  flutter_local_notifications: ^19.4.0
+  mongo_dart: ^0.10.5
+  url_launcher: ^6.3.2
+  permission_handler: ^12.0.1
+  flutter_ringtone_player: ^4.0.0+4
+  vibration: ^3.1.3
+  file_picker: ^8.0.7
+  flutter_spinkit: ^5.2.2
+  open_file: ^3.5.4
+  font_awesome_flutter: ^10.9.0
+  flutter_staggered_animations: ^1.1.1
+  cached_network_image: ^3.4.0
+  animations: ^2.0.11
+  grouped_list: ^6.0.0
+  provider: ^6.1.5
+  flutter_map: ^8.2.1
+  latlong2: ^0.9.1
+  image: ^4.3.0
+  shimmer: ^3.0.0
 

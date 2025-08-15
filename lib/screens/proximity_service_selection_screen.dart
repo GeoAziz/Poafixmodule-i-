@@ -11,9 +11,9 @@ class ProximityServiceSelectionScreen extends StatefulWidget {
   final User user;
 
   const ProximityServiceSelectionScreen({
-    Key? key,
+    super.key,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   _ProximityServiceSelectionScreenState createState() =>

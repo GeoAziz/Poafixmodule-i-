@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class EarningsScreen extends StatefulWidget {
+  const EarningsScreen({super.key});
+
   @override
   _EarningsScreenState createState() => _EarningsScreenState();
 }

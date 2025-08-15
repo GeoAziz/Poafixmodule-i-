@@ -11,14 +11,14 @@ class IncomingCallScreen extends StatefulWidget {
   final EnhancedCallService callService;
 
   const IncomingCallScreen({
-    Key? key,
+    super.key,
     required this.callerId,
     required this.callerName,
     required this.callerPhone,
     this.callerAvatar,
     this.isVideoCall = false,
     required this.callService,
-  }) : super(key: key);
+  });
 
   @override
   _IncomingCallScreenState createState() => _IncomingCallScreenState();

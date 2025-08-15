@@ -4,6 +4,8 @@ import '../services/notification_service.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
+
   @override
   _NotificationsScreenState createState() => _NotificationsScreenState();
 }
@@ -32,8 +34,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       // For now, set a placeholder or fetch the userId from your authentication logic
       final String userId =
           'yourRecipientId'; // Replace with actual user ID retrieval
-      final notifications =
-          await _notificationService.getNotifications(recipientId: userId);
+      // TODO: Replace with actual recipientModel instance as needed
+      final recipientModel = null; // Replace with actual recipientModel object
+      final notifications = await _notificationService.getNotifications(
+        recipientId: userId,
+        recipientModel: recipientModel,
+      );
       print('✅ Received ${notifications.length} notifications');
 
       if (mounted) {

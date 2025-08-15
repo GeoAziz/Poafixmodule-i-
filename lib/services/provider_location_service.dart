@@ -6,7 +6,7 @@ import 'package:geolocator/geolocator.dart';
 
 class ProviderLocationService {
   final _storage = const FlutterSecureStorage();
-  int _retryAttempts = 0;
+  final int _retryAttempts = 0;
   static const _maxRetries = 3;
   static const _timeout = Duration(seconds: 20); // Increased timeout
   static const String baseUrl = 'http://192.168.0.102/api'; // Corrected IP

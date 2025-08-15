@@ -12,11 +12,11 @@ class XComboProviderSearchScreen extends StatefulWidget {
   final User user;
 
   const XComboProviderSearchScreen({
-    Key? key,
+    super.key,
     required this.serviceId,
     required this.serviceName,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   _XComboProviderSearchScreenState createState() => _XComboProviderSearchScreenState();
@@ -45,7 +45,7 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
         radiusKm: 10.0,
       );
       setState(() {
-        _providers = (providersRaw as List)
+        _providers = (providersRaw)
             .map((e) => ProviderModel.fromJson(e as Map<String, dynamic>))
             .toList();
         _isLoading = false;
@@ -81,7 +81,7 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
           : Column(
               children: [
                 // Top: Map
-                Container(
+                SizedBox(
                   height: MediaQuery.of(context).size.height * 0.4,
                   child: GoogleMap(
                     initialCameraPosition: CameraPosition(

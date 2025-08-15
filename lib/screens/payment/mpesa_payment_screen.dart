@@ -3,19 +3,20 @@ import 'dart:async';
 import '../../models/booking.dart';
 import '../../services/mpesa_service.dart';
 import 'package:lottie/lottie.dart';
+import 'package:logger/logger.dart';
 
 class MpesaPaymentScreen extends StatefulWidget {
   final Booking booking;
 
-  const MpesaPaymentScreen({Key? key, required this.booking}) : super(key: key);
+  const MpesaPaymentScreen({super.key, required this.booking});
 
   @override
-  _MpesaPaymentScreenState createState() => _MpesaPaymentScreenState();
+  State<MpesaPaymentScreen> createState() => _MpesaPaymentScreenState();
 }
 
 class _MpesaPaymentScreenState extends State<MpesaPaymentScreen> {
   final _phoneController = TextEditingController();
-  final _mpesaService = MpesaService();
+  final Logger _logger = Logger();
   bool _isLoading = false;
   String _paymentStatus = '';
   Timer? _statusCheckTimer;
@@ -49,6 +50,7 @@ class _MpesaPaymentScreenState extends State<MpesaPaymentScreen> {
 
       if (!mounted) return;
 
+      _logger.i('Payment initiated for booking ${widget.booking.id}');
       setState(() {
         _paymentStatus =
             'Payment initiated. Check your phone for the STK push.';
@@ -58,6 +60,7 @@ class _MpesaPaymentScreenState extends State<MpesaPaymentScreen> {
       _startStatusCheck();
     } catch (e) {
       if (!mounted) return;
+      _logger.e('Payment initiation failed: $e');
       setState(() {
         _paymentStatus = 'Payment failed: $e';
         _isLoading = false;
@@ -73,17 +76,28 @@ class _MpesaPaymentScreenState extends State<MpesaPaymentScreen> {
 
         if (!mounted) return;
 
+        _logger.i(
+            'Payment status for booking ${widget.booking.id}: ${status['status']}');
         setState(() => _paymentStatus = status['status']);
 
         if (status['status'] == 'completed') {
           timer.cancel();
+          _logger.i('Payment completed for booking ${widget.booking.id}');
           _showPaymentSuccess();
+          // TODO: Trigger booking/job status refresh here
         } else if (status['status'] == 'failed') {
           timer.cancel();
+          _logger.w('Payment failed for booking ${widget.booking.id}');
           setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Payment failed. Please try again.')),
+          );
         }
       } catch (e) {
-        print('Error checking payment status: $e');
+        _logger.e('Error checking payment status: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error checking payment status: $e')),
+        );
       }
     });
   }

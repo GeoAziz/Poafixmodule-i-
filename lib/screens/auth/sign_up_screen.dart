@@ -6,6 +6,8 @@ import '../../config/api_config.dart'; // Add this import
 import '../home/home_screen.dart'; // Import HomeScreen
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
@@ -153,8 +155,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                child: Text('Sign Up'),
                 onPressed: _handleSignUp,
+                child: Text('Sign Up'),
               ),
             ],
           ),

@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 
 class ReferAFriendScreen extends StatelessWidget {
+  const ReferAFriendScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

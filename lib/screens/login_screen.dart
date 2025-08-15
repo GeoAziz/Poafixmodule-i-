@@ -11,7 +11,7 @@ class NotificationsScreen extends StatefulWidget {
 
   final User? user;
 
-  const NotificationsScreen({Key? key, this.user}) : super(key: key);
+  const NotificationsScreen({super.key, this.user});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -45,8 +45,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           await _storage.read(key: 'userId');
 
       if (token == null) throw Exception('No auth token found');
-      if (serviceProviderId == null)
+      if (serviceProviderId == null) {
         throw Exception('No service provider ID found');
+      }
 
       print('Loading notifications for service provider: $serviceProviderId');
 
