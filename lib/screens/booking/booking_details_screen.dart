@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../core/models/user_model.dart' show UserModel;
+import '../../models/user_model.dart' show User;
+import '../../models/user.dart' as user_model;
 import '../../models/service_category.dart';
 import '../../services/proximity_service.dart';
 import '../../widgets/provider_map_widget.dart';
@@ -55,13 +57,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
       duration: Duration(milliseconds: 800),
       vsync: this,
     );
-    _slideAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _slideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
     _estimatedPrice = widget.selectedService.basePrice;
     _animationController.forward();
@@ -96,9 +94,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
             _nearbyProviders = List<Map<String, dynamic>>.from(providersData);
           });
         } else if (providersData.isNotEmpty &&
-            providersData.first.runtimeType
-                .toString()
-                .contains('ProviderModel')) {
+            providersData.first.runtimeType.toString().contains(
+              'ProviderModel',
+            )) {
           setState(() {
             _nearbyProviders = providersData
                 .map((p) => (p as dynamic).toJson() as Map<String, dynamic>)
@@ -359,55 +357,61 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
                   ),
                 )
               : _nearbyProviders.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.search_off,
-                              size: 64, color: Colors.grey[400]),
-                          SizedBox(height: 16),
-                          Text('No providers found in your area'),
-                          SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: _loadNearbyProviders,
-                            child: Text('Refresh'),
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+                      SizedBox(height: 16),
+                      Text('No providers found in your area'),
+                      SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: _loadNearbyProviders,
+                        child: Text('Refresh'),
+                      ),
+                    ],
+                  ),
+                )
+              : Expanded(
+                  child: ListView.builder(
+                    itemCount: _nearbyProviders.length,
+                    itemBuilder: (context, index) {
+                      final provider = _nearbyProviders[index];
+                      return Card(
+                        margin: EdgeInsets.only(bottom: 16),
+                        child: ListTile(
+                          leading: provider['profileImage'] != null
+                              ? CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    provider['profileImage'],
+                                  ),
+                                )
+                              : CircleAvatar(child: Icon(Icons.person)),
+                          title: Text(
+                            provider['businessName'] ??
+                                provider['firstName'] ??
+                                'Provider',
                           ),
-                        ],
-                      ),
-                    )
-                  : Expanded(
-                      child: ListView.builder(
-                        itemCount: _nearbyProviders.length,
-                        itemBuilder: (context, index) {
-                          final provider = _nearbyProviders[index];
-                          return Card(
-                            margin: EdgeInsets.only(bottom: 16),
-                            child: ListTile(
-                              leading: provider['profileImage'] != null
-                                  ? CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                          provider['profileImage']))
-                                  : CircleAvatar(child: Icon(Icons.person)),
-                              title: Text(provider['businessName'] ??
-                                  provider['firstName'] ??
-                                  'Provider'),
-                              subtitle: Text(
-                                  'Rating: ${provider['rating'] ?? '-'} | Jobs: ${provider['completedJobs'] ?? '-'}'),
-                              trailing: ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedProvider = provider;
-                                  });
-                                },
-                                child: Text(_selectedProvider == provider
-                                    ? 'Selected'
-                                    : 'Select'),
-                              ),
+                          subtitle: Text(
+                            'Rating: ${provider['rating'] ?? '-'} | Jobs: ${provider['completedJobs'] ?? '-'}',
+                          ),
+                          trailing: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _selectedProvider = provider;
+                              });
+                            },
+                            child: Text(
+                              _selectedProvider == provider
+                                  ? 'Selected'
+                                  : 'Select',
                             ),
-                          );
-                        },
-                      ),
-                    ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
         ],
       ),
     );
@@ -428,12 +432,16 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
           // Date Selection
           Card(
             child: ListTile(
-              leading: Icon(Icons.calendar_today,
-                  color: widget.selectedService.color),
+              leading: Icon(
+                Icons.calendar_today,
+                color: widget.selectedService.color,
+              ),
               title: Text('Select Date'),
-              subtitle: Text(_selectedDate != null
-                  ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                  : 'Choose a date'),
+              subtitle: Text(
+                _selectedDate != null
+                    ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+                    : 'Choose a date',
+              ),
               onTap: _selectDate,
               trailing: Icon(Icons.arrow_forward_ios),
             ),
@@ -444,12 +452,16 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
           // Time Selection
           Card(
             child: ListTile(
-              leading:
-                  Icon(Icons.access_time, color: widget.selectedService.color),
+              leading: Icon(
+                Icons.access_time,
+                color: widget.selectedService.color,
+              ),
               title: Text('Select Time'),
-              subtitle: Text(_selectedTime != null
-                  ? '${_selectedTime!.hour}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
-                  : 'Choose a time'),
+              subtitle: Text(
+                _selectedTime != null
+                    ? '${_selectedTime!.hour}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+                    : 'Choose a time',
+              ),
               onTap: _selectTime,
               trailing: Icon(Icons.arrow_forward_ios),
             ),
@@ -474,8 +486,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
             decoration: InputDecoration(
               labelText: 'Service Location',
               hintText: 'Enter your address',
-              prefixIcon:
-                  Icon(Icons.location_on, color: widget.selectedService.color),
+              prefixIcon: Icon(
+                Icons.location_on,
+                color: widget.selectedService.color,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -527,20 +541,23 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
                 children: [
                   _buildConfirmationItem('Service', _selectedSubService ?? ''),
                   _buildConfirmationItem(
-                      'Provider',
-                      _selectedProvider != null
-                          ? (_selectedProvider!['name'] as String)
-                          : ''),
+                    'Provider',
+                    _selectedProvider != null
+                        ? (_selectedProvider!['name'] as String)
+                        : '',
+                  ),
                   _buildConfirmationItem(
-                      'Date',
-                      _selectedDate != null
-                          ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                          : ''),
+                    'Date',
+                    _selectedDate != null
+                        ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+                        : '',
+                  ),
                   _buildConfirmationItem(
-                      'Time',
-                      _selectedTime != null
-                          ? '${_selectedTime!.hour}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
-                          : ''),
+                    'Time',
+                    _selectedTime != null
+                        ? '${_selectedTime!.hour}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+                        : '',
+                  ),
                   _buildConfirmationItem('Location', _location),
                   if (_notes.isNotEmpty)
                     _buildConfirmationItem('Notes', _notes),
@@ -584,10 +601,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
               ),
               child: Text(
                 'Confirm Booking',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -612,12 +626,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
               ),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
+          Expanded(child: Text(value, style: TextStyle(fontSize: 16))),
         ],
       ),
     );
@@ -655,10 +664,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
               ),
               child: Text(
                 _currentStep == _stepTitles.length - 1 ? 'Confirm' : 'Next',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -728,18 +734,25 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
 
   void _confirmBooking() {
     // TODO: Implement booking API call
+    // Convert UserModel to User before navigation
+    final user = user_model.User.fromUserModel(widget.user);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Booking Confirmed! 🎉'),
         content: Text(
-            'Your booking has been successfully created. The provider will contact you shortly.'),
+          'Your booking has been successfully created. The provider will contact you shortly.',
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              Navigator.pushReplacementNamed(context, '/bookings',
-                  arguments: widget.user);
+              Navigator.pushReplacementNamed(
+                context,
+                '/bookings',
+                arguments: user,
+              );
             },
             child: Text('View My Bookings'),
           ),

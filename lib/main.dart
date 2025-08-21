@@ -86,9 +86,6 @@ class PoaFixApp extends StatelessWidget {
                     user: user ?? User.empty(),
                     showNavigation: true,
                   );
-                case '/notifications':
-                  // For client notifications
-                  return const ClientNotificationsScreen();
                 default:
                   return Scaffold(
                     body: Center(
@@ -102,6 +99,7 @@ class PoaFixApp extends StatelessWidget {
           ),
         );
       },
+      routes: {'/notifications': (context) => ClientNotificationsScreen()},
     );
   }
 }

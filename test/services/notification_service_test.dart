@@ -6,10 +6,7 @@ void main() {
     final service = NotificationService();
 
     test('getNotifications throws on missing token', () async {
-      expect(
-        () => service.getNotifications(recipientId: '', recipientModel: 'User'),
-        throwsException,
-      );
+      expect(() => service.getNotifications(), throwsException);
     });
 
     test('createNotification throws on missing recipientModel', () async {

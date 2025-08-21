@@ -1,4 +1,3 @@
-
 enum BookingStatus {
   pending, // Changed to lowercase
   accepted,
@@ -16,9 +15,9 @@ extension BookingStatusExtension on BookingStatus {
   static BookingStatus fromJson(String value) {
     final lowerValue = value.toLowerCase(); // Convert to lowercase
     return BookingStatus.values.firstWhere(
-        (status) =>
-            status.toString().split('.').last.toLowerCase() == lowerValue,
-        orElse: () => BookingStatus.pending);
+      (status) => status.toString().split('.').last.toLowerCase() == lowerValue,
+      orElse: () => BookingStatus.pending,
+    );
   }
 }
 
@@ -57,10 +56,7 @@ class Location {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'type': type,
-        'coordinates': coordinates,
-      };
+  Map<String, dynamic> toJson() => {'type': type, 'coordinates': coordinates};
 }
 
 class Payment {
@@ -89,12 +85,12 @@ class Payment {
   }
 
   Map<String, dynamic> toJson() => {
-        'method': method,
-        'status': status,
-        'transactionId': transactionId,
-        'currency': currency,
-        'amount': amount,
-      };
+    'method': method,
+    'status': status,
+    'transactionId': transactionId,
+    'currency': currency,
+    'amount': amount,
+  };
 }
 
 class Client {
@@ -120,11 +116,11 @@ class Client {
   }
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'name': name,
-        'email': email,
-        'phoneNumber': phoneNumber,
-      };
+    '_id': id,
+    'name': name,
+    'email': email,
+    'phoneNumber': phoneNumber,
+  };
 }
 
 class Booking {
@@ -141,6 +137,7 @@ class Booking {
   final DateTime? createdAt;
   final double amount;
   final String? providerName; // Add this if not present
+  final String? approvalUrl;
 
   Booking({
     required this.id,
@@ -156,6 +153,7 @@ class Booking {
     this.createdAt,
     required this.amount,
     this.providerName,
+    this.approvalUrl,
   });
 
   // Add getters for computed properties
@@ -174,43 +172,47 @@ class Booking {
     if (location == null) return 'No address provided';
     return location!['address']?.toString() ?? 'No address provided';
   }
+
+  // Get payment ID from payment map
+  String get paymentId {
+    return payment['_id']?.toString() ?? payment['id']?.toString() ?? '';
+  }
   // Removed duplicate providerName getter as it conflicts with the providerName field
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
       id: json['_id'] ?? json['id'] ?? '',
       serviceType: json['serviceType'] ?? '',
-      scheduledDate: json['scheduledDate'] != null
-          ? DateTime.parse(json['scheduledDate'])
+      scheduledDate: json['schedule'] != null
+          ? DateTime.parse(json['schedule'])
           : DateTime.now(),
       status: json['status'] ?? 'pending',
       location: json['location'],
       payment: json['payment'] ?? {'status': 'pending', 'method': 'mpesa'},
       services: List<Map<String, dynamic>>.from(json['services'] ?? []),
-      client: json['client'] ?? '',
-      provider: json['provider'] ?? '',
-      notes: json['notes'] ?? '',
-      createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      client: json['clientId'] ?? '',
+      provider: json['providerId'] ?? '',
+      notes: json['description'] ?? '',
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
       amount: (json['amount'] ?? 0.0).toDouble(),
       providerName: json['providerName'],
+      approvalUrl: json['approvalUrl'],
     );
   }
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      '_id': id,
       'serviceType': serviceType,
-      'scheduledDate': scheduledDate.toIso8601String(),
+      'schedule': scheduledDate.toUtc().toIso8601String(),
       'status': status,
       'location': location,
-      'payment': payment,
-      'services': services,
-      'client': client,
-      'provider': provider,
-      'notes': notes,
-      'createdAt': createdAt?.toIso8601String(),
-      'amount': amount,
-      'providerName': providerName,
+      'clientId': client,
+      'providerId': provider,
+      'description': notes,
+      'address': location?['address'],
+      'lastUpdated': DateTime.now().toUtc().toIso8601String(),
     };
   }
 
@@ -228,6 +230,7 @@ class Booking {
     DateTime? createdAt,
     double? amount,
     String? providerName,
+    String? approvalUrl,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -243,6 +246,7 @@ class Booking {
       createdAt: createdAt ?? this.createdAt,
       amount: amount ?? this.amount,
       providerName: providerName ?? this.providerName,
+      approvalUrl: approvalUrl ?? this.approvalUrl,
     );
   }
 }

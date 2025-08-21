@@ -40,11 +40,7 @@ class NotificationsScreenState extends State<NotificationsScreen> {
       // Replace 'yourRecipientId' with actual user ID from storage or auth
       final String? userId = await _getUserId();
       if (userId == null) throw Exception('User ID not found');
-      final notifications = await _notificationService.getNotifications(
-        recipientId: userId,
-        recipientModel:
-            'provider', // Replace 'provider' with the correct model if needed
-      );
+      final notifications = await _notificationService.getNotifications();
 
       if (mounted) {
         setState(() {
@@ -104,10 +100,7 @@ class NotificationsScreenState extends State<NotificationsScreen> {
             SizedBox(height: 16),
             Text(
               'No notifications yet',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
+              style: GoogleFonts.poppins(fontSize: 18, color: Colors.grey),
             ),
           ],
         ),
@@ -123,7 +116,9 @@ class NotificationsScreenState extends State<NotificationsScreen> {
               Text(
                 'Notifications',
                 style: GoogleFonts.poppins(
-                    fontSize: 22, fontWeight: FontWeight.bold),
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Spacer(),
               AnimatedSwitcher(
@@ -133,8 +128,10 @@ class NotificationsScreenState extends State<NotificationsScreen> {
                 child: _getUnreadCount() > 0
                     ? Container(
                         key: ValueKey<int>(_getUnreadCount()),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.redAccent,
                           borderRadius: BorderRadius.circular(16),
@@ -142,7 +139,9 @@ class NotificationsScreenState extends State<NotificationsScreen> {
                         child: Text(
                           '${_getUnreadCount()} Unread',
                           style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       )
                     : SizedBox.shrink(),
@@ -182,8 +181,8 @@ class NotificationsScreenState extends State<NotificationsScreen> {
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor:
-              (colors[notification.type] ?? Colors.grey).withOpacity(0.1),
+          backgroundColor: (colors[notification.type] ?? Colors.grey)
+              .withValues(),
           child: Icon(
             icons[notification.type],
             color: colors[notification.type],
@@ -200,10 +199,7 @@ class NotificationsScreenState extends State<NotificationsScreen> {
             SizedBox(height: 4),
             Text(
               timeago.format(notification.createdAt),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
@@ -230,17 +226,9 @@ class NotificationsScreenState extends State<NotificationsScreen> {
   void _handleNotificationTap(NotificationModel notification) {
     final bookingId = notification.data?['bookingId'];
     if (notification.type == 'new_booking' && bookingId != null) {
-      Navigator.pushNamed(
-        context,
-        '/booking-details',
-        arguments: bookingId,
-      );
+      Navigator.pushNamed(context, '/booking-details', arguments: bookingId);
     } else if (notification.type == 'booking_update' && bookingId != null) {
-      Navigator.pushNamed(
-        context,
-        '/booking-details',
-        arguments: bookingId,
-      );
+      Navigator.pushNamed(context, '/booking-details', arguments: bookingId);
     }
   }
 }

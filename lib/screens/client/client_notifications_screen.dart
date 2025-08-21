@@ -3,12 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/bottomnavbar.dart';
 import '../../widgets/client_sidepanel.dart';
 import '../../services/notification_service.dart';
+import '../../services/websocket_service.dart';
 import '../../models/notification_model.dart';
 import '../../models/user_model.dart';
+import '../../payments/payment_history_screen.dart';
+import '../payment/paypal_payment_screen.dart';
+import '../../config/api_config.dart';
 
 class ClientNotificationsScreen extends StatefulWidget {
   const ClientNotificationsScreen({super.key});
@@ -151,7 +154,22 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
   void initState() {
     super.initState();
     _initUserIdAndFetch();
+    _setupWebSocketListener();
+  }
 
+  void _setupWebSocketListener() async {
+    final userId = await _getUserId();
+    if (userId == null) return;
+    final ws = WebSocketService();
+    ws.connect(userId);
+    ws.listen('notification', (data) {
+      if (data['userId'] == userId) {
+        print(
+          '🔔 New notification received via WebSocket: ${data['notification']}',
+        );
+        _fetchNotifications();
+      }
+    });
   }
 
   Future<void> _initUserIdAndFetch() async {
@@ -170,13 +188,10 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
       });
 
       print('Initiating client notifications fetch...');
-      // Replace 'yourRecipientId' with actual user ID from storage or auth
+      // TODO: Replace with actual user ID from storage or auth
       final String? userId = await _getUserId();
       if (userId == null) throw Exception('User ID not found');
-      final notifications = await _notificationService.getNotifications(
-        recipientId: userId,
-        recipientModel: 'client', // Use 'client' for client notifications
-      );
+      final notifications = await _notificationService.getNotifications();
 
       if (mounted) {
         setState(() {
@@ -197,11 +212,93 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
   }
 
   Future<String?> _getUserId() async {
-    // Example: fetch from secure storage or auth provider
-    // Replace with your actual logic
-    // For demonstration, return a placeholder or fetch from storage
-    // e.g., return await FlutterSecureStorage().read(key: 'userId');
-    return await Future.value('client_id');
+    // TODO: Replace with secure storage or auth provider in production
+    return await Future.value('689dda4e522262694e34d873');
+  }
+
+  void _showPaymentPromptModal(
+    BuildContext context,
+    NotificationModel notification,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => _AnimatedPaymentPrompt(
+        bookingId: notification.data?['bookingId']?.toString(),
+        amount: notification.data?['amount'] ?? 0,
+        onPayMpesa: () async {
+          Navigator.pop(ctx);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Initiating MPesa payment...')),
+          );
+          // TODO: Implement MPesa payment logic here
+        },
+        onPayPaypal: () async {
+          Navigator.pop(ctx);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Initiating PayPal payment...')),
+          );
+          try {
+            final response = await http.post(
+              Uri.parse(ApiConfig.paypalPaymentUrl),
+              headers: {
+                'Authorization':
+                    'Bearer yourClientToken', // TODO: Use sandbox token in backend
+                'Content-Type': 'application/json',
+              },
+              body: json.encode({
+                'paymentId':
+                    notification.data?['paymentId'] ?? 'fallback_payment_id',
+                'amount': notification.data?['amount'],
+                'bookingId': notification.data?['bookingId'],
+                'clientId': notification.data?['clientId'] ?? _userId,
+                'providerId': notification.data?['providerId'] ?? '',
+              }),
+            );
+            if (response.statusCode == 200) {
+              final data = json.decode(response.body);
+              final approvalUrl = data['approvalUrl'];
+              // Ensure only sandbox URLs are used
+              if (approvalUrl != null &&
+                  approvalUrl.toString().contains('sandbox.paypal.com')) {
+                // FIX: Always open in Flutter WebView, not external browser
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (ctx) => PaypalPaymentScreen(
+                      approvalUrl: approvalUrl,
+                      bookingId: notification.data?['bookingId'] ?? '',
+                      amount: notification.data?['amount'] ?? 0.0,
+                      paymentId: notification.data?['paymentId'] ?? '',
+                    ),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'PayPal sandbox approval URL not received. Check backend config.',
+                    ),
+                  ),
+                );
+              }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Failed to initiate PayPal payment.'),
+                ),
+              );
+            }
+          } catch (e) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Error: $e')));
+          }
+        },
+      ),
+    );
   }
 
   @override
@@ -311,7 +408,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
         currentIndex: 4,
         unreadCount: _getUnreadCount(),
         onTap: (index) async {
-          if (index == 4) return; // Already on notifications
+          if (index == 4) return;
           switch (index) {
             case 0:
               Navigator.pushReplacementNamed(context, '/home');
@@ -323,9 +420,8 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
               Navigator.pushReplacementNamed(context, '/bookings');
               break;
             case 3:
-              // Fetch user from storage or provider
+              // TODO: Fetch user from storage or provider
               final userId = await _getUserId();
-              // You may want to fetch the full user object here. For now, pass a minimal User with required fields.
               Navigator.pushReplacementNamed(
                 context,
                 '/profile',
@@ -338,6 +434,13 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                   token: '',
                   avatarUrl: '',
                 ),
+              );
+              break;
+            case 5:
+              // Payment history
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (ctx) => PaymentHistoryScreen()),
               );
               break;
           }
@@ -368,93 +471,132 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
         notification.type == 'PAYMENT_REQUEST') {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: _AnimatedPaymentPrompt(
-          bookingId: notification.data?['bookingId']?.toString(),
-          amount: notification.data?['amount'] ?? 0,
-          onPayMpesa: () async {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Initiating MPesa payment...')),
-            );
-            try {
-              final response = await http.post(
-                Uri.parse('https://your-api-url/api/payments/mpesa/initiate'),
-                headers: {
-                  'Authorization':
-                      'Bearer yourClientToken', // Replace with actual token
-                  'Content-Type': 'application/json',
-                },
-                body: json.encode({
-                  'paymentId': notification.data?['paymentId'],
-                  'amount': notification.data?['amount'],
-                  'phoneNumber':
-                      'clientPhoneNumber', // Replace with actual phone number
-                  'bookingId': notification.data?['bookingId'],
-                  'clientId': notification.data?['clientId'],
-                  'providerId': notification.data?['providerId'],
-                }),
+        child: GestureDetector(
+          onTap: () => _showPaymentPromptModal(context, notification),
+          child: _AnimatedPaymentPrompt(
+            bookingId: notification.data?['bookingId']?.toString(),
+            amount: notification.data?['amount'] ?? 0,
+            onPayMpesa: () async {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Initiating MPesa payment...')),
               );
-              if (response.statusCode == 200) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'STK push sent! Complete payment on your phone.',
+              try {
+                final response = await http.post(
+                  Uri.parse(ApiConfig.mpesaPaymentUrl),
+                  headers: {
+                    'Authorization':
+                        'Bearer yourClientToken', // TODO: Replace with actual token
+                    'Content-Type': 'application/json',
+                  },
+                  body: json.encode({
+                    'paymentId':
+                        notification.data?['paymentId'] ??
+                        'fallback_payment_id',
+                    'amount': notification.data?['amount'],
+                    'phoneNumber':
+                        'clientPhoneNumber', // TODO: Replace with actual phone number
+                    'bookingId': notification.data?['bookingId'],
+                    'clientId': notification.data?['clientId'] ?? _userId,
+                    'providerId': notification.data?['providerId'] ?? '',
+                  }),
+                );
+                if (response.statusCode == 200) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'STK push sent! Complete payment on your phone.',
+                      ),
                     ),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to initiate MPesa payment.')),
-                );
-              }
-            } catch (e) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Error: $e')));
-            }
-          },
-          onPayPaypal: () async {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Initiating PayPal payment...')),
-            );
-            try {
-              final response = await http.post(
-                Uri.parse('https://your-api-url/api/payments/paypal/initiate'),
-                headers: {
-                  'Authorization':
-                      'Bearer yourClientToken', // Replace with actual token
-                  'Content-Type': 'application/json',
-                },
-                body: json.encode({
-                  'paymentId': notification.data?['paymentId'],
-                  'amount': notification.data?['amount'],
-                  'bookingId': notification.data?['bookingId'],
-                  'clientId': notification.data?['clientId'],
-                  'providerId': notification.data?['providerId'],
-                }),
-              );
-              if (response.statusCode == 200) {
-                final data = json.decode(response.body);
-                final approvalUrl = data['paypalResult']['approvalUrl'];
-                if (approvalUrl != null) {
-                  await launchUrl(Uri.parse(approvalUrl));
+                  );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Failed to get PayPal approval URL.'),
+                      content: Text('Failed to initiate MPesa payment.'),
                     ),
                   );
                 }
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to initiate PayPal payment.')),
-                );
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Error: $e')));
               }
-            } catch (e) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Error: $e')));
-            }
-          },
+            },
+            onPayPaypal: () async {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Initiating PayPal payment...')),
+              );
+              try {
+                final response = await http.post(
+                  Uri.parse(ApiConfig.paypalPaymentUrl),
+                  headers: {
+                    'Authorization':
+                        'Bearer yourClientToken', // TODO: Use sandbox token in backend
+                    'Content-Type': 'application/json',
+                  },
+                  body: json.encode({
+                    'paymentId':
+                        notification.data?['paymentId'] ??
+                        'fallback_payment_id',
+                    'amount': notification.data?['amount'],
+                    'bookingId': notification.data?['bookingId'],
+                    'clientId': notification.data?['clientId'] ?? _userId,
+                    'providerId': notification.data?['providerId'] ?? '',
+                  }),
+                );
+                if (response.statusCode == 200) {
+                  final data = json.decode(response.body);
+                  final approvalUrl = data['approvalUrl'];
+                  // Ensure only sandbox URLs are used
+                  double amountValue = 0.0;
+                  if (notification.data?['amount'] != null) {
+                    if (notification.data?['amount'] is int) {
+                      amountValue = (notification.data?['amount'] as int)
+                          .toDouble();
+                    } else if (notification.data?['amount'] is double) {
+                      amountValue = notification.data?['amount'] as double;
+                    } else {
+                      amountValue =
+                          double.tryParse(
+                            notification.data!['amount'].toString(),
+                          ) ??
+                          0.0;
+                    }
+                  }
+                  if (approvalUrl != null &&
+                      approvalUrl.toString().contains('sandbox.paypal.com')) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => PaypalPaymentScreen(
+                          approvalUrl: approvalUrl,
+                          bookingId: notification.data?['bookingId'] ?? '',
+                          amount: amountValue,
+                          paymentId: notification.data?['paymentId'] ?? '',
+                        ),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'PayPal sandbox approval URL not received. Check backend config.',
+                        ),
+                      ),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to initiate PayPal payment.'),
+                    ),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Error: $e')));
+              }
+            },
+          ),
         ),
       );
     }
@@ -505,12 +647,26 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
     );
   }
 
+  // Removed polling and backend confirmation logic. Payment completion handled by WebSocket notification.
+
   void _handleNotificationTap(NotificationModel notification) {
     final bookingId = notification.data?['bookingId'];
+    final paymentId = notification.data?['paymentId'];
     if (notification.type == 'new_booking' && bookingId != null) {
       Navigator.pushNamed(context, '/booking-details', arguments: bookingId);
     } else if (notification.type == 'booking_update' && bookingId != null) {
       Navigator.pushNamed(context, '/booking-details', arguments: bookingId);
+    } else if (notification.type == 'payment_success' &&
+        bookingId != null &&
+        paymentId != null) {
+      // Show success message and update UI
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Payment completed successfully!')),
+        );
+      }
+      // Optionally, navigate to payment history or refresh notifications
+      _fetchNotifications();
     }
   }
 }

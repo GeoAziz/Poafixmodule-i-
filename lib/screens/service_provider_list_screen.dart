@@ -53,13 +53,11 @@ class _ServiceProviderListScreenState extends State<ServiceProviderListScreen> {
       print('Service: ${widget.serviceType}');
       print('Radius: $_maxDistance');
 
-      final fetchedProviders = await ProviderService.getNearbyProviders(
-        serviceType: widget.serviceType.toLowerCase(), // Important: lowercase
-        location: {
-          'lat': widget.initialLocation.latitude,
-          'lng': widget.initialLocation.longitude,
-        },
-        radius: _maxDistance,
+      final fetchedProviders = await ProviderService.fetchNearbyProviders(
+        latitude: widget.initialLocation.latitude,
+        longitude: widget.initialLocation.longitude,
+        radius: _maxDistance.toInt(),
+        serviceType: widget.serviceType.toLowerCase(),
       );
 
       if (mounted) {

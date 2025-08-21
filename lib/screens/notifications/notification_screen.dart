@@ -48,8 +48,9 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   }
 
   Future<void> _initializeLocalNotifications() async {
-    const initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const initializationSettingsAndroid = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const initializationSettingsIOS = DarwinInitializationSettings();
     const initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
@@ -90,10 +91,8 @@ class _NotificationsScreenState extends State<NotificationsScreen>
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => RatingScreen(
-          bookingId: bookingId,
-          providerId: providerId,
-        ),
+        builder: (context) =>
+            RatingScreen(bookingId: bookingId, providerId: providerId),
       );
     });
   }
@@ -112,9 +111,11 @@ class _NotificationsScreenState extends State<NotificationsScreen>
       // Show appropriate message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isBlocked
-              ? 'Account has been blocked: $reason'
-              : 'Account has been unblocked'),
+          content: Text(
+            isBlocked
+                ? 'Account has been blocked: $reason'
+                : 'Account has been unblocked',
+          ),
           backgroundColor: isBlocked ? Colors.red : Colors.green,
         ),
       );
@@ -141,8 +142,10 @@ class _NotificationsScreenState extends State<NotificationsScreen>
       priority: Priority.high,
     );
     const iosDetails = DarwinNotificationDetails();
-    const details =
-        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
 
     await _localNotifications.show(
       0,
@@ -164,10 +167,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
         throw Exception('User ID not found');
       }
 
-      final notifications = await _notificationService.getNotifications(
-        recipientId: userId,
-        recipientModel: widget.user?.userType ?? 'User',
-      );
+      final notifications = await _notificationService.getNotifications();
 
       print('📥 Received ${notifications.length} notifications');
 
@@ -329,8 +329,11 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                         if (notification.data!['bookingId'] != null)
                           Row(
                             children: [
-                              Icon(Icons.bookmark_border,
-                                  size: 16, color: Colors.grey[600]),
+                              Icon(
+                                Icons.bookmark_border,
+                                size: 16,
+                                color: Colors.grey[600],
+                              ),
                               SizedBox(width: 8),
                               Text(
                                 'Booking ID: ',
@@ -352,8 +355,11 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                           SizedBox(height: 8),
                           Row(
                             children: [
-                              Icon(Icons.info_outline,
-                                  size: 16, color: Colors.grey[600]),
+                              Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: Colors.grey[600],
+                              ),
                               SizedBox(width: 8),
                               Text(
                                 'Status: ',
@@ -368,7 +374,8 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                                     .toUpperCase(),
                                 style: TextStyle(
                                   color: _getStatusColor(
-                                      notification.data!['status']),
+                                    notification.data!['status'],
+                                  ),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -386,19 +393,14 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           Container(
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.grey[200]!),
-              ),
+              border: Border(top: BorderSide(color: Colors.grey[200]!)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   _getTimeAgo(notification.createdAt),
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
                 if (notification.read == false)
                   TextButton.icon(
@@ -439,23 +441,15 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ),
           Text(
             'No notifications yet',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8),
           Text(
             'Your notifications will appear here',
-            style: TextStyle(
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(color: Colors.grey[600]),
           ),
           SizedBox(height: 16),
-          Text(
-            'Try:',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text('Try:', style: TextStyle(fontWeight: FontWeight.bold)),
           Text('• Booking a service'),
           Text('• Completing a job'),
           Text('• Checking your schedule'),
@@ -511,7 +505,10 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ),
         ],
       ),
-      drawer: ClientSidePanel(user: widget.user ?? User(id: '', name: '', email: '', userType: ''), parentContext: context),
+      drawer: ClientSidePanel(
+        user: widget.user ?? User(id: '', name: '', email: '', userType: ''),
+        parentContext: context,
+      ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _buildNotificationList(),
@@ -547,11 +544,7 @@ class _ProviderNotificationsScreenState
         _error = null;
       });
 
-      final userId = await _notificationService.getUserId();
-      final notifications = await _notificationService.getNotifications(
-        recipientId: userId,
-        recipientModel: 'Provider',
-      );
+      final notifications = await _notificationService.getNotifications();
 
       setState(() {
         _notifications = notifications;

@@ -53,14 +53,17 @@ class _BookingScreenState extends State<BookingScreen> {
 
   // Add clientId field
   String? _effectiveClientId;
-    // Track if clientId is loaded and valid
-    bool get _isClientIdReady => _effectiveClientId != null && _effectiveClientId!.isNotEmpty;
+  // Track if clientId is loaded and valid
+  bool get _isClientIdReady =>
+      _effectiveClientId != null && _effectiveClientId!.isNotEmpty;
 
   // Always load clientId from secure storage before booking submission
   Future<void> _ensureClientIdLoaded() async {
     if (_effectiveClientId == null || _effectiveClientId!.isEmpty) {
       final clientId = await _storage.read(key: 'userId');
-      print('[DEBUG] _ensureClientIdLoaded: Read clientId from storage: $clientId');
+      print(
+        '[DEBUG] _ensureClientIdLoaded: Read clientId from storage: $clientId',
+      );
       if (clientId != null && clientId.isNotEmpty) {
         setState(() {
           _effectiveClientId = clientId;
@@ -71,7 +74,9 @@ class _BookingScreenState extends State<BookingScreen> {
         _showErrorDialog('Client ID not found. Please login again.');
       }
     } else {
-      print('[DEBUG] _ensureClientIdLoaded: _effectiveClientId already set: $_effectiveClientId');
+      print(
+        '[DEBUG] _ensureClientIdLoaded: _effectiveClientId already set: $_effectiveClientId',
+      );
     }
   }
 
@@ -125,7 +130,8 @@ class _BookingScreenState extends State<BookingScreen> {
     print('Number of services: ${widget.selectedServices?.length ?? 0}');
     widget.selectedServices?.forEach((service) {
       print(
-          'Service: ${service['name']}, Quantity: ${service['quantity']}, Price: ${service['basePrice']}');
+        'Service: ${service['name']}, Quantity: ${service['quantity']}, Price: ${service['basePrice']}',
+      );
     });
   }
 
@@ -158,9 +164,13 @@ class _BookingScreenState extends State<BookingScreen> {
   Future<void> _submitBooking() async {
     print('🔄 Starting booking submission...');
     await _ensureClientIdLoaded();
-    print('[DEBUG] _submitBooking: _effectiveClientId after ensure: $_effectiveClientId');
+    print(
+      '[DEBUG] _submitBooking: _effectiveClientId after ensure: $_effectiveClientId',
+    );
     if (!_isClientIdReady) {
-      print('[DEBUG] _submitBooking: clientId not ready, aborting booking submission');
+      print(
+        '[DEBUG] _submitBooking: clientId not ready, aborting booking submission',
+      );
       _showErrorDialog('Client ID not loaded. Please login again.');
       return;
     }
@@ -212,8 +222,10 @@ class _BookingScreenState extends State<BookingScreen> {
           selectedTime!.minute,
         ),
         location: {
-          'coordinates': (widget.provider?['location']?['coordinates']) ?? [36.8337083, -1.3095883],
-          'type': 'Point'
+          'coordinates':
+              (widget.provider?['location']?['coordinates']) ??
+              [36.8337083, -1.3095883],
+          'type': 'Point',
         },
         amount: totalAmount,
         notes: noteController.text,
@@ -226,7 +238,9 @@ class _BookingScreenState extends State<BookingScreen> {
         'providerId': widget.providerId ?? '',
         'clientId': _effectiveClientId,
         'serviceType': widget.serviceOffered ?? '',
-        'serviceName': (widget.selectedServices != null && widget.selectedServices!.isNotEmpty)
+        'serviceName':
+            (widget.selectedServices != null &&
+                widget.selectedServices!.isNotEmpty)
             ? widget.selectedServices!.first['name']
             : '',
         'scheduledDate': selectedDate!.toIso8601String(),
@@ -237,8 +251,10 @@ class _BookingScreenState extends State<BookingScreen> {
         'status': 'pending',
         'payment': {'method': 'mpesa', 'status': 'pending'},
         'location': {
-          'coordinates': (widget.provider?['location']?['coordinates']) ?? [36.8337083, -1.3095883],
-          'type': 'Point'
+          'coordinates':
+              (widget.provider?['location']?['coordinates']) ??
+              [36.8337083, -1.3095883],
+          'type': 'Point',
         },
         'serviceRequestId': serviceRequest['id'],
       };
@@ -300,7 +316,8 @@ class _BookingScreenState extends State<BookingScreen> {
         final quantity = service['quantity'] as int?;
         if (quantity == null || quantity < 1) {
           _showErrorDialog(
-              'Please select a valid quantity for ${service['name']}');
+            'Please select a valid quantity for ${service['name']}',
+          );
           return false;
         }
       }
@@ -329,7 +346,9 @@ class _BookingScreenState extends State<BookingScreen> {
               amount: (widget.selectedServices ?? []).fold<double>(
                 0,
                 (sum, service) =>
-                    sum + ((service['basePrice'] ?? 0.0) * (service['quantity'] ?? 1)),
+                    sum +
+                    ((service['basePrice'] ?? 0.0) *
+                        (service['quantity'] ?? 1)),
               ),
             ),
           ),
@@ -500,11 +519,7 @@ class _BookingScreenState extends State<BookingScreen> {
         return AlertDialog(
           title: const Text('Error'),
           content: SingleChildScrollView(
-            child: ListBody(
-              children: [
-                Text(message),
-              ],
-            ),
+            child: ListBody(children: [Text(message)]),
           ),
           actions: <Widget>[
             TextButton(
@@ -522,9 +537,7 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Book Service'),
-      ),
+      appBar: AppBar(title: const Text('Book Service')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -540,18 +553,23 @@ class _BookingScreenState extends State<BookingScreen> {
             const SizedBox(height: 20),
             ListTile(
               leading: const Icon(Icons.calendar_today),
-              title: Text(selectedDate == null
-                  ? 'Select Date'
-                  : 'Date: ${selectedDate!.toLocal().toString().split(' ')[0]}'),
+              title: Text(
+                selectedDate == null
+                    ? 'Select Date'
+                    : 'Date: ${selectedDate!.toLocal().toString().split(' ')[0]}',
+              ),
               onTap: () => _selectDate(context),
-              tileColor:
-                  selectedDate == null ? Colors.grey[200] : Colors.green[100],
+              tileColor: selectedDate == null
+                  ? Colors.grey[200]
+                  : Colors.green[100],
             ),
             ListTile(
               leading: const Icon(Icons.access_time),
-              title: Text(selectedTime == null
-                  ? 'Select Time'
-                  : 'Time: ${selectedTime!.format(context)}'),
+              title: Text(
+                selectedTime == null
+                    ? 'Select Time'
+                    : 'Time: ${selectedTime!.format(context)}',
+              ),
               onTap: () => _selectTime(context),
             ),
             Padding(
@@ -572,13 +590,19 @@ class _BookingScreenState extends State<BookingScreen> {
                   : ElevatedButton(
                       onPressed: _isClientIdReady ? _submitBooking : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isClientIdReady ? Colors.green : Colors.grey,
+                        backgroundColor: _isClientIdReady
+                            ? Colors.green
+                            : Colors.grey,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 50,
                           vertical: 15,
                         ),
                       ),
-                      child: Text(_isClientIdReady ? 'Confirm Booking' : 'Loading Client Info...'),
+                      child: Text(
+                        _isClientIdReady
+                            ? 'Confirm Booking'
+                            : 'Loading Client Info...',
+                      ),
                     ),
             ),
           ],

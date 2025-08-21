@@ -25,7 +25,7 @@ class NetworkService {
   List<ConnectivityResult>? _lastConnectivity;
 
   // Force use of the correct backend IP for all API calls
-  String? get baseUrl => 'http://192.168.0.101:5000';
+  String? get baseUrl => 'http://192.168.0.103:5000';
 
   /// Test if a specific URL is reachable
   Future<bool> testUrl(String url) async {
@@ -34,13 +34,17 @@ class NetworkService {
         print('🔄 Testing URL: $url');
       }
 
-      final response = await http.get(
-        Uri.parse('$url/api/debug'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      ).timeout(Duration(seconds: 8)); // Increased timeout for network requests
+      final response = await http
+          .get(
+            Uri.parse('$url/api/debug'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(
+            Duration(seconds: 8),
+          ); // Increased timeout for network requests
 
       if (kDebugMode) {
         print('📡 Response from $url: ${response.statusCode}');
@@ -126,7 +130,8 @@ class NetworkService {
         if (response.statusCode != 404) {
           if (kDebugMode) {
             print(
-                '✅ Auth endpoint $endpoint exists (status: ${response.statusCode})');
+              '✅ Auth endpoint $endpoint exists (status: ${response.statusCode})',
+            );
           }
           return true;
         }
@@ -181,7 +186,8 @@ class NetworkService {
 
     if (_workingBaseUrl == null) {
       throw Exception(
-          'No backend server available. Please check your network connection.');
+        'No backend server available. Please check your network connection.',
+      );
     }
 
     final url = Uri.parse('$_workingBaseUrl$endpoint');
@@ -247,8 +253,12 @@ class NetworkService {
         await discoverBackendUrl();
 
         if (_workingBaseUrl != null) {
-          return makeRequest(endpoint,
-              method: method, headers: headers, body: body);
+          return makeRequest(
+            endpoint,
+            method: method,
+            headers: headers,
+            body: body,
+          );
         }
       }
 

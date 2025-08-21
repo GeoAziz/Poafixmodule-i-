@@ -25,9 +25,10 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _userFuture = AuthService.getCurrentUser();
     _controller.forward();
   }
@@ -35,9 +36,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
   Future<void> _handleEditProfile(User user) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => EditProfileScreen(user: user),
-      ),
+      MaterialPageRoute(builder: (context) => EditProfileScreen(user: user)),
     );
 
     if (result != null) {
@@ -50,10 +49,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('My Profile'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text('My Profile'), elevation: 0),
       body: FutureBuilder<User?>(
         future: _userFuture,
         builder: (context, snapshot) {
@@ -144,8 +140,11 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
             _buildInfoItem(Icons.person, 'Name', user.name),
             _buildInfoItem(Icons.email, 'Email', user.email),
             _buildInfoItem(Icons.phone, 'Phone', user.phoneNumber ?? 'Not set'),
-            _buildInfoItem(Icons.access_time, 'Member Since',
-                user.createdAt?.toString().split(' ')[0] ?? 'Unknown'),
+            _buildInfoItem(
+              Icons.access_time,
+              'Member Since',
+              user.createdAt?.toString().split(' ')[0] ?? 'Unknown',
+            ),
           ],
         ),
       ),
@@ -161,17 +160,23 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Preferences',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('Preferences', style: Theme.of(context).textTheme.titleLarge),
             Divider(),
-            _buildInfoItem(Icons.notifications, 'Communication',
-                user.preferredCommunication ?? 'Not set'),
-            _buildInfoItem(Icons.phone_android, 'Backup Contact',
-                user.backupContact ?? 'Not set'),
             _buildInfoItem(
-                Icons.schedule, 'Timezone', user.timezone ?? 'Not set'),
+              Icons.notifications,
+              'Communication',
+              user.preferredCommunication ?? 'Not set',
+            ),
+            _buildInfoItem(
+              Icons.phone_android,
+              'Backup Contact',
+              user.backupContact ?? 'Not set',
+            ),
+            _buildInfoItem(
+              Icons.schedule,
+              'Timezone',
+              user.timezone ?? 'Not set',
+            ),
           ],
         ),
       ),
@@ -207,7 +212,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
 class _FullScreenImage extends StatelessWidget {
   final String? imageUrl;
 
-  const _FullScreenImage({super.key, this.imageUrl});
+  const _FullScreenImage({this.imageUrl});
 
   @override
   Widget build(BuildContext context) {

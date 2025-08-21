@@ -48,7 +48,8 @@ class ClientSidePanel extends StatelessWidget {
               Navigator.push(
                 parentContext,
                 MaterialPageRoute(
-                  builder: (context) => notification.NotificationsScreen(user: user),
+                  builder: (context) =>
+                      notification.NotificationsScreen(user: user),
                 ),
               );
             },
@@ -71,9 +72,7 @@ class ClientSidePanel extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 parentContext,
-                MaterialPageRoute(
-                  builder: (context) => PaymentMethodsScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => PaymentMethodsScreen()),
               );
             },
           ),
@@ -83,9 +82,7 @@ class ClientSidePanel extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 parentContext,
-                MaterialPageRoute(
-                  builder: (context) => BillingHistoryScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => BillingHistoryScreen()),
               );
             },
           ),
@@ -95,9 +92,7 @@ class ClientSidePanel extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 parentContext,
-                MaterialPageRoute(
-                  builder: (context) => ReferAFriendScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => ReferAFriendScreen()),
               );
             },
           ),
@@ -107,9 +102,7 @@ class ClientSidePanel extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 parentContext,
-                MaterialPageRoute(
-                  builder: (context) => FollowUsScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => FollowUsScreen()),
               );
             },
           ),
@@ -124,10 +117,7 @@ class ClientSidePanel extends StatelessWidget {
               );
             },
           ),
-          ListTile(
-            title: Text('App Version: 1.0.0'),
-            onTap: () {},
-          ),
+          ListTile(title: Text('App Version: 1.0.0'), onTap: () {}),
         ],
       ),
     );

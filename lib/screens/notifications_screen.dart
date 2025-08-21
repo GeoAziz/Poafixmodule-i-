@@ -30,16 +30,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       });
 
       print('🔄 Refreshing notifications...');
-      // TODO: Replace 'yourRecipientId' with the actual recipient ID as needed
-      // For now, set a placeholder or fetch the userId from your authentication logic
-      final String userId =
-          'yourRecipientId'; // Replace with actual user ID retrieval
-      // TODO: Replace with actual recipientModel instance as needed
-      final recipientModel = null; // Replace with actual recipientModel object
-      final notifications = await _notificationService.getNotifications(
-        recipientId: userId,
-        recipientModel: recipientModel,
-      );
+      // TODO: Replace with actual user ID retrieval from authentication logic if needed
+      final notifications = await _notificationService.getNotifications();
       print('✅ Received ${notifications.length} notifications');
 
       if (mounted) {
@@ -84,10 +76,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             SizedBox(height: 4),
             Text(
               timeago.format(notification.createdAt),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ),

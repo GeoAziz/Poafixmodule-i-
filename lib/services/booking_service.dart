@@ -75,7 +75,7 @@ class BookingService {
     final List<String> connectionUrls = [
       'mongodb://10.0.2.2:27017/home_service_db?directConnection=true',
       'mongodb://127.0.0.1:27017/home_service_db?directConnection=true',
-      'mongodb://localhost:27017/home_service_db?directConnection=true'
+      'mongodb://localhost:27017/home_service_db?directConnection=true',
     ];
 
     for (final url in connectionUrls) {
@@ -113,35 +113,47 @@ class BookingService {
   }
 
   Future<Map<String, dynamic>> createBooking(
-      Map<String, dynamic> bookingData) async {
+    Map<String, dynamic> bookingData,
+  ) async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('No auth token found');
+
+      // Convert date and time to UTC format that server expects
+      final scheduledDate = DateTime.parse(bookingData['scheduledDate']);
+      final scheduledTime = bookingData['scheduledTime'];
+      final timeParts = scheduledTime.toString().split(' ')[0].split(':');
+      final isPM = scheduledTime.toString().contains('PM');
+      var hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+
+      if (isPM && hour < 12) {
+        hour += 12;
+      } else if (!isPM && hour == 12) {
+        hour = 0;
+      }
+
+      final schedule = DateTime(
+        scheduledDate.year,
+        scheduledDate.month,
+        scheduledDate.day,
+        hour,
+        minute,
+      ).toUtc();
 
       // Format the data according to server requirements
       final requestData = {
         'providerId': bookingData['providerId'],
         'clientId': bookingData['clientId'],
         'serviceType': bookingData['serviceType'],
-        'serviceName': bookingData['serviceName'],
-        'scheduledDate': bookingData['scheduledDate'],
-        'scheduledTime': bookingData['scheduledTime'],
-        'notes': bookingData['notes'] ?? '',
-        'totalAmount': bookingData['totalAmount'] ?? 0.0,
-        'amount': bookingData['totalAmount'] ?? 0.0,
-        'services': bookingData['services'],
+        'schedule': schedule.toIso8601String(),
+        'description': bookingData['notes'] ?? '',
+        'address': bookingData['location']['address'] ?? '',
         'status': 'pending',
-        // Add payment details with Mpesa as default
-        'payment': {
-          'method': 'mpesa',
-          'status': 'pending',
-        },
         'location': {
           'type': 'Point',
-          'coordinates': bookingData['location']['coordinates']
+          'coordinates': bookingData['location']['coordinates'],
         },
-        'provider': bookingData['providerId'], // Use providerId here
-        'client': bookingData['clientId'] // Use clientId here
       };
 
       print('Formatted booking request: ${json.encode(requestData)}');
@@ -180,15 +192,13 @@ class BookingService {
             'timestamp': bookingResponse['createdAt'],
           });
 
-          return {
-            'success': true,
-            'booking': bookingResponse,
-          };
+          return {'success': true, 'booking': bookingResponse};
         }
       }
 
       throw Exception(
-          'Server returned ${response.statusCode}: ${response.body}');
+        'Server returned ${response.statusCode}: ${response.body}',
+      );
     } catch (e) {
       print('Error creating booking: $e');
       rethrow;
@@ -196,9 +206,12 @@ class BookingService {
   }
 
   Future<void> _sendProviderNotification(
-      String providerId, String serviceType, String bookingId) async {
+    String providerId,
+    String serviceType,
+    String bookingId,
+  ) async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       if (token == null) return;
 
       final response = await http.post(
@@ -214,10 +227,7 @@ class BookingService {
           'message': 'You have a new $serviceType service request',
           'bookingId': bookingId,
           'isRead': false,
-          'data': {
-            'bookingId': bookingId,
-            'serviceType': serviceType,
-          }
+          'data': {'bookingId': bookingId, 'serviceType': serviceType},
         }),
       );
 
@@ -244,7 +254,8 @@ class BookingService {
           'timestamp': DateTime.now().toIso8601String(),
         });
         throw Exception(
-            'No network connection. Action will be processed when online.');
+          'No network connection. Action will be processed when online.',
+        );
       }
       rethrow;
     }
@@ -252,7 +263,7 @@ class BookingService {
 
   Future<void> rejectBooking(String bookingId) async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
 
       if (token == null || userId == null) {
@@ -297,7 +308,9 @@ class BookingService {
   }
 
   Future<void> updateBookingStatus(
-      String bookingId, BookingStatus status) async {
+    String bookingId,
+    BookingStatus status,
+  ) async {
     final response = await http.patch(
       Uri.parse('${ApiConfig.baseUrl}/api/bookings/$bookingId/status'),
       headers: {'Content-Type': 'application/json'},
@@ -311,7 +324,7 @@ class BookingService {
 
   Future<List<Booking>> getClientBookings(String clientId) async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       final userType = await _storage.read(key: 'userType');
 
       if (token == null) throw Exception('No auth token found');
@@ -356,7 +369,7 @@ class BookingService {
 
   Future<List<Booking>> getProviderBookings() async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       final providerId = await _storage.read(key: 'userId');
 
       if (token == null || providerId == null) {
@@ -436,7 +449,7 @@ class BookingService {
 
   Future<void> cancelBooking(String bookingId) async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
 
       if (token == null || userId == null) {
@@ -448,17 +461,15 @@ class BookingService {
       // Changed endpoint structure to match backend
       final response = await http.patch(
         Uri.parse(
-            '${ApiConfig.baseUrl}/api/bookings/$bookingId/cancel'), // Changed endpoint
+          '${ApiConfig.baseUrl}/api/bookings/$bookingId/cancel',
+        ), // Changed endpoint
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'User-Type': 'client', // Added user type
         },
-        body: jsonEncode({
-          'userId': userId,
-          'status': 'cancelled',
-        }),
+        body: jsonEncode({'userId': userId, 'status': 'cancelled'}),
       );
 
       print('Cancel booking response: ${response.statusCode}');
@@ -544,7 +555,7 @@ class BookingService {
   }
 
   Future<Map<String, String>> _getHeaders() async {
-  final token = await _storage.read(key: 'auth_token');
+    final token = await _storage.read(key: 'auth_token');
     if (token == null) throw Exception('No authentication token found');
 
     return {

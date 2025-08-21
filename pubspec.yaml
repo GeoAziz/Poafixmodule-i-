@@ -62,4 +62,5 @@ dependencies:
   latlong2: ^0.9.1
   image: ^4.3.0
   shimmer: ^3.0.0
+  webview_flutter: ^4.13.0
 

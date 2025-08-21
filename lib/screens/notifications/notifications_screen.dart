@@ -15,7 +15,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   final NotificationService _notificationService = NotificationService();
   List<NotificationModel> _notifications = [];
   bool _isLoading = true;
-  String? _error;
   int _currentIndex = 0; // For bottom nav
 
   @override
@@ -30,11 +29,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     setState(() {
       _isLoading = true;
-      _error = null;
     });
 
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
       final userType = await _storage.read(key: 'userType');
 
@@ -44,24 +42,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       print('📱 Loading notifications for user: $userId (type: $userType)');
 
-      // THIS IS THE LINE THAT NEEDS TO BE FIXED - Remove 'loadedNotifications' variable
-      final notifications = await _notificationService.getNotifications(
-        recipientId: userId,
-        recipientModel: userType ?? 'User',
-      );
+      // Remove recipientId and recipientModel parameters, just call getNotifications()
+      final notifications = await _notificationService.getNotifications();
 
       if (mounted) {
         setState(() {
-          _notifications = notifications;  // Updated to use _notifications
+          _notifications = notifications; // Updated to use _notifications
           _isLoading = false;
-          _error = null;
         });
       }
     } catch (e) {
       print('❌ Error loading notifications: $e');
       if (mounted) {
         setState(() {
-          _error = e.toString();
           _isLoading = false;
         });
       }
@@ -82,17 +75,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       appBar: AppBar(
         title: Text('Notifications'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _loadNotifications,
-          ),
+          IconButton(icon: Icon(Icons.refresh), onPressed: _loadNotifications),
         ],
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _notifications.isEmpty
-              ? _buildEmptyState()
-              : _buildNotificationsList(),
+          ? _buildEmptyState()
+          : _buildNotificationsList(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
@@ -115,18 +105,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           }
         },
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Bookings',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings'),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
             label: 'Profile',
@@ -194,8 +175,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           notification.title,
           style: TextStyle(
             color: textColor,
-            fontWeight:
-                notification.isRead ? FontWeight.normal : FontWeight.bold,
+            fontWeight: notification.isRead
+                ? FontWeight.normal
+                : FontWeight.bold,
           ),
         ),
         subtitle: Column(
@@ -219,24 +201,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Container(
       width: 12,
       height: 12,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
-  }
-
-  IconData _getNotificationIcon(String type) {
-    switch (type) {
-      case 'BOOKING_CREATED':
-        return Icons.book;
-      case 'BOOKING_UPDATE':
-        return Icons.update;
-      case 'PAYMENT':
-        return Icons.payment;
-      default:
-        return Icons.notifications;
-    }
   }
 
   String _formatDate(DateTime date) {

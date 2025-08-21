@@ -7,10 +7,6 @@ import '../quick_actions/schedule_screen.dart';
 import '../quick_actions/history_screen.dart';
 import '../quick_actions/saved_screen.dart';
 import '../notifications/notification_screen.dart' as notification;
-import '../payment_methods_screen.dart';
-import '../billing_history_screen.dart';
-import '../refer_a_friend_screen.dart';
-import '../follow_us_screen.dart';
 import '../auth/login_screen.dart';
 import '../../models/user_model.dart';
 import '../profile/profile_screen.dart';
@@ -86,7 +82,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => notification.NotificationsScreen(user: widget.user),
+                  builder: (context) =>
+                      notification.NotificationsScreen(user: widget.user),
                 ),
               );
             },

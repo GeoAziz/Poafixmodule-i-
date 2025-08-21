@@ -12,7 +12,7 @@ class NotificationService {
   final Logger _logger = Logger();
   WebSocketChannel? _channel;
   final StreamController<List<NotificationModel>>
-      _notificationStreamController = StreamController.broadcast();
+  _notificationStreamController = StreamController.broadcast();
 
   Stream<List<NotificationModel>> get notificationStream =>
       _notificationStreamController.stream;
@@ -24,8 +24,10 @@ class NotificationService {
   // Add notification types
   static const String BOOKING_ACCEPTED = 'BOOKING_ACCEPTED';
   static const String BOOKING_REJECTED = 'BOOKING_REJECTED';
-  static const String JOB_STARTED = 'JOB_STARTED';
+  static const String JOB_UPDATE = 'JOB_UPDATE';
   static const String JOB_COMPLETED = 'JOB_COMPLETED';
+  static const String PAYMENT_REQUEST = 'PAYMENT_REQUEST';
+  static const String PAYMENT_COMPLETED = 'PAYMENT_COMPLETED';
 
   Future<void> connectWebSocket() async {
     try {
@@ -51,9 +53,15 @@ class NotificationService {
             case BOOKING_REJECTED:
               _handleBookingNotification(data['payload']);
               break;
-            case JOB_STARTED:
+            case JOB_UPDATE:
             case JOB_COMPLETED:
               _handleJobNotification(data['payload']);
+              break;
+            case PAYMENT_REQUEST:
+              _handlePaymentRequest(data['payload']);
+              break;
+            case PAYMENT_COMPLETED:
+              _handlePaymentCompleted(data['payload']);
               break;
             default:
               _handleNewNotification(data['payload']);
@@ -74,47 +82,32 @@ class NotificationService {
     }
   }
 
-  Future<List<NotificationModel>> getNotifications({
-    required String recipientId,
-    required String recipientModel, // Make recipientModel mandatory
-  }) async {
+  Future<List<NotificationModel>> getNotifications() async {
     try {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) {
         throw Exception('No auth token found');
       }
-
-      _logger.i(
-          'Fetching notifications for RecipientId: $recipientId, RecipientModel: $recipientModel');
-
+      _logger.i('Fetching notifications for authenticated user');
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/notifications').replace(
-          queryParameters: {
-            'recipientId': recipientId,
-            'recipientModel': recipientModel,
-          },
-        ),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
+        Uri.parse('${ApiConfig.baseUrl}/api/notifications'),
+        headers: {'Authorization': 'Bearer $token'},
       );
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final notifications = (data['data'] as List)
             .map((json) => NotificationModel.fromJson(json))
             .toList();
-
         _logger.i('Parsed ${notifications.length} notifications');
         for (var n in notifications) {
           _logger.d('Notification: ${n.title} - ${n.message}');
         }
-
         return notifications;
       } else {
         _logger.e('Failed to fetch notifications: ${response.statusCode}');
         throw Exception(
-            'Failed to fetch notifications: ${response.statusCode}');
+          'Failed to fetch notifications: ${response.statusCode}',
+        );
       }
     } catch (e) {
       _logger.e('Error fetching notifications: $e');
@@ -131,7 +124,8 @@ class NotificationService {
 
       final response = await http.patch(
         Uri.parse(
-            '${ApiConfig.baseUrl}/api/notifications/$notificationId/read'),
+          '${ApiConfig.baseUrl}/api/notifications/$notificationId/read',
+        ),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -144,10 +138,7 @@ class NotificationService {
       }
 
       // Notify stream listeners to trigger UI update
-      final notifications = await getNotifications(
-        recipientId: await _storage.read(key: 'userId') ?? '',
-        recipientModel: await _storage.read(key: 'userType') ?? 'User',
-      );
+      final notifications = await getNotifications();
       _notificationStreamController.add(notifications);
     } catch (e) {
       _logger.e('Error marking notification as read: $e');
@@ -257,7 +248,7 @@ class NotificationService {
       ...payload,
       'title': _getBookingTitle(payload['status']),
       'message': _getBookingMessage(payload),
-      'type': 'BOOKING_UPDATE'
+      'type': 'BOOKING_UPDATE',
     });
     _notificationStreamController.add([notification]);
   }
@@ -267,7 +258,30 @@ class NotificationService {
       ...payload,
       'title': _getJobTitle(payload['status']),
       'message': _getJobMessage(payload),
-      'type': 'JOB_UPDATE'
+      'type': 'JOB_UPDATE',
+    });
+    _notificationStreamController.add([notification]);
+  }
+
+  // Add handlers for payment events
+  void _handlePaymentRequest(dynamic payload) {
+    _logger.i('Payment request received: $payload');
+    final notification = NotificationModel.fromJson({
+      ...payload,
+      'title': 'Payment Request',
+      'message': 'A payment is required for your recent booking.',
+      'type': 'PAYMENT_REQUEST',
+    });
+    _notificationStreamController.add([notification]);
+  }
+
+  void _handlePaymentCompleted(dynamic payload) {
+    _logger.i('Payment completed: $payload');
+    final notification = NotificationModel.fromJson({
+      ...payload,
+      'title': 'Payment Completed',
+      'message': 'Your payment has been successfully processed.',
+      'type': 'PAYMENT_COMPLETED',
     });
     _notificationStreamController.add([notification]);
   }

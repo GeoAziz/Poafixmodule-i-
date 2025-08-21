@@ -4,13 +4,17 @@ import 'package:flutter/foundation.dart';
 
 class ApiConfig {
   // Payment API endpoints (replace with your actual endpoints)
-  static const String mpesaPaymentUrl = 'https://api.mpesa.com/v1/payments';
+  // All payment endpoints should use the backend base URL
+  static const String mpesaPaymentUrl =
+      'http://192.168.0.103:5000/api/payments/mpesa/initiate';
   static const String airtelPaymentUrl =
-      'https://api.airtelmoney.com/v1/payments';
-  static const String equitelPaymentUrl = 'https://api.equitel.com/v1/payments';
+      'http://192.168.0.103:5000/api/payments/airtel/initiate';
+  static const String equitelPaymentUrl =
+      'http://192.168.0.103:5000/api/payments/equitel/initiate';
   static const String kcbMpesaPaymentUrl =
-      'https://api.kcbmpesa.com/v1/payments';
-  static const String paypalPaymentUrl = 'https://api.paypal.com/v1/payments';
+      'http://192.168.0.103:5000/api/payments/kcbmpesa/initiate';
+  static const String paypalPaymentUrl =
+      'http://192.168.0.103:5000/api/payments/paypal/initiate';
   // Payment API key (replace with your actual key or load from env)
   static const String paymentApiKey = 'YOUR_API_KEY';
   static final NetworkService _networkService = NetworkService();

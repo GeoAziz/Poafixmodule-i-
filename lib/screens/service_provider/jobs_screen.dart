@@ -7,8 +7,10 @@ import '../../services/booking_service.dart';
 import '../../services/websocket.service.dart';
 import '../../models/booking.dart';
 import '../../models/job.dart';
-import 'package:shimmer/shimmer.dart'; // Add this package
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import '../payment/mpesa_payment_screen.dart';
+import '../payment/paypal_payment_screen.dart';
 import '../../services/job_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/service_request.service.dart';
@@ -22,10 +24,7 @@ extension StringExtension on String {
 class JobsScreen extends StatefulWidget {
   final String providerId;
 
-  const JobsScreen({
-    super.key,
-    required this.providerId,
-  });
+  const JobsScreen({super.key, required this.providerId});
 
   @override
   _JobsScreenState createState() => _JobsScreenState();
@@ -70,10 +69,7 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
 
       setState(() {
         _providerId = providerId;
-        _providerData = {
-          'name': name,
-          'businessName': businessName,
-        };
+        _providerData = {'name': name, 'businessName': businessName};
       });
 
       await _fetchBookings();
@@ -125,8 +121,8 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
 
       print('🔍 Fetching bookings for provider: $providerId');
 
-      final List<Booking> bookings =
-          await _bookingService.getProviderBookings();
+      final List<Booking> bookings = await _bookingService
+          .getProviderBookings();
 
       print('📦 Received ${bookings.length} bookings');
       for (var booking in bookings) {
@@ -152,10 +148,7 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to load bookings'),
-          action: SnackBarAction(
-            label: 'Retry',
-            onPressed: _fetchBookings,
-          ),
+          action: SnackBarAction(label: 'Retry', onPressed: _fetchBookings),
           duration: Duration(seconds: 5),
           backgroundColor: Colors.red,
         ),
@@ -168,7 +161,8 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
     final filtered = _bookings.where((booking) {
       final match = booking.status.toLowerCase() == status.toLowerCase();
       print(
-          'DEBUG Filter: id=${booking.id}, status=${booking.status}, match=$match');
+        'DEBUG Filter: id=${booking.id}, status=${booking.status}, match=$match',
+      );
       return match;
     }).toList();
     print('📊 Found ${filtered.length} bookings with status: $status');
@@ -180,23 +174,21 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Lottie.asset('assets/animations/empty_jobs.json',
-              width: 200, height: 200, repeat: true),
-          const SizedBox(height: 20),
-          Text(
-            'No jobs yet',
-            style: Theme.of(context).textTheme.headlineSmall,
+          Lottie.asset(
+            'assets/animations/empty_jobs.json',
+            width: 200,
+            height: 200,
+            repeat: true,
           ),
+          const SizedBox(height: 20),
+          Text('No jobs yet', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 10),
           Text(
             'Your jobs will appear here',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _fetchBookings,
-            child: Text('Refresh'),
-          ),
+          ElevatedButton(onPressed: _fetchBookings, child: Text('Refresh')),
         ],
       ),
     );
@@ -207,8 +199,12 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Lottie.asset('assets/animations/error.json',
-              width: 200, height: 200, repeat: true),
+          Lottie.asset(
+            'assets/animations/error.json',
+            width: 200,
+            height: 200,
+            repeat: true,
+          ),
           const SizedBox(height: 20),
           Text(
             'Oops! Something went wrong',
@@ -221,10 +217,7 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _fetchBookings,
-            child: Text('Try Again'),
-          ),
+          ElevatedButton(onPressed: _fetchBookings, child: Text('Try Again')),
         ],
       ),
     );
@@ -235,13 +228,14 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Lottie.asset('assets/animations/loading.json',
-              width: 200, height: 200, repeat: true),
-          const SizedBox(height: 20),
-          Text(
-            'Loading jobs...',
-            style: Theme.of(context).textTheme.bodyLarge,
+          Lottie.asset(
+            'assets/animations/loading.json',
+            width: 200,
+            height: 200,
+            repeat: true,
           ),
+          const SizedBox(height: 20),
+          Text('Loading jobs...', style: Theme.of(context).textTheme.bodyLarge),
         ],
       ),
     );
@@ -310,7 +304,7 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
                           _buildDetailRow('Time', booking.displayScheduledTime),
                           _buildDetailRow('Phone', booking.clientPhone),
                           _buildDetailRow('Address', booking.displayAddress),
-                          if (booking.notes.isNotEmpty ?? false)
+                          if (booking.notes.isNotEmpty)
                             _buildDetailRow('Notes', booking.notes),
                           SizedBox(height: 16),
                           _buildActionButtons(booking),
@@ -342,17 +336,9 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 200,
-                  height: 20,
-                  color: Colors.white,
-                ),
+                Container(width: 200, height: 20, color: Colors.white),
                 SizedBox(height: 8),
-                Container(
-                  width: 150,
-                  height: 16,
-                  color: Colors.white,
-                ),
+                Container(width: 150, height: 16, color: Colors.white),
               ],
             ),
           ),
@@ -481,7 +467,8 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                'Are you sure you want to ${action.toLowerCase()} this booking?'),
+              'Are you sure you want to ${action.toLowerCase()} this booking?',
+            ),
             SizedBox(height: 16),
             // Job Preview
             _buildBookingPreview(booking),
@@ -560,22 +547,23 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
         await _notificationService.createNotification({
           'recipientId': response['booking']['clientId'],
           'recipientModel': 'Client',
-          'type':
-              status == 'accepted' ? 'BOOKING_ACCEPTED' : 'BOOKING_REJECTED',
+          'type': status == 'accepted'
+              ? 'BOOKING_ACCEPTED'
+              : 'BOOKING_REJECTED',
           'title': 'Booking ${status.toUpperCase()}',
           'message': 'Your booking request has been $status',
           'data': {
             'bookingId': bookingId,
             'status': status,
-            'serviceType': response['booking']['serviceType']
-          }
+            'serviceType': response['booking']['serviceType'],
+          },
         });
 
         // Emit socket event
         _webSocketService.socket.emit('booking_status_update', {
           'bookingId': bookingId,
           'status': status,
-          'providerId': widget.providerId
+          'providerId': widget.providerId,
         });
 
         await _fetchBookings();
@@ -603,10 +591,14 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
             _buildDetailRow('Service', booking.displayServiceName),
             _buildDetailRow('Client', booking.displayClientName),
             _buildDetailRow(
-                'Date', DateFormat('MMM d, y').format(booking.scheduledDate)),
+              'Date',
+              DateFormat('MMM d, y').format(booking.scheduledDate),
+            ),
             _buildDetailRow('Time', booking.displayScheduledTime),
-            _buildDetailRow('Location',
-                booking.location?['address'] ?? 'No address provided'),
+            _buildDetailRow(
+              'Location',
+              booking.location?['address'] ?? 'No address provided',
+            ),
             if (booking.notes.isNotEmpty == true)
               _buildDetailRow('Notes', booking.notes),
             _buildDetailRow('Amount', '\$${booking.amount.toStringAsFixed(2)}'),
@@ -631,10 +623,14 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
             _buildDetailRow('Service', job.serviceType),
             _buildDetailRow('Client', job.clientName),
             _buildDetailRow(
-                'Date', DateFormat('MMM d, y').format(job.scheduledDate)),
+              'Date',
+              DateFormat('MMM d, y').format(job.scheduledDate),
+            ),
             _buildDetailRow('Time', job.scheduledTime),
             _buildDetailRow(
-                'Location', job.location['address'] ?? 'No address provided'),
+              'Location',
+              job.location['address'] ?? 'No address provided',
+            ),
             if (job.notes?.isNotEmpty == true)
               _buildDetailRow('Notes', job.notes!),
             _buildDetailRow('Status', job.status),
@@ -727,13 +723,8 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$label: ',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Expanded(
-            child: Text(value),
-          ),
+          Text('$label: ', style: TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(child: Text(value)),
         ],
       ),
     );
@@ -746,16 +737,12 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
         children: [
           ElevatedButton(
             onPressed: () => _handleBookingResponse(booking.id, 'accepted'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             child: Text('Accept'),
           ),
           ElevatedButton(
             onPressed: () => _handleBookingResponse(booking.id, 'rejected'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: Text('Reject'),
           ),
         ],
@@ -764,9 +751,7 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
       return Center(
         child: ElevatedButton(
           onPressed: () => _handleJobAction(booking.id, 'in_progress'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-          ),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
           child: Text('Start Job'),
         ),
       );
@@ -774,9 +759,7 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
       return Center(
         child: ElevatedButton(
           onPressed: () => _handleJobAction(booking.id, 'completed'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.purple,
-          ),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
           child: Text('Complete Job'),
         ),
       );
@@ -787,6 +770,88 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
   Future<void> _handleJobAction(String bookingId, String status) async {
     try {
       setState(() => _isLoading = true);
+
+      if (status == 'completed') {
+        // Show payment method selection dialog before completing the job
+        final paymentMethod = await showDialog<String>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Text('Select Payment Method'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Image.asset(
+                    'assets/icons/mpesa_icon.png',
+                    width: 32,
+                  ),
+                  title: Text('M-Pesa'),
+                  onTap: () => Navigator.pop(context, 'mpesa'),
+                ),
+                ListTile(
+                  leading: Image.asset(
+                    'assets/icons/paypal_icon.png',
+                    width: 32,
+                  ),
+                  title: Text('PayPal'),
+                  onTap: () => Navigator.pop(context, 'paypal'),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        if (paymentMethod == null) {
+          setState(() => _isLoading = false);
+          return;
+        }
+
+        // Get the booking details first
+        final booking = _bookings.firstWhere((b) => b.id == bookingId);
+
+        // Navigate to the appropriate payment screen
+        if (paymentMethod == 'mpesa') {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MpesaPaymentScreen(booking: booking),
+            ),
+          );
+
+          if (result != true) {
+            setState(() => _isLoading = false);
+            return;
+          }
+        } else if (paymentMethod == 'paypal') {
+          // TODO: Fetch approvalUrl from backend before navigation
+          // Example:
+          // String approvalUrl = await PaymentService().getPaypalApprovalUrl(...);
+          // For now, show error if not available
+          if (booking.approvalUrl == null ||
+              booking.approvalUrl?.isEmpty == true) {
+            _showSnackBar('PayPal approval URL not available', Colors.red);
+            setState(() => _isLoading = false);
+            return;
+          }
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (ctx) => PaypalPaymentScreen(
+                approvalUrl: booking.approvalUrl!,
+                bookingId: booking.id,
+                amount: booking.amount,
+                paymentId: booking.paymentId, // Add this line
+              ),
+            ),
+          );
+
+          if (result != true) {
+            setState(() => _isLoading = false);
+            return;
+          }
+        }
+      }
 
       // Update booking status
       final response = await _jobService.updateBookingStatus(
@@ -802,16 +867,17 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
           await _notificationService.createNotification({
             'recipientId': booking['clientId'],
             'recipientModel': 'Client',
-            'type': status == 'in_progress' ? 'JOB_STARTED' : 'JOB_COMPLETED',
+            'type': 'JOB_UPDATE',
             'title': status == 'in_progress' ? 'Job Started' : 'Job Completed',
             'message': status == 'in_progress'
                 ? 'Your job has been started by the provider.'
-                : 'Your job has been completed. Please rate the service.',
+                : 'Payment received. Job completed successfully.',
             'data': {
               'bookingId': bookingId,
               'status': status,
-              'serviceType': booking['serviceType']
-            }
+              'serviceType': booking['serviceType'],
+              'action': status == 'in_progress' ? 'started' : 'completed',
+            },
           });
 
           // If job is completed, trigger rating screen
@@ -819,7 +885,7 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
             _webSocketService.socket.emit('trigger_rating', {
               'clientId': booking['clientId'],
               'bookingId': bookingId,
-              'providerId': widget.providerId
+              'providerId': widget.providerId,
             });
           }
         }
@@ -844,56 +910,25 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
             child: _isLoading
                 ? _buildLoadingState()
                 : _error != null
-                    ? _buildErrorState()
-                    : RefreshIndicator(
-                        onRefresh: _fetchBookings,
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            _buildBookingsList(_filterBookings('pending')),
-                            _buildBookingsList(_filterBookings('accepted')),
-                            _buildBookingsList(_filterBookings('in_progress')),
-                            _buildBookingsList(_filterBookings('completed')),
-                          ],
-                        ),
-                      ),
+                ? _buildErrorState()
+                : RefreshIndicator(
+                    onRefresh: _fetchBookings,
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildBookingsList(_filterBookings('pending')),
+                        _buildBookingsList(_filterBookings('accepted')),
+                        _buildBookingsList(_filterBookings('in_progress')),
+                        _buildBookingsList(_filterBookings('completed')),
+                      ],
+                    ),
+                  ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _fetchBookings,
         child: Icon(Icons.refresh),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome back,',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              Text(
-                _providerData?['name'] ?? 'Service Provider',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          Switch(
-            value: _autoRefresh,
-            onChanged: (value) {
-              setState(() => _autoRefresh = value);
-            },
-            activeColor: Theme.of(context).primaryColor,
-          ),
-        ],
       ),
     );
   }

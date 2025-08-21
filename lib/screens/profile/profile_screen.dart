@@ -267,7 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Profile'), automaticallyImplyLeading: true),
-  drawer: ClientSidePanel(user: widget.user, parentContext: context),
+      drawer: ClientSidePanel(user: widget.user, parentContext: context),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

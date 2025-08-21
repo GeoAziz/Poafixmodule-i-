@@ -4,7 +4,7 @@ import '../../models/booking.dart';
 import '../../services/booking_service.dart';
 import '../../services/websocket_service.dart';
 // Add this import
-import '../home/home_screen.dart'; // Add this import
+// Add this import
 // Add this import
 import '../../widgets/booking_card.dart';
 import '../../models/user_model.dart'; // Update import
@@ -12,19 +12,34 @@ import '../client/client_notifications_screen.dart';
 import '../../widgets/bottomnavbar.dart';
 import '../../widgets/client_sidepanel.dart';
 
+// Helper class for section data
+class _StatusSectionData {
+  final String title;
+  final List<Booking> bookings;
+  _StatusSectionData(this.title, this.bookings);
+}
+
 class BookingsScreen extends StatefulWidget {
   final User user;
-  final bool showNavigation; // Add this parameter
+  final bool showNavigation;
 
   const BookingsScreen({
     super.key,
     required this.user,
-    this.showNavigation = false, // Default to false
+    this.showNavigation = false,
   });
 
   @override
   _BookingsScreenState createState() => _BookingsScreenState();
 }
+
+// TabBar controller for status filter
+final List<_BookingTab> _tabs = [
+  _BookingTab('Pending', Icons.pending, 'pending'),
+  _BookingTab('In Progress', Icons.play_circle, 'in_progress'),
+  _BookingTab('Completed', Icons.check_circle, 'completed'),
+  _BookingTab('Cancelled', Icons.cancel, 'cancelled'),
+];
 
 class _BookingsScreenState extends State<BookingsScreen> {
   final _storage = const FlutterSecureStorage();
@@ -36,6 +51,49 @@ class _BookingsScreenState extends State<BookingsScreen> {
   String? _userId;
   Map<String, String>? _profileData;
   int _currentIndex = 2; // Default to bookings tab
+
+  // Add the missing _showCancelDialog method
+  void _showCancelDialog(Booking booking) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Cancel Booking'),
+          content: Text('Are you sure you want to cancel this booking?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                setState(() {
+                  _isLoading = true;
+                });
+                try {
+                  await _bookingService.cancelBooking(booking.id);
+                  await _loadBookings(_userId!);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Booking cancelled successfully')),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to cancel booking: $e')),
+                  );
+                } finally {
+                  setState(() {
+                    _isLoading = false;
+                  });
+                }
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -148,105 +206,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
   }
 
   Widget _buildDrawer() {
-  return ClientSidePanel(user: widget.user, parentContext: context);
+    return ClientSidePanel(user: widget.user, parentContext: context);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bookings'),
-        // Drawer icon will appear automatically
-      ),
-      drawer: ClientSidePanel(user: widget.user, parentContext: context),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: () => _loadBookings(_userId!),
-              child: _error != null
-                  ? _buildErrorView()
-                  : _bookings.isEmpty
-                  ? _buildEmptyView()
-                  : _buildBookingsList(),
-            ),
-      bottomNavigationBar: FunctionalBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() => _currentIndex = index);
-          switch (index) {
-            case 0:
-              Navigator.pushReplacementNamed(
-                context,
-                '/home',
-                arguments: widget.user,
-              );
-              break;
-            case 1:
-              Navigator.pushReplacementNamed(
-                context,
-                '/select-service',
-                arguments: widget.user,
-              );
-              break;
-            case 2:
-              // Already on bookings screen
-              break;
-            case 3:
-              Navigator.pushReplacementNamed(
-                context,
-                '/profile',
-                arguments: widget.user,
-              );
-              break;
-            case 4:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ClientNotificationsScreen(),
-                ),
-              );
-              break;
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildBookingsList() {
-    // Group bookings by status
-    final Map<String, List<Booking>> groupedBookings = {
-      'pending': [],
-      'in_progress': [],
-      'completed': [],
-      'cancelled': [],
-    };
-
-    for (var booking in _bookings) {
-      final status = booking.status.toLowerCase();
-      groupedBookings[status]?.add(booking);
-    }
-
-    return ListView(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      children: [
-        if (groupedBookings['pending']!.isNotEmpty) ...[
-          _buildStatusSection('Pending', groupedBookings['pending']!),
-          SizedBox(height: 16),
-        ],
-        if (groupedBookings['in_progress']!.isNotEmpty) ...[
-          _buildStatusSection('In Progress', groupedBookings['in_progress']!),
-          SizedBox(height: 16),
-        ],
-        if (groupedBookings['completed']!.isNotEmpty) ...[
-          _buildStatusSection('Completed', groupedBookings['completed']!),
-          SizedBox(height: 16),
-        ],
-        if (groupedBookings['cancelled']!.isNotEmpty)
-          _buildStatusSection('Cancelled', groupedBookings['cancelled']!),
-      ],
-    );
-  }
-
+  // Restore and enhance _buildStatusSection
   Widget _buildStatusSection(String title, List<Booking> bookings) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,84 +238,16 @@ class _BookingsScreenState extends State<BookingsScreen> {
     );
   }
 
-  void _showCancelDialog(Booking booking) {
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        // Use dialogContext instead of context
-        title: Text('Cancel Booking'),
-        content: Text('Are you sure you want to cancel this booking?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text('No'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext); // Close dialog first
-
-              try {
-                await _bookingService.cancelBooking(booking.id);
-
-                if (mounted) {
-                  // Check if widget is still mounted
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Booking cancelled successfully')),
-                  );
-                  _loadBookings(_userId!); // Refresh the list
-                }
-              } catch (e) {
-                if (mounted) {
-                  // Check if widget is still mounted
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to cancel booking: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text('Yes'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBookingStatusIcon(String status) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return Icon(Icons.check_circle, color: Colors.green);
-      case 'pending':
-        return Icon(Icons.pending, color: Colors.orange);
-      case 'cancelled':
-        return Icon(Icons.cancel, color: Colors.red);
-      default:
-        return Icon(Icons.help_outline, color: Colors.grey);
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year} at ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-  }
-
-  String _capitalizeStatus(String status) {
-    return status
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
-        .join(' ');
-  }
-
+  // Restore and enhance _buildEmptyView
   Widget _buildEmptyView() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.calendar_today, size: 64, color: Colors.grey),
+          Semantics(
+            label: 'No bookings illustration',
+            child: Icon(Icons.calendar_today, size: 64, color: Colors.grey),
+          ),
           SizedBox(height: 16),
           Text(
             'No bookings yet',
@@ -365,17 +260,34 @@ class _BookingsScreenState extends State<BookingsScreen> {
               context,
             ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
           ),
+          SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/select-service',
+                (route) => false,
+                arguments: widget.user,
+              );
+            },
+            icon: Icon(Icons.add_box),
+            label: Text('Book a Service'),
+          ),
         ],
       ),
     );
   }
 
+  // Restore and enhance _buildErrorView
   Widget _buildErrorView() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 64, color: Colors.red),
+          Semantics(
+            label: 'Error illustration',
+            child: Icon(Icons.error_outline, size: 64, color: Colors.red),
+          ),
           SizedBox(height: 16),
           Text(
             'Oops! Something went wrong',
@@ -399,4 +311,188 @@ class _BookingsScreenState extends State<BookingsScreen> {
       ),
     );
   }
+
+  Widget _buildBookingsList() {
+    // Group bookings by status
+    final Map<String, List<Booking>> groupedBookings = {
+      'pending': [],
+      'in_progress': [],
+      'completed': [],
+      'cancelled': [],
+    };
+
+    for (var booking in _bookings) {
+      final status = booking.status.toLowerCase();
+      groupedBookings[status]?.add(booking);
+    }
+
+    final List<_StatusSectionData> sections = [];
+    if (groupedBookings['pending']!.isNotEmpty) {
+      sections.add(_StatusSectionData('Pending', groupedBookings['pending']!));
+    }
+    if (groupedBookings['in_progress']!.isNotEmpty) {
+      sections.add(
+        _StatusSectionData('In Progress', groupedBookings['in_progress']!),
+      );
+    }
+    if (groupedBookings['completed']!.isNotEmpty) {
+      sections.add(
+        _StatusSectionData('Completed', groupedBookings['completed']!),
+      );
+    }
+    if (groupedBookings['cancelled']!.isNotEmpty) {
+      sections.add(
+        _StatusSectionData('Cancelled', groupedBookings['cancelled']!),
+      );
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      itemCount: sections.length,
+      itemBuilder: (context, sectionIndex) {
+        final section = sections[sectionIndex];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildStatusSection(section.title, section.bookings),
+            SizedBox(height: 16),
+          ],
+        );
+      },
+    );
+  }
+
+  // If you have _showCancelDialog, keep it here as well
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: _tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Bookings'),
+          bottom: TabBar(
+            isScrollable: false,
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            indicatorWeight: 3,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: Colors.grey,
+            tabs: _tabs
+                .map((tab) => Tab(icon: Icon(tab.icon), text: tab.label))
+                .toList(),
+          ),
+        ),
+        drawer: ClientSidePanel(user: widget.user, parentContext: context),
+        body: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+                onRefresh: () => _loadBookings(_userId!),
+                child: _error != null
+                    ? _buildErrorView()
+                    : _bookings.isEmpty
+                    ? _buildEmptyView()
+                    : TabBarView(
+                        physics: const BouncingScrollPhysics(),
+                        children: _tabs.map((tab) {
+                          final filtered = _bookings
+                              .where(
+                                (b) => b.status.toLowerCase() == tab.statusKey,
+                              )
+                              .toList();
+                          return filtered.isEmpty
+                              ? _buildEmptyTabView(tab.label)
+                              : ListView.builder(
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  itemCount: filtered.length,
+                                  itemBuilder: (context, idx) {
+                                    final booking = filtered[idx];
+                                    return BookingCard(
+                                      booking: booking,
+                                      onCancel:
+                                          booking.status.toLowerCase() ==
+                                              'pending'
+                                          ? () => _showCancelDialog(booking)
+                                          : null,
+                                    );
+                                  },
+                                );
+                        }).toList(),
+                      ),
+              ),
+        bottomNavigationBar: FunctionalBottomNavBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() => _currentIndex = index);
+            switch (index) {
+              case 0:
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/home',
+                  arguments: widget.user,
+                );
+                break;
+              case 1:
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/select-service',
+                  arguments: widget.user,
+                );
+                break;
+              case 2:
+                // Already on bookings screen
+                break;
+              case 3:
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/profile',
+                  arguments: widget.user,
+                );
+                break;
+              case 4:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ClientNotificationsScreen(),
+                  ),
+                );
+                break;
+            }
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// Helper class for TabBar tabs
+class _BookingTab {
+  final String label;
+  final IconData icon;
+  final String statusKey;
+  _BookingTab(this.label, this.icon, this.statusKey);
+}
+
+// Empty tab view for each status
+Widget _buildEmptyTabView(String label) {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Semantics(
+          label: 'No $label bookings illustration',
+          child: Icon(Icons.inbox, size: 64, color: Colors.grey),
+        ),
+        SizedBox(height: 16),
+        Text(
+          'No $label bookings',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Swipe to see other statuses',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ],
+    ),
+  );
 }
