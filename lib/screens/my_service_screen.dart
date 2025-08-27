@@ -12,7 +12,7 @@ const List<String> kServiceTypes = [
   'Pest Control',
   'Masonry',
   'Mechanic',
-  'Moving'
+  'Moving',
 ];
 const List<String> kDurations = [
   '30 min',
@@ -21,7 +21,7 @@ const List<String> kDurations = [
   '3 hours',
   '4 hours',
   'Half day',
-  'Full day'
+  'Full day',
 ];
 
 void main() {
@@ -33,9 +33,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MyServiceScreen(),
-    );
+    return MaterialApp(home: MyServiceScreen());
   }
 
   // The following class should not be nested inside MyApp
@@ -54,10 +52,7 @@ class _MyServiceScreenState extends State<MyServiceScreen>
     final service = _services[index];
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => SimpleServiceDialog(
-        initial: service,
-        isEdit: true,
-      ),
+      builder: (context) => SimpleServiceDialog(initial: service, isEdit: true),
     );
     if (result != null) {
       final newList = List<Map<String, dynamic>>.from(_services);
@@ -66,14 +61,14 @@ class _MyServiceScreenState extends State<MyServiceScreen>
         await _serviceService.updateProviderServices(newList);
         await _fetchServices();
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Service updated')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Service updated')));
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update service: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to update service: $e')));
       }
     }
   }
@@ -94,8 +89,9 @@ class _MyServiceScreenState extends State<MyServiceScreen>
           keyboardType: TextInputType.number,
           validator: (v) {
             if (v == null || v.trim().isEmpty) return 'Enter price';
-            if (double.tryParse(v.trim()) == null)
+            if (double.tryParse(v.trim()) == null) {
               return 'Enter a valid number';
+            }
             return null;
           },
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -120,14 +116,14 @@ class _MyServiceScreenState extends State<MyServiceScreen>
         await _serviceService.updateProviderServices(newList);
         await _fetchServices();
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Price updated')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Price updated')));
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update price: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to update price: $e')));
       }
     }
   }
@@ -146,13 +142,13 @@ class _MyServiceScreenState extends State<MyServiceScreen>
       duration: Duration(milliseconds: 800),
       vsync: this,
     );
-    _slideAnimation = Tween<Offset>(
-      begin: Offset(1, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _slideAnimation = Tween<Offset>(begin: Offset(1, 0), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeInOut,
+          ),
+        );
     _fetchServices();
   }
 
@@ -187,9 +183,9 @@ class _MyServiceScreenState extends State<MyServiceScreen>
       final newList = List<Map<String, dynamic>>.from(_services);
       if (newList.any((s) => s['name'] == result['name'].trim())) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Service already exists.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Service already exists.')));
         return;
       }
       newList.add(result);
@@ -198,9 +194,9 @@ class _MyServiceScreenState extends State<MyServiceScreen>
         await _fetchServices();
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add service: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to add service: $e')));
       }
     }
   }
@@ -219,8 +215,8 @@ class _MyServiceScreenState extends State<MyServiceScreen>
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text('Remove'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('Remove'),
           ),
         ],
       ),
@@ -232,14 +228,14 @@ class _MyServiceScreenState extends State<MyServiceScreen>
         await _serviceService.updateProviderServices(newList);
         await _fetchServices();
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Service removed')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Service removed')));
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to remove service: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to remove service: $e')));
       }
     }
   }
@@ -271,60 +267,59 @@ class _MyServiceScreenState extends State<MyServiceScreen>
       body: _loading
           ? Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text(_error!))
-              : _services.isEmpty
-                  ? Center(child: Text('No services yet. Tap + to add.'))
-                  : SlideTransition(
-                      position: _slideAnimation,
-                      child: ListView.builder(
-                        itemCount: _services.length,
-                        itemBuilder: (context, index) {
-                          final service = _services[index];
-                          return Dismissible(
-                            key: ValueKey(service['name'] ?? index),
-                            direction: DismissDirection.endToStart,
-                            background: Container(
-                              alignment: Alignment.centerRight,
-                              padding: EdgeInsets.symmetric(horizontal: 20),
-                              color: Colors.redAccent,
-                              child: Icon(Icons.delete,
-                                  color: Colors.white, size: 32),
-                            ),
-                            confirmDismiss: (direction) async {
-                              return await showDialog(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: Text('Remove Service'),
-                                  content: Text(
-                                      'Are you sure you want to remove "${service['name']}"?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(ctx).pop(false),
-                                      child: Text('Cancel'),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () =>
-                                          Navigator.of(ctx).pop(true),
-                                      child: Text('Remove'),
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.red),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            onDismissed: (direction) => _removeService(index),
-                            child: SimpleServiceCard(
-                              service: service,
-                              onEdit: () => _editService(index),
-                              onAdjustPrice: () => _adjustPrice(index),
-                              onDelete: () => _removeService(index),
-                            ),
-                          );
-                        },
-                      ),
+          ? Center(child: Text(_error!))
+          : _services.isEmpty
+          ? Center(child: Text('No services yet. Tap + to add.'))
+          : SlideTransition(
+              position: _slideAnimation,
+              child: ListView.builder(
+                itemCount: _services.length,
+                itemBuilder: (context, index) {
+                  final service = _services[index];
+                  return Dismissible(
+                    key: ValueKey(service['name'] ?? index),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      color: Colors.redAccent,
+                      child: Icon(Icons.delete, color: Colors.white, size: 32),
                     ),
+                    confirmDismiss: (direction) async {
+                      return await showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text('Remove Service'),
+                          content: Text(
+                            'Are you sure you want to remove "${service['name']}"?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: Text('Cancel'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                              ),
+                              child: Text('Remove'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    onDismissed: (direction) => _removeService(index),
+                    child: SimpleServiceCard(
+                      service: service,
+                      onEdit: () => _editService(index),
+                      onAdjustPrice: () => _adjustPrice(index),
+                      onDelete: () => _removeService(index),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }
@@ -334,12 +329,13 @@ class SimpleServiceCard extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onAdjustPrice;
   final VoidCallback? onDelete;
-  const SimpleServiceCard(
-      {super.key,
-      required this.service,
-      this.onEdit,
-      this.onAdjustPrice,
-      this.onDelete});
+  const SimpleServiceCard({
+    super.key,
+    required this.service,
+    this.onEdit,
+    this.onAdjustPrice,
+    this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -370,11 +366,15 @@ class SimpleServiceCard extends StatelessWidget {
             if ((service['description'] ?? '').isNotEmpty)
               Text(service['description'], style: TextStyle(fontSize: 14)),
             if ((service['price'] ?? '').toString().isNotEmpty)
-              Text('Price: KES ${service['price']}',
-                  style: TextStyle(fontSize: 14)),
+              Text(
+                'Price: KES ${service['price']}',
+                style: TextStyle(fontSize: 14),
+              ),
             if ((service['duration'] ?? '').isNotEmpty)
-              Text('Duration: ${service['duration']}',
-                  style: TextStyle(fontSize: 14)),
+              Text(
+                'Duration: ${service['duration']}',
+                style: TextStyle(fontSize: 14),
+              ),
           ],
         ),
         trailing: PopupMenuButton<String>(
@@ -398,8 +398,7 @@ class SimpleServiceCard extends StatelessWidget {
 class SimpleServiceDialog extends StatefulWidget {
   final Map<String, dynamic>? initial;
   final bool isEdit;
-  const SimpleServiceDialog({Key? key, this.initial, this.isEdit = false})
-      : super(key: key);
+  const SimpleServiceDialog({super.key, this.initial, this.isEdit = false});
   @override
   State<SimpleServiceDialog> createState() => _SimpleServiceDialogState();
 }
@@ -415,12 +414,14 @@ class _SimpleServiceDialogState extends State<SimpleServiceDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedServiceType = widget.initial?['name'] ?? null;
-    _descController =
-        TextEditingController(text: widget.initial?['description'] ?? '');
-    _priceController =
-        TextEditingController(text: widget.initial?['price'] ?? '');
-    _selectedDuration = widget.initial?['duration'] ?? null;
+    _selectedServiceType = widget.initial?['name'];
+    _descController = TextEditingController(
+      text: widget.initial?['description'] ?? '',
+    );
+    _priceController = TextEditingController(
+      text: widget.initial?['price'] ?? '',
+    );
+    _selectedDuration = widget.initial?['duration'];
   }
 
   @override
@@ -444,10 +445,10 @@ class _SimpleServiceDialogState extends State<SimpleServiceDialog> {
                 value: _selectedServiceType,
                 decoration: InputDecoration(labelText: 'Service Name'),
                 items: kServiceTypes
-                    .map((type) => DropdownMenuItem(
-                          value: type,
-                          child: Text(type),
-                        ))
+                    .map(
+                      (type) =>
+                          DropdownMenuItem(value: type, child: Text(type)),
+                    )
                     .toList(),
                 onChanged: (val) => setState(() => _selectedServiceType = val),
                 validator: (v) =>
@@ -473,8 +474,9 @@ class _SimpleServiceDialogState extends State<SimpleServiceDialog> {
                 keyboardType: TextInputType.number,
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return 'Enter price';
-                  if (double.tryParse(v.trim()) == null)
+                  if (double.tryParse(v.trim()) == null) {
                     return 'Enter a valid number';
+                  }
                   return null;
                 },
               ),
@@ -482,10 +484,7 @@ class _SimpleServiceDialogState extends State<SimpleServiceDialog> {
                 value: _selectedDuration,
                 decoration: InputDecoration(labelText: 'Estimated Duration'),
                 items: kDurations
-                    .map((d) => DropdownMenuItem(
-                          value: d,
-                          child: Text(d),
-                        ))
+                    .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                     .toList(),
                 onChanged: (val) => setState(() => _selectedDuration = val),
                 validator: (v) =>

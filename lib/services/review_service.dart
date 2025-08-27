@@ -19,9 +19,9 @@ class ReviewService {
     try {
       final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'user_id');
-      
+
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/reviews'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/reviews'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -48,23 +48,25 @@ class ReviewService {
   }
 
   // Get provider reviews
-  Future<List<dynamic>> getProviderReviews(String providerId, {
+  Future<List<dynamic>> getProviderReviews(
+    String providerId, {
     int page = 1,
     int limit = 20,
     String? sortBy,
   }) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final queryParams = <String, String>{
         'page': page.toString(),
         'limit': limit.toString(),
         if (sortBy != null) 'sortBy': sortBy,
       };
 
-      final uri = Uri.parse('${ApiConfig.baseUrl}/reviews/provider/$providerId')
-          .replace(queryParameters: queryParams);
-      
+      final uri = Uri.parse(
+        '${ApiConfig.initialBaseUrl}/reviews/provider/$providerId',
+      ).replace(queryParameters: queryParams);
+
       final response = await http.get(
         uri,
         headers: {
@@ -87,9 +89,11 @@ class ReviewService {
   Future<Map<String, dynamic>> getReviewStats(String providerId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/reviews/provider/$providerId/stats'),
+        Uri.parse(
+          '${ApiConfig.initialBaseUrl}/reviews/provider/$providerId/stats',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -109,9 +113,11 @@ class ReviewService {
   Future<Map<String, dynamic>> getReviewAnalytics(String providerId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/reviews/provider/$providerId/analytics'),
+        Uri.parse(
+          '${ApiConfig.initialBaseUrl}/reviews/provider/$providerId/analytics',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -138,7 +144,7 @@ class ReviewService {
   }) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final queryParams = <String, String>{
         'q': query,
         if (providerId != null) 'providerId': providerId,
@@ -148,9 +154,10 @@ class ReviewService {
         'limit': limit.toString(),
       };
 
-      final uri = Uri.parse('${ApiConfig.baseUrl}/reviews/search')
-          .replace(queryParameters: queryParams);
-      
+      final uri = Uri.parse(
+        '${ApiConfig.initialBaseUrl}/reviews/search',
+      ).replace(queryParameters: queryParams);
+
       final response = await http.get(
         uri,
         headers: {
@@ -173,9 +180,9 @@ class ReviewService {
   Future<void> likeReview(String reviewId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/reviews/$reviewId/like'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/reviews/$reviewId/like'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -190,9 +197,9 @@ class ReviewService {
   Future<void> reportReview(String reviewId, String reason) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/reviews/$reviewId/report'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/reviews/$reviewId/report'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

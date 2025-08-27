@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/provider_settings.dart';
 import '../services/settings_service.dart';
 import '../widgets/provider_base_screen.dart';
+import '../models/user_model.dart'; // Import the correct User class
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -55,6 +56,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return ProviderBaseScreen(
+      user: User(
+        id: _settings?.providerId ?? '',
+        name: 'Sarah Wanjiku',
+        email: 'sarah@example.com',
+        userType: 'provider',
+      ),
       title: 'Settings',
       body: _isLoading
           ? Center(
@@ -64,8 +71,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             )
           : _settings == null
-              ? _buildErrorState()
-              : _buildSettingsContent(),
+          ? _buildErrorState()
+          : _buildSettingsContent(),
     );
   }
 
@@ -107,10 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Profile',
-              style: _headerStyle,
-            ),
+            Text('Profile', style: _headerStyle),
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: Theme.of(context).primaryColor,
@@ -134,10 +138,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Add more section building methods...
 
   TextStyle get _headerStyle => GoogleFonts.poppins(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).primaryColor,
-      );
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    color: Theme.of(context).primaryColor,
+  );
 
   Widget _buildNotificationsSection() {
     return Card(
@@ -186,7 +190,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Text('Working Hours', style: _headerStyle),
             ..._settings?.workingHours.entries.map(
-                    (entry) => _buildDaySchedule(entry.key, entry.value)) ??
+                  (entry) => _buildDaySchedule(entry.key, entry.value),
+                ) ??
                 [],
           ],
         ),
@@ -310,10 +315,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             'Failed to load settings',
             style: GoogleFonts.poppins(fontSize: 18),
           ),
-          ElevatedButton(
-            onPressed: _loadSettings,
-            child: Text('Retry'),
-          ),
+          ElevatedButton(onPressed: _loadSettings, child: Text('Retry')),
         ],
       ),
     );
@@ -322,8 +324,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _updateWorkingHours(String day, bool isActive) async {
     if (_settings == null) return;
 
-    final workingHours =
-        Map<String, WorkingHours>.from(_settings!.workingHours);
+    final workingHours = Map<String, WorkingHours>.from(
+      _settings!.workingHours,
+    );
     final currentHours = workingHours[day]!;
 
     workingHours[day] = WorkingHours(
@@ -369,12 +372,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         bookingRequests: setting == 'bookingRequests'
             ? value
             : _settings!.notifications.bookingRequests,
-        messages:
-            setting == 'messages' ? value : _settings!.notifications.messages,
-        updates:
-            setting == 'updates' ? value : _settings!.notifications.updates,
-        marketing:
-            setting == 'marketing' ? value : _settings!.notifications.marketing,
+        messages: setting == 'messages'
+            ? value
+            : _settings!.notifications.messages,
+        updates: setting == 'updates'
+            ? value
+            : _settings!.notifications.updates,
+        marketing: setting == 'marketing'
+            ? value
+            : _settings!.notifications.marketing,
         pushEnabled: _settings!.notifications.pushEnabled,
         emailEnabled: _settings!.notifications.emailEnabled,
       ),

@@ -1,28 +1,16 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../models/client.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+import '../../services/api_config.dart';
 
 class ClientService {
   // The base URL will be set based on the device (emulator or real device)
-  Future<String> _getBaseUrl() async {
-    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    final androidInfo = await deviceInfo.androidInfo;
-
-    // Check if the device is physical or emulator and return the appropriate URL
-    if (androidInfo.isPhysicalDevice) {
-      // For real devices, use your local machine's IP address
-      return 'http:// 192.168.0.102/api/auth'; // Replace with your local IP
-    } else {
-      // For emulators, use 10.0.2.2 to point to the host machine
-      return 'http://10.0.2.2:5000/api/auth';
-    }
-  }
+  // Use ApiConfig.baseUrl for all requests. Device detection is handled globally.
+  // Use ApiConfig.getEndpointUrl for all requests
 
   Future<Client> getClientData(String clientId) async {
     try {
-      final baseUrl = await _getBaseUrl();
-      final url = '$baseUrl/clients/$clientId';
+      final url = ApiConfig.getEndpointUrl('clients/$clientId');
 
       print("Request URL: $url"); // Log the request URL
 
@@ -59,7 +47,7 @@ class ClientService {
 
   Future<List<Client>> getClients() async {
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:5000/api/clients'),
+      Uri.parse(ApiConfig.getEndpointUrl('clients')),
     );
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);

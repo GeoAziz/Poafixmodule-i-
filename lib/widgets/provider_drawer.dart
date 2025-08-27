@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../screens/service_provider/jobs_screen.dart';
-import '../screens/enhanced_calendar_screen.dart';
 import '../screens/finance/financial_management_screen.dart';
 import '../models/user_model.dart';
 import '../screens/settings_screen.dart';
@@ -22,10 +21,7 @@ class ProviderDrawer extends StatelessWidget {
 
   void _navigateToScreen(BuildContext context, Widget screen) {
     Navigator.pop(context); // Close drawer first
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => screen),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 
   @override
@@ -35,9 +31,7 @@ class ProviderDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -60,10 +54,8 @@ class ProviderDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.work),
             title: Text('Jobs'),
-            onTap: () => _navigateToScreen(
-              context,
-              JobsScreen(providerId: providerId),
-            ),
+            onTap: () =>
+                _navigateToScreen(context, JobsScreen(providerId: providerId)),
           ),
           ListTile(
             leading: Icon(Icons.calendar_today),
@@ -86,26 +78,18 @@ class ProviderDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.business),
             title: Text('My Services'),
-            onTap: () => _navigateToScreen(
-              context,
-              MyServiceScreen(),
-            ),
+            onTap: () => _navigateToScreen(context, MyServiceScreen()),
           ),
           ListTile(
             leading: Icon(Icons.account_balance_wallet),
             title: Text('Financial Management'),
-            onTap: () => _navigateToScreen(
-              context,
-              FinancialManagementScreen(),
-            ),
+            onTap: () =>
+                _navigateToScreen(context, FinancialManagementScreen()),
           ),
           ListTile(
             leading: Icon(Icons.settings),
             title: Text('Settings'),
-            onTap: () => _navigateToScreen(
-              context,
-              SettingsScreen(),
-            ),
+            onTap: () => _navigateToScreen(context, SettingsScreen()),
           ),
           Divider(),
           ListTile(

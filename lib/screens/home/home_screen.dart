@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import '../client/client_notifications_screen.dart';
+import 'components/category_card.dart';
+import 'components/professional_card.dart';
+import 'components/testimonial_card.dart';
 // import 'package:poafix/screens/select_service.dart'; // Update this path if your SelectService widget is in a different location
 import '../bookings/bookings_screen.dart';
 import '../services/service_selection_screen.dart';
 import '../quick_actions/schedule_screen.dart';
 import '../quick_actions/history_screen.dart';
 import '../quick_actions/saved_screen.dart';
-import '../notifications/notification_screen.dart' as notification;
-import '../auth/login_screen.dart';
+// ...existing code...
 import '../../models/user_model.dart';
 import '../profile/profile_screen.dart';
 import '../../widgets/bottomnavbar.dart';
 import '../../widgets/client_sidepanel.dart';
 import 'package:provider/provider.dart';
-import '../../providers/notification_count_provider.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../../services/notification_count_provider.dart';
 // import '../../widgets/client_side_panel.dart'; // Add this import if ClientSidePanel is defined here
 
 class HomeScreen extends StatefulWidget {
@@ -28,30 +31,46 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  Widget _buildUserAvatar() {
-    return CircleAvatar(child: Icon(Icons.person));
-  }
-
-  void _logoutWithAnimation(BuildContext context) async {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-      (Route<dynamic> route) => false,
-    );
-  }
+  // ...existing code...
 
   List<Widget> get _screens => [
     SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildWelcomeSection(),
-          _buildSearchBar(),
-          _buildPopularCategories(),
-          _buildQuickActions(context),
-          _buildPromotionalBanner(),
-          _buildTopRatedProfessionals(),
-          _buildTestimonials(),
-          _buildExploreNearbyServices(),
+          _buildWelcomeSection()
+              .animate()
+              .fade(duration: 600.ms)
+              .slideY(begin: 0.2, end: 0, duration: 600.ms),
+          _buildSearchBar()
+              .animate()
+              .fade(duration: 600.ms, delay: 100.ms)
+              .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 100.ms),
+          _buildPopularCategories()
+              .animate()
+              .fade(duration: 600.ms, delay: 200.ms)
+              .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 200.ms),
+          _buildQuickActions(context)
+              .animate()
+              .fade(duration: 600.ms, delay: 300.ms)
+              .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 300.ms),
+          _buildPromotionalBanner()
+              .animate()
+              .shimmer(duration: 1200.ms)
+              .fade(duration: 600.ms, delay: 400.ms)
+              .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 400.ms),
+          _buildTopRatedProfessionals()
+              .animate()
+              .fade(duration: 600.ms, delay: 500.ms)
+              .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 500.ms),
+          _buildTestimonials()
+              .animate()
+              .fade(duration: 600.ms, delay: 600.ms)
+              .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 600.ms),
+          _buildExploreNearbyServices()
+              .animate()
+              .fade(duration: 600.ms, delay: 700.ms)
+              .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 700.ms),
         ],
       ),
     ),
@@ -63,9 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final unreadCount = Provider.of<NotificationCountProvider>(
-      context,
-    ).unreadCount;
+    final unreadCount = Provider.of<NotificationCountProvider>(context).count;
     return Scaffold(
       appBar: AppBar(
         title: Text('poafix'),
@@ -79,13 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.notifications),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      notification.NotificationsScreen(user: widget.user),
-                ),
-              );
+              setState(() => _currentIndex = 4); // Switch to notifications tab
             },
           ),
         ],
@@ -96,46 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _currentIndex,
         unreadCount: unreadCount,
         onTap: (index) {
-          setState(() => _currentIndex = index);
-          switch (index) {
-            case 0:
-              Navigator.pushReplacementNamed(
-                context,
-                '/home',
-                arguments: widget.user,
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ServiceSelectionScreen(user: widget.user),
-                ),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacementNamed(
-                context,
-                '/bookings',
-                arguments: widget.user,
-              );
-              break;
-            case 3:
-              Navigator.pushReplacementNamed(
-                context,
-                '/profile',
-                arguments: widget.user,
-              );
-              break;
-            case 4:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ClientNotificationsScreen(),
-                ),
-              );
-              break;
-          }
+          setState(() => _currentIndex = index); // Tab navigation only
         },
       ),
     );
@@ -176,7 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
       {"icon": Icons.nature, "label": "Gardening"},
       {"icon": Icons.electrical_services, "label": "Electrical"},
     ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -198,21 +169,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           itemCount: categories.length,
           itemBuilder: (context, index) {
-            return InkWell(
+            return CategoryCard(
+              icon: categories[index]["icon"],
+              label: categories[index]["label"],
               onTap: () {
-                // Navigate to the respective category
+                // TODO: Implement navigation to category details
               },
-              child: Card(
-                elevation: 2,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(categories[index]["icon"], size: 40),
-                    SizedBox(height: 8),
-                    Text(categories[index]["label"]),
-                  ],
-                ),
-              ),
             );
           },
         ),
@@ -273,13 +235,37 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.blueAccent,
+        gradient: LinearGradient(
+          colors: [Colors.blueAccent, Colors.lightBlueAccent],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueAccent.withOpacity(0.2),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
-      child: Text(
-        "Special Offer: Get 20% off on your first booking!",
-        style: TextStyle(color: Colors.white, fontSize: 16),
-        textAlign: TextAlign.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.local_offer, color: Colors.white, size: 28),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "Special Offer: Get 20% off on your first booking!",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -290,7 +276,6 @@ class _HomeScreenState extends State<HomeScreen> {
       {"name": "Harun Madowe", "designation": "Electrician", "rating": 4.8},
       {"name": "Hassan AbdulAziz", "designation": "Gardener", "rating": 4.7},
     ];
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -303,19 +288,13 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(height: 10),
           Column(
             children: professionals.map((professional) {
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  title: Text(professional["name"]),
-                  subtitle: Text(professional["designation"]),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.star, color: Colors.orange),
-                      Text("${professional["rating"]}"),
-                    ],
-                  ),
-                ),
+              return ProfessionalCard(
+                name: professional["name"],
+                designation: professional["designation"],
+                rating: professional["rating"],
+                onTap: () {
+                  // TODO: Implement navigation to professional profile
+                },
               );
             }).toList(),
           ),
@@ -332,7 +311,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       {"name": "Sarah Wilson", "review": "Fast and reliable, will book again!"},
     ];
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -345,12 +323,12 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(height: 10),
           Column(
             children: testimonials.map((testimonial) {
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  title: Text(testimonial["name"]!),
-                  subtitle: Text(testimonial["review"]!),
-                ),
+              return TestimonialCard(
+                name: testimonial["name"]!,
+                review: testimonial["review"]!,
+                onTap: () {
+                  // TODO: Implement testimonial details or animation
+                },
               );
             }).toList(),
           ),

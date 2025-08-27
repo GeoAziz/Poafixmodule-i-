@@ -8,6 +8,24 @@ import '../config/api_config.dart';
 import '../models/notification_model.dart';
 
 class NotificationService {
+  Future<void> sendBookingNotification({
+    required String providerId,
+    required String bookingId,
+    String type = 'BOOKING_REQUEST', // <-- Default to correct type
+  }) async {
+    final notificationData = {
+      'recipient': providerId,
+      'recipientModel': 'provider',
+      'type': type,
+      'bookingId': bookingId,
+      'title': 'New Booking Request',
+      'message': 'You have a new booking request.',
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+    final service = NotificationService();
+    await service.createNotification(notificationData);
+  }
+
   final _storage = const FlutterSecureStorage();
   final Logger _logger = Logger();
   WebSocketChannel? _channel;
@@ -34,13 +52,12 @@ class NotificationService {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('No auth token found');
 
-      final wsUrl = '${ApiConfig.baseUrl.replaceFirst('http', 'ws')}/ws';
+      final wsUrl = ApiConfig.baseUrl.startsWith('http')
+          ? ApiConfig.baseUrl.replaceFirst('http', 'ws') + '/ws'
+          : ApiConfig.baseUrl + '/ws';
       _logger.i('Connecting to WebSocket: $wsUrl');
 
-      _channel = WebSocketChannel.connect(
-        Uri.parse(wsUrl),
-        protocols: ['Authorization: Bearer $token'],
-      );
+      _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
       _channel?.stream.listen(
         (event) {
@@ -90,7 +107,7 @@ class NotificationService {
       }
       _logger.i('Fetching notifications for authenticated user');
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/notifications'),
+        Uri.parse(ApiConfig.getEndpointUrl('notifications')),
         headers: {'Authorization': 'Bearer $token'},
       );
       if (response.statusCode == 200) {
@@ -124,7 +141,7 @@ class NotificationService {
 
       final response = await http.patch(
         Uri.parse(
-          '${ApiConfig.baseUrl}/api/notifications/$notificationId/read',
+          ApiConfig.getEndpointUrl('notifications/$notificationId/read'),
         ),
         headers: {
           'Authorization': 'Bearer $token',
@@ -203,7 +220,7 @@ class NotificationService {
       _logger.i('Creating notification: ${json.encode(notificationData)}');
 
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/notifications'),
+        Uri.parse(ApiConfig.getEndpointUrl('notifications')),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -214,15 +231,13 @@ class NotificationService {
         }),
       );
 
-      if (response.statusCode != 201) {
-        _logger.e('Failed to create notification: ${response.body}');
-        throw Exception('Failed to create notification: ${response.body}');
-      }
-
       final responseData = json.decode(response.body);
-      if (responseData['success'] != true) {
-        _logger.e('Server returned error: ${responseData['error']}');
-        throw Exception('Server returned error: ${responseData['error']}');
+      if (response.statusCode == 201 && responseData['success'] == true) {
+        _logger.i('✅ Notification created: ${response.body}');
+        return;
+      } else {
+        _logger.e('⛔ Failed to create notification: ${response.body}');
+        throw Exception('Failed to create notification: ${response.body}');
       }
     } catch (e) {
       _logger.e('Error creating notification: $e');
@@ -276,7 +291,7 @@ class NotificationService {
   }
 
   void _handlePaymentCompleted(dynamic payload) {
-    _logger.i('Payment completed: $payload');
+    _logger.i('Payment completed received: $payload');
     final notification = NotificationModel.fromJson({
       ...payload,
       'title': 'Payment Completed',
@@ -343,6 +358,15 @@ class NotificationService {
   Future<void> _reconnectWebSocket() async {
     await Future.delayed(Duration(seconds: 5));
     connectWebSocket();
+  }
+
+  Future<void> disconnectWebSocket() async {
+    try {
+      await _channel?.sink.close();
+      _logger.i('WebSocket disconnected');
+    } catch (e) {
+      _logger.e('Error disconnecting WebSocket: $e');
+    }
   }
 
   void dispose() {

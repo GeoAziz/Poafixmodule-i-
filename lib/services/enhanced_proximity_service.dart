@@ -6,7 +6,6 @@ import '../models/service_category_model.dart';
 import '../models/provider_model.dart';
 import '../services/auth_storage.dart';
 import '../services/location_service.dart';
-import '../services/provider_service.dart';
 import 'package:logging/logging.dart' as logging;
 
 class ProximityService {
@@ -33,7 +32,8 @@ class ProximityService {
       final token = await _authStorage.getToken();
       final response = await http.get(
         Uri.parse(
-            '$_baseUrl/services/proximity?lat=$latitude&lng=$longitude&radius=${radiusKm * 1000}'),
+          '$_baseUrl/services/proximity?lat=$latitude&lng=$longitude&radius=${radiusKm * 1000}',
+        ),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'auth': token,
@@ -86,7 +86,7 @@ class ProximityService {
         'serviceType': serviceType,
         'location': {
           'latitude': latitude ?? -1.2921,
-          'longitude': longitude ?? 36.8219
+          'longitude': longitude ?? 36.8219,
         },
         'radius': radiusKm,
       });
@@ -94,11 +94,7 @@ class ProximityService {
       print('URL: $url');
       print('Headers: $headers');
       print('Body: $body');
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: body,
-      );
+      final response = await http.post(url, headers: headers, body: body);
       print('[Frontend] Response status: ${response.statusCode}');
       print('[Frontend] Response body: ${response.body}');
       if (response.statusCode == 200) {
@@ -110,15 +106,18 @@ class ProximityService {
           final providersJson = data['data']['providers'] as List;
           print('[Frontend] Parsed providers: $providersJson');
           return providersJson
-              .map((json) =>
-                  ProviderModel.fromJson(json as Map<String, dynamic>))
+              .map(
+                (json) => ProviderModel.fromJson(json as Map<String, dynamic>),
+              )
               .toList();
         } else {
           print('[Frontend] No providers found or unexpected response: $data');
           return [];
         }
       } else {
-        print('[Frontend] Failed to fetch providers: ${response.statusCode} - ${response.body}');
+        print(
+          '[Frontend] Failed to fetch providers: ${response.statusCode} - ${response.body}',
+        );
         return [];
       }
     } catch (e) {
@@ -146,7 +145,8 @@ class ProximityService {
       final token = await _authStorage.getToken();
       final response = await http.get(
         Uri.parse(
-            '$_baseUrl/providers/count?service=$serviceType&lat=$latitude&lng=$longitude&radius=${radiusKm * 1000}'),
+          '$_baseUrl/providers/count?service=$serviceType&lat=$latitude&lng=$longitude&radius=${radiusKm * 1000}',
+        ),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'auth': token,

@@ -9,10 +9,7 @@ import 'glass_container.dart';
 class AdvancedAnalytics extends StatefulWidget {
   final String providerId;
 
-  const AdvancedAnalytics({
-    Key? key,
-    required this.providerId,
-  }) : super(key: key);
+  const AdvancedAnalytics({super.key, required this.providerId});
 
   @override
   _AdvancedAnalyticsState createState() => _AdvancedAnalyticsState();
@@ -161,10 +158,12 @@ class _AdvancedAnalyticsState extends State<AdvancedAnalytics> {
                   gridData: FlGridData(show: true),
                   titlesData: FlTitlesData(
                     show: true,
-                    rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   borderData: FlBorderData(show: true),
                   lineBarsData: [
@@ -253,7 +252,8 @@ class _AdvancedAnalyticsState extends State<AdvancedAnalytics> {
                           Text(
                             'KES ${historyItem['price']}',
                             style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.bold),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           Text(
                             timeago.format(DateTime.parse(historyItem['date'])),
@@ -291,8 +291,10 @@ class _AdvancedAnalyticsState extends State<AdvancedAnalytics> {
             ),
             SizedBox(height: 16),
             ListTile(
-              leading: Icon(Icons.location_on,
-                  color: Theme.of(context).primaryColor),
+              leading: Icon(
+                Icons.location_on,
+                color: Theme.of(context).primaryColor,
+              ),
               title: Text('Most Popular Areas'),
               subtitle: Text(
                 (_analyticsData['popularLocations'] ?? []).take(3).join(', '),
@@ -310,7 +312,11 @@ class _AdvancedAnalyticsState extends State<AdvancedAnalytics> {
   }
 
   Widget _buildMetricCard(
-      String title, String value, IconData icon, Color color) {
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -323,10 +329,7 @@ class _AdvancedAnalyticsState extends State<AdvancedAnalytics> {
             SizedBox(height: 8),
             Text(
               title,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
             ),
             Text(
               value,
@@ -349,17 +352,11 @@ class _AdvancedAnalyticsState extends State<AdvancedAnalytics> {
         SizedBox(height: 8),
         Text(
           title,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+          style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
         ),
         Text(
           value,
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ],
     );

@@ -1,17 +1,70 @@
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart' as dotenv;
 import 'package:flutter/foundation.dart';
+// Removed unused imports
 import 'network_service.dart';
+import 'auth_storage.dart';
 
 class ApiConfig {
+  static String? _baseUrl;
+
+  /// Always use LAN IP for all devices (update as needed)
+  static String get baseUrl {
+    final url = _baseUrl ?? 'http://192.168.0.103:5000';
+    print('[ApiConfig] baseUrl accessed: $url');
+    return url;
+  }
+
+  /// Dynamically determine base URL based on device type
+  static Future<String> getBaseUrl() async {
+    final envUrl = dotenv.dotenv.env['API_BASE_URL'];
+    if (envUrl != null && envUrl.isNotEmpty) return envUrl;
+    return 'http://192.168.0.103:5000'; // <-- Set your LAN IP or ngrok URL here
+  }
+
+  static String get initialBaseUrl => baseUrl;
+
+  /// Call this at app startup to set the base URL
+  static Future<void> initBaseUrl({String envFile = ".env.development"}) async {
+    await dotenv.dotenv.load(fileName: envFile);
+    _baseUrl = await getBaseUrl();
+    print('[ApiConfig] Initialized with baseUrl: $_baseUrl');
+  }
+
+  /// Update last active timestamp for a user (heartbeat)
+  static Future<void> updateLastActive(String userId) async {
+    final url = getApiUrl('clients/update-last-active');
+    try {
+      // Retrieve token from storage or context
+      final token = await AuthStorage().getToken();
+      final response = await httpClient.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: '{"userId": "$userId"}',
+      );
+      if (response.statusCode == 200) {
+        debugLog('✅ Last active updated for user: $userId');
+      } else {
+        debugLog('❌ Failed to update last active: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugLog('❌ Exception updating last active: $e');
+    }
+  }
+
   static final NetworkService _networkService = NetworkService();
   static http.Client httpClient = http.Client();
-  
+
   // Default values
   static const String defaultLatitude = '-1.2921';
   static const String defaultLongitude = '36.8219';
   static const String googleMapsApiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
-  static const String geocodingEndpoint = 'https://maps.googleapis.com/maps/api/geocode/json';
-  
+  static const String geocodingEndpoint =
+      'https://maps.googleapis.com/maps/api/geocode/json';
+
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const int maxRetries = 3;
   static const Duration retryDelay = Duration(seconds: 2);
@@ -23,29 +76,24 @@ class ApiConfig {
     }
   }
 
-  /// Get the current working base URL
-  static String get baseUrl {
-    return _networkService.baseUrl ?? 'http://10.0.2.2:5000';
-  }
-
   /// Get API URL with endpoint
   static String getApiUrl(String endpoint) {
-    final base = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
-    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    final base = initialBaseUrl.endsWith('/')
+        ? initialBaseUrl.substring(0, initialBaseUrl.length - 1)
+        : initialBaseUrl;
+    final cleanEndpoint = endpoint.startsWith('/')
+        ? endpoint.substring(1)
+        : endpoint;
     return '$base/api/$cleanEndpoint';
   }
 
-  /// Initialize network discovery
-  static Future<void> initialize() async {
+  /// Initialize dotenv and network discovery
+  static Future<void> initialize({String envFile = ".env.development"}) async {
+    await dotenv.dotenv.load(fileName: envFile);
+    _baseUrl = await getBaseUrl();
     debugLog('🔄 Initializing network discovery...');
-    
-    final discoveredUrl = await _networkService.discoverBackendUrl();
-    
-    if (discoveredUrl != null) {
-      debugLog('✅ Network initialization complete. Base URL: $discoveredUrl');
-    } else {
-      debugLog('❌ Network initialization failed. No working backend found.');
-    }
+    debugLog('🌐 Base URL set to: $_baseUrl');
+    print('[ApiConfig] initialize complete. currentBaseUrl=$_baseUrl');
   }
 
   /// Get network status for debugging
@@ -73,13 +121,13 @@ class ApiConfig {
   static String getAuthUrl(String type) {
     switch (type.toLowerCase()) {
       case 'client':
-        return '$baseUrl/api/clients/login';
+        return '${initialBaseUrl}/api/clients/login';
       case 'provider':
-        return '$baseUrl/api/providers/login';
+        return '${initialBaseUrl}/api/providers/login';
       case 'admin':
-        return '$baseUrl/api/admin/login';
+        return '${initialBaseUrl}/api/admin/login';
       default:
-        return '$baseUrl/api/auth/login';
+        return '${initialBaseUrl}/api/auth/login';
     }
   }
 
@@ -88,14 +136,15 @@ class ApiConfig {
     return getApiUrl(endpoint);
   }
 
-  static String getClientLoginUrl() => '$baseUrl/api/clients/login';
-  static String getProviderLoginUrl() => '$baseUrl/api/providers/login';
-  static String getAdminLoginUrl() => '$baseUrl/api/admin/login';
+  static String getClientLoginUrl() => '${initialBaseUrl}/api/clients/login';
+  static String getProviderLoginUrl() =>
+      '${initialBaseUrl}/api/providers/login';
+  static String getAdminLoginUrl() => '${initialBaseUrl}/api/admin/login';
 
   // Debug and utility methods
   static void printConnectionInfo() {
     debugLog('🔧 ApiConfig Info:');
-    debugLog('📍 Base URL: $baseUrl');
+    debugLog('📍 Base URL: $initialBaseUrl');
     debugLog('⏱️ Timeout: ${connectionTimeout.inSeconds}s');
     debugLog('🔄 Max retries: $maxRetries');
   }
@@ -115,11 +164,7 @@ class ApiConfig {
     );
   }
 
-  static const List<String> _potentialUrls = [
-    'http://192.168.0.101:5000', // <-- This matches your backend!
-    'http://10.0.2.2:5000',      // Emulator access to host
-    'http://localhost:5000',
-    'http://127.0.0.1:5000',
-    // Remove or update any references to port 3000
-  ];
+  // Removed unused _potentialUrls field
+
+  static String? get currentBaseUrl => _baseUrl;
 }

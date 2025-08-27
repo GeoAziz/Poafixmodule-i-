@@ -81,26 +81,86 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   final NotificationService _notificationService = NotificationService();
   final BookingService _bookingService = BookingService();
   List<Booking> _bookings = [];
+  List<dynamic> _upcomingAppointments = [];
+  List<dynamic> _recentActivities = [];
+  bool _isAppointmentsLoading = false;
+  bool _isActivitiesLoading = false;
+  Future<void> _fetchUpcomingAppointments() async {
+    setState(() => _isAppointmentsLoading = true);
+    try {
+      final providerId = _serviceProviderId ?? widget.userId;
+      final response = await http.get(
+        Uri.parse(
+          'https://09ecb564d140.ngrok-free.app/api/providers/$providerId/upcoming-appointments',
+        ),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _upcomingAppointments = data['appointments'] ?? [];
+        });
+      } else {
+        print('Failed to fetch upcoming appointments: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching upcoming appointments: $e');
+    } finally {
+      setState(() => _isAppointmentsLoading = false);
+    }
+  }
+
+  Future<void> _fetchRecentActivities() async {
+    setState(() => _isActivitiesLoading = true);
+    try {
+      final providerId = _serviceProviderId ?? widget.userId;
+      final response = await http.get(
+        Uri.parse(
+          'https://09ecb564d140.ngrok-free.app/api/providers/$providerId/recent-activities',
+        ),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _recentActivities = data['activities'] ?? [];
+        });
+      } else {
+        print('Failed to fetch recent activities: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching recent activities: $e');
+    } finally {
+      setState(() => _isActivitiesLoading = false);
+    }
+  }
 
   final _storage = FlutterSecureStorage();
   String _providerName = '';
   String _providerEmail = '';
   bool _hasDocumentsPending = false;
 
-  final Map<String, dynamic> _analytics = {
-    'monthlyEarnings': 0,
-    'pendingEarnings': 0,
-    'monthlyTarget': 10000,
-    'earningsData': [
-      {'x': 0, 'y': 0},
-      {'x': 1, 'y': 0},
-      {'x': 2, 'y': 0},
-      {'x': 3, 'y': 0},
-      {'x': 4, 'y': 0},
-      {'x': 5, 'y': 0},
-      {'x': 6, 'y': 0},
-    ],
-  };
+  Map<String, dynamic>? _dashboardStats;
+  Future<void> _fetchDashboardStats() async {
+    try {
+      final providerId = _serviceProviderId ?? widget.userId;
+      final response = await http.get(
+        Uri.parse(
+          'https://09ecb564d140.ngrok-free.app/api/providers/$providerId/dashboard',
+        ),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          _dashboardStats = json.decode(response.body);
+        });
+      } else {
+        print('Failed to fetch dashboard stats: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching dashboard stats: $e');
+    }
+  }
 
   final PageController _pageController = PageController();
   late TabController _tabController;
@@ -116,10 +176,12 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
   void initState() {
     super.initState();
     _checkDocuments();
-    // Debug print to track screen initialization
     print('Initializing ServiceProviderScreen with userId: ${widget.userId}');
     _checkAuthentication();
     _loadProviderData();
+    _fetchDashboardStats();
+    _fetchUpcomingAppointments();
+    _fetchRecentActivities();
   }
 
   Future<void> _checkAuthentication() async {
@@ -782,6 +844,33 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
     );
   }
 
+  Widget _buildGlassBottomNavigation() {
+    return BottomNavigationBar(
+      currentIndex: _selectedIndex,
+      onTap: _onItemTapped,
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.white.withOpacity(0.85),
+      selectedItemColor: Theme.of(context).primaryColor,
+      unselectedItemColor: Colors.grey,
+      elevation: 8,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.dashboard),
+          label: 'Dashboard',
+        ),
+        BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Jobs'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.notifications),
+          label: 'Notifications',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.monetization_on),
+          label: 'Finance',
+        ),
+      ],
+    );
+  }
+
   Widget _buildProfileScreen() {
     return Center(child: Text('Profile Screen - Coming Soon'));
   }
@@ -855,7 +944,6 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
                 _buildWelcomeHeader(),
                 _buildStatusCards(),
                 _buildRecentActivities(),
-                _buildEarningsOverview(),
                 _buildUpcomingAppointments(),
               ],
             ),
@@ -936,10 +1024,30 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
 
   Widget _buildStatusCards() {
     final stats = [
-      {'icon': Icons.work, 'value': '150+', 'label': 'Jobs'},
-      {'icon': Icons.star, 'value': '4.8', 'label': 'Rating'},
-      {'icon': Icons.people, 'value': '120', 'label': 'Clients'},
-      {'icon': Icons.timer, 'value': '450', 'label': 'Hours'},
+      {
+        'icon': Icons.work,
+        'value': (_dashboardStats?['jobsDone']?.toString() ?? '0'),
+        'label': 'Jobs',
+      },
+      {
+        'icon': Icons.star,
+        'value':
+            (_dashboardStats?['ratings'] != null &&
+                _dashboardStats!['ratings'] > 0)
+            ? _dashboardStats!['ratings'].toStringAsFixed(2)
+            : 'No ratings',
+        'label': 'Rating',
+      },
+      {
+        'icon': Icons.people,
+        'value': (_dashboardStats?['clients']?.toString() ?? '0'),
+        'label': 'Clients',
+      },
+      {
+        'icon': Icons.timer,
+        'value': (_dashboardStats?['hours']?.toString() ?? '0'),
+        'label': 'Hours',
+      },
     ];
     return Padding(
       padding: EdgeInsets.all(16),
@@ -976,23 +1084,185 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
             ),
           ),
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: 3,
-          itemBuilder: (context, index) => ActivityCard(
-            title: 'Plumbing Service',
-            date: '2024-02-26',
-            time: '10:00 AM',
-            clientName: 'John Doe',
-            status: index == 0
-                ? 'Pending'
-                : (index == 1 ? 'Confirmed' : 'Completed'),
-            onTap: () {
-              // Handle activity tap
-            },
-          ),
-        ),
+        _isActivitiesLoading
+            ? Center(child: CircularProgressIndicator())
+            : _recentActivities.isEmpty
+            ? Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Icon(Icons.history, size: 48, color: Colors.grey[400]),
+                    SizedBox(height: 8),
+                    Text(
+                      'No recent activities found.',
+                      style: GoogleFonts.poppins(),
+                    ),
+                  ],
+                ),
+              )
+            : AnimationLimiter(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: _recentActivities.length,
+                  itemBuilder: (context, index) {
+                    final activity = _recentActivities[index];
+                    final statusColor = activity['status'] == 'completed'
+                        ? Colors.green
+                        : activity['status'] == 'cancelled'
+                        ? Colors.red
+                        : Colors.orange;
+                    return AnimationConfiguration.staggeredList(
+                      position: index,
+                      duration: const Duration(milliseconds: 400),
+                      child: SlideAnimation(
+                        verticalOffset: 30.0,
+                        child: FadeInAnimation(
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            elevation: 6,
+                            margin: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: () {
+                                // Optionally show details
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.all(18),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.work,
+                                          color: statusColor,
+                                          size: 28,
+                                        ),
+                                        SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            activity['serviceType'] ??
+                                                'Service',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: statusColor.withOpacity(
+                                              0.15,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            activity['status']?.toUpperCase() ??
+                                                '',
+                                            style: GoogleFonts.poppins(
+                                              color: statusColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.person,
+                                          size: 20,
+                                          color: Colors.blueGrey,
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          activity['client']?['name'] ??
+                                              'Client',
+                                          style: GoogleFonts.poppins(),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today,
+                                          size: 18,
+                                          color: Colors.blueGrey,
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          activity['schedule'] != null
+                                              ? activity['schedule']
+                                                    .toString()
+                                                    .substring(0, 10)
+                                              : '',
+                                          style: GoogleFonts.poppins(),
+                                        ),
+                                        SizedBox(width: 12),
+                                        Icon(
+                                          Icons.access_time,
+                                          size: 18,
+                                          color: Colors.blueGrey,
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          activity['schedule'] != null
+                                              ? activity['schedule']
+                                                    .toString()
+                                                    .substring(11, 16)
+                                              : '',
+                                          style: GoogleFonts.poppins(),
+                                        ),
+                                      ],
+                                    ),
+                                    if (activity['address'] != null &&
+                                        activity['address']
+                                            .toString()
+                                            .isNotEmpty)
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_on,
+                                              size: 18,
+                                              color: Colors.blueGrey,
+                                            ),
+                                            SizedBox(width: 6),
+                                            Expanded(
+                                              child: Text(
+                                                activity['address'],
+                                                style: GoogleFonts.poppins(),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
       ],
     );
   }
@@ -1009,8 +1279,8 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
               colors: [
-                Theme.of(context).primaryColor.withOpacity(0.8),
                 Theme.of(context).primaryColor,
+                Theme.of(context).primaryColor.withOpacity(0.8),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -1033,13 +1303,13 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
                 children: [
                   _buildEarningTile(
                     icon: Icons.account_balance_wallet,
-                    amount: 'KES ${_analytics['monthlyEarnings'] ?? 0}',
+                    amount: 'KES ${_dashboardStats?['monthlyEarnings'] ?? 0}',
                     label: 'This Month',
                     color: Colors.white,
                   ),
                   _buildEarningTile(
                     icon: Icons.pending,
-                    amount: 'KES ${_analytics['pendingEarnings'] ?? 0}',
+                    amount: 'KES ${_dashboardStats?['pendingEarnings'] ?? 0}',
                     label: 'Pending',
                     color: Colors.white70,
                   ),
@@ -1050,8 +1320,8 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
                 borderRadius: BorderRadius.circular(8),
                 child: LinearProgressIndicator(
                   value:
-                      (_analytics['monthlyEarnings'] ?? 0) /
-                      (_analytics['monthlyTarget'] ?? 1),
+                      (_dashboardStats?['monthlyEarnings'] ?? 0) /
+                      (_dashboardStats?['monthlyTarget'] ?? 1),
                   backgroundColor: Colors.white.withOpacity(0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   minHeight: 8,
@@ -1059,11 +1329,11 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
               ),
               SizedBox(height: 8),
               Text(
-                '${((_analytics['monthlyEarnings'] ?? 0) / (_analytics['monthlyTarget'] ?? 1) * 100).toStringAsFixed(0)}% of monthly target',
+                '${(((_dashboardStats?['monthlyEarnings'] ?? 0) / (_dashboardStats?['monthlyTarget'] ?? 1)) * 100).toStringAsFixed(0)}% of monthly target',
                 style: GoogleFonts.poppins(color: Colors.white70, fontSize: 14),
               ),
               SizedBox(height: 16),
-              EarningsChart(data: _analytics['earningsData'] ?? []),
+              EarningsChart(data: _dashboardStats?['earningsData'] ?? []),
             ],
           ),
         ),
@@ -1108,23 +1378,186 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
             ),
           ),
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: 3,
-          itemBuilder: (context, index) => AppointmentCard(
-            title: 'Plumbing Service',
-            date: '2024-02-26',
-            time: '10:00 AM',
-            clientName: 'John Doe',
-            status: index == 0
-                ? 'Pending'
-                : (index == 1 ? 'Confirmed' : 'Completed'),
-            onTap: () {
-              // Handle appointment tap
-            },
-          ),
-        ),
+        _isAppointmentsLoading
+            ? Center(child: CircularProgressIndicator())
+            : _upcomingAppointments.isEmpty
+            ? Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Icon(Icons.event_busy, size: 48, color: Colors.grey[400]),
+                    SizedBox(height: 8),
+                    Text(
+                      'No upcoming appointments found.',
+                      style: GoogleFonts.poppins(),
+                    ),
+                  ],
+                ),
+              )
+            : AnimationLimiter(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: _upcomingAppointments.length,
+                  itemBuilder: (context, index) {
+                    final appointment = _upcomingAppointments[index];
+                    final statusColor = appointment['status'] == 'confirmed'
+                        ? Colors.green
+                        : appointment['status'] == 'pending'
+                        ? Colors.orange
+                        : Colors.blue;
+                    return AnimationConfiguration.staggeredList(
+                      position: index,
+                      duration: const Duration(milliseconds: 400),
+                      child: SlideAnimation(
+                        verticalOffset: 30.0,
+                        child: FadeInAnimation(
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            elevation: 6,
+                            margin: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: () {
+                                // Optionally show details
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.all(18),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.event,
+                                          color: statusColor,
+                                          size: 28,
+                                        ),
+                                        SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            appointment['serviceType'] ??
+                                                'Service',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: statusColor.withOpacity(
+                                              0.15,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            appointment['status']
+                                                    ?.toUpperCase() ??
+                                                '',
+                                            style: GoogleFonts.poppins(
+                                              color: statusColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.person,
+                                          size: 20,
+                                          color: Colors.blueGrey,
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          appointment['client']?['name'] ??
+                                              'Client',
+                                          style: GoogleFonts.poppins(),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today,
+                                          size: 18,
+                                          color: Colors.blueGrey,
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          appointment['schedule'] != null
+                                              ? appointment['schedule']
+                                                    .toString()
+                                                    .substring(0, 10)
+                                              : '',
+                                          style: GoogleFonts.poppins(),
+                                        ),
+                                        SizedBox(width: 12),
+                                        Icon(
+                                          Icons.access_time,
+                                          size: 18,
+                                          color: Colors.blueGrey,
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          appointment['schedule'] != null
+                                              ? appointment['schedule']
+                                                    .toString()
+                                                    .substring(11, 16)
+                                              : '',
+                                          style: GoogleFonts.poppins(),
+                                        ),
+                                      ],
+                                    ),
+                                    if (appointment['address'] != null &&
+                                        appointment['address']
+                                            .toString()
+                                            .isNotEmpty)
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_on,
+                                              size: 18,
+                                              color: Colors.blueGrey,
+                                            ),
+                                            SizedBox(width: 6),
+                                            Expanded(
+                                              child: Text(
+                                                appointment['address'],
+                                                style: GoogleFonts.poppins(),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
       ],
     );
   }
@@ -1133,17 +1566,12 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
     return FloatingActionButton.extended(
       onPressed: () {
         final newStatus = !_isOnline;
-        print(
-          '[DEBUG] FloatingActionButton pressed. Changing online status to: $newStatus',
-        );
         setState(() {
           _isOnline = newStatus;
         });
         if (newStatus) {
-          print('[DEBUG] Now ONLINE. Starting location updates...');
           _startLocationUpdates();
         } else {
-          print('[DEBUG] Now OFFLINE. Stopping location updates...');
           _locationUpdateTimer?.cancel();
         }
       },
@@ -1151,60 +1579,6 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen>
       icon: Icon(_isOnline ? Icons.wifi : Icons.wifi_off),
       label: Text(_isOnline ? 'Online' : 'Offline'),
     );
-  }
-
-  Widget _buildGlassBottomNavigation() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 10,
-            spreadRadius: 5,
-          ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.transparent,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Jobs'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet),
-            label: 'Earnings',
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _startSendingLocation() {
-    _isOnline = true;
-    // Send location updates every 30 seconds
-    _locationTimer = Timer.periodic(Duration(seconds: 30), (_) {
-      _updateLocation();
-    });
-    // Initial location update
-    _updateLocation();
-  }
-
-  void _stopSendingLocation() {
-    _isOnline = false;
-    _locationTimer?.cancel();
-    _updateProviderStatus(false);
   }
 
   Future<void> _updateProviderStatus(bool available) async {

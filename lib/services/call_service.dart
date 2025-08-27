@@ -32,10 +32,12 @@ class CallService {
 
     try {
       _engine = createAgoraRtcEngine();
-      await _engine!.initialize(RtcEngineContext(
-        appId: agoraAppId,
-        channelProfile: ChannelProfileType.channelProfileCommunication,
-      ));
+      await _engine!.initialize(
+        RtcEngineContext(
+          appId: agoraAppId,
+          channelProfile: ChannelProfileType.channelProfileCommunication,
+        ),
+      );
 
       _setupCallEventHandlers();
       print('✅ Agora engine initialized successfully');
@@ -145,9 +147,7 @@ class CallService {
     try {
       await _engine?.leaveChannel();
 
-      _webSocketService.emit('end_call', {
-        'channelId': _currentChannelId,
-      });
+      _webSocketService.emit('end_call', {'channelId': _currentChannelId});
 
       setState(() {
         _isCallActive = false;
@@ -178,13 +178,16 @@ class CallService {
 
   // Fallback to system phone dialer
   Future<void> _fallbackToPhoneDialer(
-      String calleeId, String calleeName) async {
+    String calleeId,
+    String calleeName,
+  ) async {
     showDialog(
       context: _context!,
       builder: (context) => AlertDialog(
         title: Text('Call $calleeName'),
         content: Text(
-            'Video calling is not available. Would you like to make a phone call instead?'),
+          'Video calling is not available. Would you like to make a phone call instead?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -205,6 +208,7 @@ class CallService {
 
   Future<void> _makePhoneCall(String phoneNumber) async {
     final uri = Uri(scheme: 'tel', path: phoneNumber);
+    debugPrint('[CallService] Launching call with URI: ' + uri.toString());
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
@@ -223,7 +227,10 @@ class CallService {
 
   // Navigation helpers
   void _navigateToVoiceCall(
-      String channelId, String calleeName, bool isIncoming) {
+    String channelId,
+    String calleeName,
+    bool isIncoming,
+  ) {
     if (_context != null) {
       Navigator.push(
         _context!,
@@ -241,7 +248,10 @@ class CallService {
   }
 
   void _navigateToVideoCall(
-      String channelId, String calleeName, bool isIncoming) {
+    String channelId,
+    String calleeName,
+    bool isIncoming,
+  ) {
     if (_context != null) {
       Navigator.push(
         _context!,
@@ -262,9 +272,9 @@ class CallService {
 
   void _showMessage(String message) {
     if (_context != null) {
-      ScaffoldMessenger.of(_context!).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        _context!,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 

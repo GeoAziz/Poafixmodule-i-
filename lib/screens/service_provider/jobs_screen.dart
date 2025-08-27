@@ -9,8 +9,6 @@ import '../../models/booking.dart';
 import '../../models/job.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import '../payment/mpesa_payment_screen.dart';
-import '../payment/paypal_payment_screen.dart';
 import '../../services/job_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/service_request.service.dart';
@@ -536,28 +534,50 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
       );
 
       if (response['success']) {
-        // Update service request status
-        await ServiceRequestService().updateRequestStatus(
-          response['booking']['serviceRequestId'],
-          status,
-          status == 'rejected' ? 'Booking rejected by provider' : null,
-        );
+        // Safely access serviceRequestId
+        final booking = response['booking'];
+        final serviceRequestId =
+            booking != null && booking.containsKey('serviceRequestId')
+            ? booking['serviceRequestId']
+            : null;
 
-        // Create notification
-        await _notificationService.createNotification({
-          'recipientId': response['booking']['clientId'],
-          'recipientModel': 'Client',
-          'type': status == 'accepted'
-              ? 'BOOKING_ACCEPTED'
-              : 'BOOKING_REJECTED',
-          'title': 'Booking ${status.toUpperCase()}',
-          'message': 'Your booking request has been $status',
-          'data': {
-            'bookingId': bookingId,
-            'status': status,
-            'serviceType': response['booking']['serviceType'],
-          },
-        });
+        // Update service request status only if serviceRequestId exists
+        if (serviceRequestId != null) {
+          await ServiceRequestService().updateRequestStatus(
+            serviceRequestId,
+            status,
+            status == 'rejected' ? 'Booking rejected by provider' : null,
+          );
+        } else {
+          print(
+            'Warning: booking missing serviceRequestId, skipping updateRequestStatus',
+          );
+        }
+
+        // Ensure clientId is present before creating notification
+        final clientId = booking != null && booking.containsKey('clientId')
+            ? booking['clientId']
+            : null;
+        if (clientId == null) {
+          print(
+            'Warning: booking missing clientId, notification will not be sent',
+          );
+        } else {
+          await _notificationService.createNotification({
+            'recipientId': clientId,
+            'recipientModel': 'Client',
+            'type': status == 'accepted'
+                ? 'BOOKING_ACCEPTED'
+                : 'BOOKING_REJECTED',
+            'title': 'Booking ${status.toUpperCase()}',
+            'message': 'Your booking request has been $status',
+            'data': {
+              'bookingId': bookingId,
+              'status': status,
+              'serviceType': booking?['serviceType'],
+            },
+          });
+        }
 
         // Emit socket event
         _webSocketService.socket.emit('booking_status_update', {
@@ -771,88 +791,6 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
     try {
       setState(() => _isLoading = true);
 
-      if (status == 'completed') {
-        // Show payment method selection dialog before completing the job
-        final paymentMethod = await showDialog<String>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: Text('Select Payment Method'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: Image.asset(
-                    'assets/icons/mpesa_icon.png',
-                    width: 32,
-                  ),
-                  title: Text('M-Pesa'),
-                  onTap: () => Navigator.pop(context, 'mpesa'),
-                ),
-                ListTile(
-                  leading: Image.asset(
-                    'assets/icons/paypal_icon.png',
-                    width: 32,
-                  ),
-                  title: Text('PayPal'),
-                  onTap: () => Navigator.pop(context, 'paypal'),
-                ),
-              ],
-            ),
-          ),
-        );
-
-        if (paymentMethod == null) {
-          setState(() => _isLoading = false);
-          return;
-        }
-
-        // Get the booking details first
-        final booking = _bookings.firstWhere((b) => b.id == bookingId);
-
-        // Navigate to the appropriate payment screen
-        if (paymentMethod == 'mpesa') {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MpesaPaymentScreen(booking: booking),
-            ),
-          );
-
-          if (result != true) {
-            setState(() => _isLoading = false);
-            return;
-          }
-        } else if (paymentMethod == 'paypal') {
-          // TODO: Fetch approvalUrl from backend before navigation
-          // Example:
-          // String approvalUrl = await PaymentService().getPaypalApprovalUrl(...);
-          // For now, show error if not available
-          if (booking.approvalUrl == null ||
-              booking.approvalUrl?.isEmpty == true) {
-            _showSnackBar('PayPal approval URL not available', Colors.red);
-            setState(() => _isLoading = false);
-            return;
-          }
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (ctx) => PaypalPaymentScreen(
-                approvalUrl: booking.approvalUrl!,
-                bookingId: booking.id,
-                amount: booking.amount,
-                paymentId: booking.paymentId, // Add this line
-              ),
-            ),
-          );
-
-          if (result != true) {
-            setState(() => _isLoading = false);
-            return;
-          }
-        }
-      }
-
       // Update booking status
       final response = await _jobService.updateBookingStatus(
         bookingId: bookingId,
@@ -863,31 +801,47 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
       if (response['success']) {
         final booking = response['booking'];
         if (booking != null && booking['clientId'] != null) {
-          // Create notification only if we have valid booking data
+          // 1. Notify client that job is completed
           await _notificationService.createNotification({
             'recipientId': booking['clientId'],
             'recipientModel': 'Client',
-            'type': 'JOB_UPDATE',
-            'title': status == 'in_progress' ? 'Job Started' : 'Job Completed',
-            'message': status == 'in_progress'
-                ? 'Your job has been started by the provider.'
-                : 'Payment received. Job completed successfully.',
+            'type': 'JOB_COMPLETED',
+            'title': 'Job Completed',
+            'message': 'Your job has been completed by the provider.',
             'data': {
               'bookingId': bookingId,
               'status': status,
               'serviceType': booking['serviceType'],
-              'action': status == 'in_progress' ? 'started' : 'completed',
+              'action': 'completed',
             },
           });
 
-          // If job is completed, trigger rating screen
-          if (status == 'completed') {
-            _webSocketService.socket.emit('trigger_rating', {
-              'clientId': booking['clientId'],
+          // 2. Notify client that payment is required
+          await _notificationService.createNotification({
+            'recipientId': booking['clientId'],
+            'recipientModel': 'Client',
+            'type': 'PAYMENT_REQUEST',
+            'title': 'Payment Required',
+            'message': 'Please proceed to payment for your completed job.',
+            'data': {
               'bookingId': bookingId,
-              'providerId': widget.providerId,
-            });
-          }
+              'status': status,
+              'serviceType': booking['serviceType'],
+              'amount': booking['amount'],
+            },
+          });
+
+          // Optionally emit socket events for both
+          _webSocketService.socket.emit('job_status_update', {
+            'bookingId': bookingId,
+            'status': status,
+            'providerId': widget.providerId,
+          });
+          _webSocketService.socket.emit('payment_request', {
+            'clientId': booking['clientId'],
+            'bookingId': bookingId,
+            'providerId': widget.providerId,
+          });
         }
         await _fetchBookings();
       }

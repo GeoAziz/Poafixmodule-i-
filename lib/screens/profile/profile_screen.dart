@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../models/user_model.dart';
-import '../../services/auth_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../location/location_picker_screen.dart';
 import '../../services/location_service.dart';
-import '../../widgets/bottomnavbar.dart';
-import '../../widgets/client_sidepanel.dart';
+// ...existing code...
 
 class ProfileScreen extends StatefulWidget {
   final User user; // Accept user argument
@@ -18,7 +18,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _authStorage = AuthStorage();
   final _formKey = GlobalKey<FormState>();
   final _locationService = LocationService();
   final _currentPasswordController = TextEditingController();
@@ -37,18 +36,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadProfileData() async {
+    setState(() => _isLoading = true);
     try {
-      final credentials = await _authStorage.getCredentials();
-      setState(() {
-        _profileData = {
-          'name': credentials['name'],
-          'email': credentials['email'],
-          'userType': credentials['userType'],
-          'businessName': credentials['business_name'],
-          'phoneNumber': credentials['phone_number'],
-        };
-        _isLoading = false;
-      });
+      // TODO: Replace with your actual backend URL and token logic
+      final token = widget.user.token ?? '';
+      final response = await http.get(
+        Uri.parse('http://192.168.0.103:5000/api/profile/'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          _profileData = json.decode(response.body);
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+        print('Error loading profile: ${response.body}');
+      }
     } catch (e) {
       print('Error loading profile: $e');
       setState(() => _isLoading = false);
@@ -57,55 +61,82 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _updateProfile() async {
     if (!_formKey.currentState!.validate()) return;
-
+    setState(() => _isLoading = true);
     try {
+      final token = widget.user.token ?? '';
       final Map<String, dynamic> updates = {
         'name': _profileData!['name'],
         'email': _profileData!['email'],
         'phoneNumber': _profileData!['phoneNumber'],
         'address': _profileData!['address'],
       };
-
       if (_profileImage != null) {
-        // Upload image and get URL
+        // Upload image and get URL (implement backend upload logic)
         final imageUrl = await _uploadProfileImage(_profileImage!);
-        updates['profileImage'] = imageUrl;
+        updates['profilePicUrl'] = imageUrl;
       }
-
-      await _authStorage.updateProfile(updates);
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Profile updated successfully')));
+      final response = await http.put(
+        Uri.parse('http://192.168.0.103:5000/api/profile/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(updates),
+      );
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Profile updated successfully')));
+        await _loadProfileData();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile: ${response.body}')),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to update profile: $e')));
     }
+    setState(() => _isLoading = false);
   }
 
   Future<void> _changePassword() async {
     if (!_validatePasswordForm()) return;
-
+    setState(() => _isLoading = true);
     try {
-      await _authStorage.changePassword(
-        currentPassword: _currentPasswordController.text,
-        newPassword: _newPasswordController.text,
+      final token = widget.user.token ?? '';
+      final response = await http.post(
+        Uri.parse('http://192.168.0.103:5000/api/auth/password-reset/request'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'currentPassword': _currentPasswordController.text,
+          'newPassword': _newPasswordController.text,
+        }),
       );
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Password changed successfully')));
-
-      // Clear password fields
-      _currentPasswordController.clear();
-      _newPasswordController.clear();
-      _confirmPasswordController.clear();
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Password changed successfully')),
+        );
+        _currentPasswordController.clear();
+        _newPasswordController.clear();
+        _confirmPasswordController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to change password: ${response.body}'),
+          ),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to change password: $e')));
     }
+    setState(() => _isLoading = false);
   }
 
   bool _validatePasswordForm() {
@@ -267,68 +298,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Profile'), automaticallyImplyLeading: true),
-      drawer: ClientSidePanel(user: widget.user, parentContext: context),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildProfileAvatar(),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildInfoSection(),
-                    const SizedBox(height: 24),
-                    _buildStatsSection(),
-                    const SizedBox(height: 24),
-                    _buildLocationSection(),
-                    const SizedBox(height: 24),
-                    _buildActionsSection(),
-                  ],
-                ),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildProfileAvatar(),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInfoSection(),
+                        const SizedBox(height: 24),
+                        _buildStatsSection(),
+                        const SizedBox(height: 24),
+                        _buildLocationSection(),
+                        const SizedBox(height: 24),
+                        _buildActionsSection(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-      bottomNavigationBar: FunctionalBottomNavBar(
-        currentIndex: 3,
-        unreadCount: 0, // You can pass the actual unread count if available
-        user: widget.user,
-        onTap: (index) {
-          if (index == 3) return; // Already on profile
-          switch (index) {
-            case 0:
-              Navigator.pushReplacementNamed(
-                context,
-                '/home',
-                arguments: widget.user,
-              );
-              break;
-            case 1:
-              Navigator.pushReplacementNamed(
-                context,
-                '/select-service', // Use correct route name
-                arguments: widget.user,
-              );
-              break;
-            case 2:
-              Navigator.pushReplacementNamed(
-                context,
-                '/bookings',
-                arguments: widget.user,
-              );
-              break;
-            case 4:
-              Navigator.pushNamed(
-                context,
-                '/notifications',
-                arguments: widget.user,
-              );
-              break;
-          }
-        },
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.2),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+        ],
       ),
     );
   }
@@ -371,6 +372,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildInfoSection() {
+    String phone = '';
+    String location = '';
+    String businessName = '';
+    String serviceType = '';
+    try {
+      if (_profileData != null) {
+        final pd = _profileData!;
+        phone = pd['phoneNumber'] is String
+            ? pd['phoneNumber']
+            : (pd['phoneNumber'] != null ? pd['phoneNumber'].toString() : '');
+        if (pd['location'] is String) {
+          location = pd['location'];
+        } else if (pd['location'] is Map) {
+          location = pd['location']['address'] ?? '';
+        } else if (pd['location'] != null) {
+          location = pd['location'].toString();
+        }
+        businessName = pd['businessName'] is String
+            ? pd['businessName']
+            : (pd['businessName'] != null ? pd['businessName'].toString() : '');
+        serviceType = pd['serviceOffered'] is String
+            ? pd['serviceOffered']
+            : (pd['serviceOffered'] != null
+                  ? pd['serviceOffered'].toString()
+                  : '');
+      }
+    } catch (e) {
+      // fallback to empty strings
+    }
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -382,16 +412,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            _buildInfoRow('Phone', _profileData?['phoneNumber'] ?? 'Not set'),
-            _buildInfoRow('Location', _profileData?['location'] ?? 'Not set'),
+            _buildInfoRow('Phone', phone.isNotEmpty ? phone : 'Not set'),
+            _buildInfoRow(
+              'Location',
+              location.isNotEmpty ? location : 'Not set',
+            ),
             if (_profileData?['userType'] == 'service-provider') ...[
               _buildInfoRow(
                 'Business Name',
-                _profileData?['businessName'] ?? 'Not set',
+                businessName.isNotEmpty ? businessName : 'Not set',
               ),
               _buildInfoRow(
                 'Service Type',
-                _profileData?['serviceOffered'] ?? 'Not set',
+                serviceType.isNotEmpty ? serviceType : 'Not set',
               ),
             ],
           ],
@@ -527,7 +560,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _addNewLocation() {
-    // Show location picker dialog
+    final locationNameController = TextEditingController();
+    final addressController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -535,13 +569,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(decoration: InputDecoration(labelText: 'Location Name')),
+            TextField(
+              controller: locationNameController,
+              decoration: InputDecoration(labelText: 'Location Name'),
+            ),
+            TextField(
+              controller: addressController,
+              decoration: InputDecoration(labelText: 'Address'),
+            ),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Here we'll integrate with Google Places API
-                // to allow location selection
-                // Navigator.push to a map selection screen
+                // Integrate with map picker if needed
               },
               child: Text('Pick Location on Map'),
             ),
@@ -553,8 +592,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              // Save location logic
+            onPressed: () async {
+              final token = widget.user.token ?? '';
+              final response = await http.post(
+                Uri.parse('http://192.168.0.103:5000/api/location/update'),
+                headers: {
+                  'Authorization': 'Bearer $token',
+                  'Content-Type': 'application/json',
+                },
+                body: json.encode({
+                  'name': locationNameController.text,
+                  'address': addressController.text,
+                }),
+              );
+              if (response.statusCode == 200) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Location saved successfully')),
+                );
+                await _loadSavedLocations();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to save location: ${response.body}'),
+                  ),
+                );
+              }
               Navigator.pop(context);
             },
             child: Text('Save'),

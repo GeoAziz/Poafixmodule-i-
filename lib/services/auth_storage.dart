@@ -53,9 +53,7 @@ class AuthStorage {
     final token = await _storage.read(key: KEY_AUTH_TOKEN);
     String? userId = await _storage.read(key: KEY_USER_ID);
     // Fallback: check for 'userId' if 'user_id' is null
-    if (userId == null) {
-      userId = await _storage.read(key: 'userId');
-    }
+    userId ??= await _storage.read(key: 'userId');
     final userType = await _storage.read(key: KEY_USER_TYPE);
     final name = await _storage.read(key: KEY_NAME);
     final email = await _storage.read(key: KEY_EMAIL);
@@ -98,7 +96,9 @@ class AuthStorage {
           _storage.write(key: 'phone_number', value: updates['phoneNumber']),
         if (updates['businessName'] != null)
           _storage.write(
-              key: KEY_BUSINESS_NAME, value: updates['businessName']),
+            key: KEY_BUSINESS_NAME,
+            value: updates['businessName'],
+          ),
       ]);
 
       // TODO: Add API call to update backend

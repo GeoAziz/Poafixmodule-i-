@@ -5,16 +5,15 @@ import 'package:flutter/foundation.dart';
 class ApiConfig {
   // Payment API endpoints (replace with your actual endpoints)
   // All payment endpoints should use the backend base URL
-  static const String mpesaPaymentUrl =
-      'http://192.168.0.103:5000/api/payments/mpesa/initiate';
-  static const String airtelPaymentUrl =
-      'http://192.168.0.103:5000/api/payments/airtel/initiate';
-  static const String equitelPaymentUrl =
-      'http://192.168.0.103:5000/api/payments/equitel/initiate';
-  static const String kcbMpesaPaymentUrl =
-      'http://192.168.0.103:5000/api/payments/kcbmpesa/initiate';
-  static const String paypalPaymentUrl =
-      'http://192.168.0.103:5000/api/payments/paypal/initiate';
+  static String get mpesaPaymentUrl => '${baseUrl}/api/payments/mpesa/initiate';
+  static String get airtelPaymentUrl =>
+      '${baseUrl}/api/payments/airtel/initiate';
+  static String get equitelPaymentUrl =>
+      '${baseUrl}/api/payments/equitel/initiate';
+  static String get kcbMpesaPaymentUrl =>
+      '${baseUrl}/api/payments/kcbmpesa/initiate';
+  static String get paypalPaymentUrl =>
+      '${baseUrl}/api/payments/paypal/initiate';
   // Payment API key (replace with your actual key or load from env)
   static const String paymentApiKey = 'YOUR_API_KEY';
   static final NetworkService _networkService = NetworkService();
@@ -25,8 +24,20 @@ class ApiConfig {
 
   /// Get the current working base URL
   static String get baseUrl {
-    return _networkService.baseUrl ??
-        'http://10.0.2.2:5000'; // Default for emulator
+    // Always use the discovered LAN IP if available
+    final url = _networkService.getBaseUrl('ApiConfig.baseUrl');
+    if (url != null) {
+      print('[ApiConfig.baseUrl] Using discovered baseUrl: $url');
+      return url;
+    }
+    // If on emulator, fallback to emulator IP
+    // If on physical device, never fallback to emulator IP
+    print(
+      '[ApiConfig.baseUrl] FATAL: baseUrl is null, fallback to emulator IP. This should not happen!',
+    );
+    throw Exception(
+      'ApiConfig.baseUrl is null. NetworkService did not persist or load baseUrl.',
+    );
   }
 
   /// Initialize network discovery (call this on app start)
@@ -76,7 +87,11 @@ class ApiConfig {
     if (!endpoint.startsWith('api/')) {
       endpoint = 'api/$endpoint';
     }
-    return '$baseUrl/$endpoint';
+    final url = '$baseUrl/$endpoint';
+    print('[ApiConfig.getEndpointUrl] Called with endpoint: $endpoint');
+    print('[ApiConfig.getEndpointUrl] Using baseUrl: $baseUrl');
+    print('[ApiConfig.getEndpointUrl] Final URL: $url');
+    return url;
   }
 
   // Authentication endpoints

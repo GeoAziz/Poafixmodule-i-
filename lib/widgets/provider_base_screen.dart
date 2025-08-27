@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../screens/bookings/bookings_screen.dart';
+import '../models/user_model.dart';
 import '../widgets/provider_drawer.dart';
 
 class ProviderBaseScreen extends StatelessWidget {
@@ -6,10 +8,11 @@ class ProviderBaseScreen extends StatelessWidget {
   final Widget body;
   final List<Widget>? actions;
   final Widget? floatingActionButton;
-  final bool showDrawer; // Add this
-  final bool showAppBar; // Add this
-  final int currentIndex; // Add this parameter
-  final String providerId; // Add providerId parameter
+  final bool showDrawer;
+  final bool showAppBar;
+  final int currentIndex;
+  final String providerId;
+  final User user;
 
   const ProviderBaseScreen({
     super.key,
@@ -17,10 +20,11 @@ class ProviderBaseScreen extends StatelessWidget {
     required this.body,
     this.actions,
     this.floatingActionButton,
-    this.showDrawer = true, // Default to true
-    this.showAppBar = true, // Default to true
-    this.currentIndex = 0, // Add default value
-    this.providerId = '', // Add default value
+    this.showDrawer = true,
+    this.showAppBar = true,
+    this.currentIndex = 0,
+    this.providerId = '',
+    required this.user,
   });
 
   @override
@@ -54,18 +58,9 @@ class ProviderBaseScreen extends StatelessWidget {
         currentIndex: currentIndex,
         onTap: (index) => _onNavigationTap(context, index),
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Bookings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
@@ -77,7 +72,13 @@ class ProviderBaseScreen extends StatelessWidget {
         Navigator.pushReplacementNamed(context, '/home');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/bookings');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                BookingsScreen(user: user, showNavigation: true),
+          ),
+        );
         break;
       case 2:
         Navigator.pushReplacementNamed(context, '/profile');

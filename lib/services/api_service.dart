@@ -9,14 +9,11 @@ class ApiService {
   factory ApiService() => _instance;
 
   final Dio _dio = Dio();
-  final String baseUrl =
-      'http://10.0.2.2:5000/api'; // Android emulator localhost
+  final String baseUrl = ApiConfig.baseUrl + '/api';
 
   ApiService._internal() {
     _dio.options.baseUrl = baseUrl;
-    _dio.options.headers = {
-      'Content-Type': 'application/json',
-    };
+    _dio.options.headers = {'Content-Type': 'application/json'};
   }
 
   Future<Map<String, String>> _getHeaders() async {
@@ -107,10 +104,7 @@ class ApiService {
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/api/activity/log'),
       headers: headers,
-      body: json.encode({
-        'action': action,
-        'details': details,
-      }),
+      body: json.encode({'action': action, 'details': details}),
     );
 
     if (response.statusCode != 200) {

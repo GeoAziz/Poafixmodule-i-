@@ -7,19 +7,17 @@ class AnimatedStatusCard extends StatelessWidget {
   final AnimationController animationController;
 
   const AnimatedStatusCard({
-    Key? key,
+    super.key,
     required this.isAvailable,
     required this.onToggle,
     required this.animationController,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: AnimatedBuilder(
         animation: animationController,
         builder: (context, child) {

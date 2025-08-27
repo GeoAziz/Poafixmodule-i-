@@ -8,8 +8,6 @@ import '../../services/websocket_service.dart';
 // Add this import
 import '../../widgets/booking_card.dart';
 import '../../models/user_model.dart'; // Update import
-import '../client/client_notifications_screen.dart';
-import '../../widgets/bottomnavbar.dart';
 import '../../widgets/client_sidepanel.dart';
 
 // Helper class for section data
@@ -382,7 +380,6 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 .toList(),
           ),
         ),
-        drawer: ClientSidePanel(user: widget.user, parentContext: context),
         body: _isLoading
             ? Center(child: CircularProgressIndicator())
             : RefreshIndicator(
@@ -419,46 +416,6 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         }).toList(),
                       ),
               ),
-        bottomNavigationBar: FunctionalBottomNavBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() => _currentIndex = index);
-            switch (index) {
-              case 0:
-                Navigator.pushReplacementNamed(
-                  context,
-                  '/home',
-                  arguments: widget.user,
-                );
-                break;
-              case 1:
-                Navigator.pushReplacementNamed(
-                  context,
-                  '/select-service',
-                  arguments: widget.user,
-                );
-                break;
-              case 2:
-                // Already on bookings screen
-                break;
-              case 3:
-                Navigator.pushReplacementNamed(
-                  context,
-                  '/profile',
-                  arguments: widget.user,
-                );
-                break;
-              case 4:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ClientNotificationsScreen(),
-                  ),
-                );
-                break;
-            }
-          },
-        ),
       ),
     );
   }

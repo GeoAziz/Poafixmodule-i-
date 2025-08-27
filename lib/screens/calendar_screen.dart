@@ -8,7 +8,9 @@ import '../widgets/job_calendar_event.dart';
 import '../widgets/provider_base_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({super.key});
+  final dynamic user; // Replace 'dynamic' with your actual user type
+
+  const CalendarScreen({super.key, required this.user});
 
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
@@ -63,6 +65,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return ProviderBaseScreen(
+      user: widget.user,
       title: 'Calendar',
       body: Column(
         children: [
@@ -72,7 +75,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             focusedDay: _focusedDay,
             calendarFormat: _calendarFormat,
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            eventLoader: (day) => _bookingsByDate[day] ?? [],
+            eventLoader: (day) =>
+                _bookingsByDate[DateTime(day.year, day.month, day.day)] ?? [],
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
                 _selectedDay = selectedDay;
@@ -98,9 +102,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
           ),
           SizedBox(height: 16),
-          Expanded(
-            child: _buildEventList(),
-          ),
+          Expanded(child: _buildEventList()),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -136,10 +138,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             SizedBox(height: 16),
             Text(
               'No events for ${DateFormat('MMMM d, y').format(_selectedDay!)}',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -168,9 +167,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildBookingDetails(booking),
-            ],
+            children: [_buildBookingDetails(booking)],
           ),
         ),
         actions: [
@@ -193,9 +190,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             '$label: ',
             style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
           ),
-          Expanded(
-            child: Text(value, style: GoogleFonts.poppins()),
-          ),
+          Expanded(child: Text(value, style: GoogleFonts.poppins())),
         ],
       ),
     );

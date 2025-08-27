@@ -19,9 +19,9 @@ class RatingService {
     try {
       final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'user_id');
-      
+
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/ratings'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/ratings'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -48,13 +48,15 @@ class RatingService {
   }
 
   // Create a new rating (alternative method name for submitRating)
-  Future<Map<String, dynamic>> createRating(Map<String, dynamic> ratingData) async {
+  Future<Map<String, dynamic>> createRating(
+    Map<String, dynamic> ratingData,
+  ) async {
     try {
       final token = await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'user_id');
-      
+
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/ratings'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/ratings'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -83,9 +85,9 @@ class RatingService {
   Future<Map<String, dynamic>> getProviderRatings(String providerId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/ratings/provider/$providerId'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/ratings/provider/$providerId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -105,17 +107,14 @@ class RatingService {
   Future<void> triggerRatingRequest(String clientId, String bookingId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/ratings/trigger'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/ratings/trigger'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: json.encode({
-          'clientId': clientId,
-          'bookingId': bookingId,
-        }),
+        body: json.encode({'clientId': clientId, 'bookingId': bookingId}),
       );
     } catch (e) {
       print('Error triggering rating request: $e');
@@ -126,9 +125,9 @@ class RatingService {
   Future<Map<String, dynamic>> getRatingAnalytics(String providerId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      
+
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/ratings/analytics/$providerId'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/ratings/analytics/$providerId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

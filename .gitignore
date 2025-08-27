@@ -46,3 +46,6 @@ app.*.map.json
 
 #gitignore
 .env
+.env.development
+.env.production
+.env.development.backup

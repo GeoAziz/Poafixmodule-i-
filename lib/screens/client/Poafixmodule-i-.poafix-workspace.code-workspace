@@ -1,10 +1,10 @@
 {
 	"folders": [
 		{
-			"path": "../../.."
+			"path": "../../../../poafix"
 		},
 		{
-			"path": "../../../../poafix"
+			"path": "../../.."
 		}
 	],
 	"settings": {}

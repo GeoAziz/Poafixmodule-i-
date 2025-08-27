@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../services/payment_service.dart';
 import '../../services/notification_service.dart';
+import '../../services/user_status_service.dart';
 import '../payment/mpesa_payment_screen.dart';
 import '../payment/paypal_payment_screen.dart';
 import '../../models/booking.dart';
@@ -88,6 +89,48 @@ class _ClientBookingsScreenState extends State<ClientBookingsScreen> {
     );
   }
 
+  void _showBookingDetails(Map<String, dynamic> booking) async {
+    Map<String, dynamic>? providerStatus;
+    if (booking['providerId'] != null) {
+      providerStatus = await UserStatusService.fetchUserStatus(
+        booking['providerId'],
+      );
+    }
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Booking Details'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Service: ${booking['serviceType']}'),
+              Text('Status: ${booking['status']}'),
+              Text('Date: ${booking['schedule']}'),
+              Text('Amount: ${booking['amount'] ?? '--'}'),
+              if (providerStatus != null) ...[
+                Text(
+                  'Provider Online: ${providerStatus['isOnline'] == true ? 'Online' : 'Offline'}',
+                ),
+                Text(
+                  'Provider Last Active: ${providerStatus['lastActive'] != null ? DateTime.parse(providerStatus['lastActive']).toLocal().toString() : 'Unknown'}',
+                ),
+              ],
+              Text('Description: ${booking['description'] ?? ''}'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +149,7 @@ class _ClientBookingsScreenState extends State<ClientBookingsScreen> {
                       child: Text('Pay Now'),
                       onPressed: () => _promptPayment(payment),
                     ),
+                    onTap: () => _showBookingDetails(payment),
                   ),
                 ),
               ],

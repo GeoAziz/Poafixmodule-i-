@@ -11,10 +11,7 @@ import '../models/calendar_event.dart';
 class EnhancedCalendarScreen extends StatefulWidget {
   final User user;
 
-  const EnhancedCalendarScreen({
-    super.key,
-    required this.user,
-  });
+  const EnhancedCalendarScreen({super.key, required this.user});
 
   @override
   _EnhancedCalendarScreenState createState() => _EnhancedCalendarScreenState();
@@ -28,7 +25,7 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
   DateTime? _selectedDay;
   Map<DateTime, List<CalendarEvent>> _events = {};
   bool _isLoading = true;
-  bool _isUploading = false;
+  final bool _isUploading = false;
   String? _uploadingFile;
 
   // Animation controllers
@@ -91,7 +88,8 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
   }
 
   Map<DateTime, List<CalendarEvent>> _groupEventsByDate(
-      List<Booking> bookings) {
+    List<Booking> bookings,
+  ) {
     Map<DateTime, List<CalendarEvent>> grouped = {};
     for (var booking in bookings) {
       final date = DateTime(
@@ -166,7 +164,8 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
   }
 
   Widget _buildQuickStats() {
-    final todayEvents = _events[DateTime(
+    final todayEvents =
+        _events[DateTime(
           DateTime.now().year,
           DateTime.now().month,
           DateTime.now().day,
@@ -190,16 +189,8 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatCard(
-            'Today',
-            '${todayEvents.length}',
-            Icons.today,
-          ),
-          _buildStatCard(
-            'Upcoming',
-            '$upcomingCount',
-            Icons.upcoming,
-          ),
+          _buildStatCard('Today', '${todayEvents.length}', Icons.today),
+          _buildStatCard('Upcoming', '$upcomingCount', Icons.upcoming),
           _buildStatCard(
             'Completed',
             '${_events.values.expand((e) => e).where((e) => e.status == 'completed').length}',
@@ -230,10 +221,7 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
             ),
             Text(
               label,
-              style: GoogleFonts.poppins(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12),
             ),
           ],
         ),
@@ -300,10 +288,7 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
           SizedBox(height: 16),
           Text(
             'Loading your schedule...',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
+            style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[600]),
           ),
         ],
       ),
@@ -326,10 +311,7 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
             SizedBox(height: 16),
             Text(
               'No events for ${DateFormat('MMMM d, y').format(_selectedDay!)}',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -347,7 +329,8 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
   }
 
   Widget _buildEventCard(CalendarEvent event) {
-    final isExpiring = event.status == 'pending' &&
+    final isExpiring =
+        event.status == 'pending' &&
         event.date.difference(DateTime.now()).inDays <= 7;
 
     return Card(
@@ -361,8 +344,9 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border:
-                isExpiring ? Border.all(color: Colors.orange, width: 2) : null,
+            border: isExpiring
+                ? Border.all(color: Colors.orange, width: 2)
+                : null,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,10 +382,7 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
               if (isExpiring) ...[
                 SizedBox(height: 8),
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
@@ -461,14 +442,16 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
   }
 
   Widget _buildEventTypeIcon(String type) {
-    final iconData = {
+    final iconData =
+        {
           'booking': Icons.calendar_today,
           'job': Icons.work,
           'blocked': Icons.block,
         }[type] ??
         Icons.event;
 
-    final color = {
+    final color =
+        {
           'booking': Colors.blue,
           'job': Colors.green,
           'blocked': Colors.red,
@@ -481,16 +464,13 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(
-        iconData,
-        color: color,
-        size: 24,
-      ),
+      child: Icon(iconData, color: color, size: 24),
     );
   }
 
   Widget _buildStatusBadge(String status) {
-    final color = {
+    final color =
+        {
           'pending': Colors.orange,
           'confirmed': Colors.green,
           'completed': Colors.blue,
@@ -498,7 +478,8 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
         }[status] ??
         Colors.grey;
 
-    final icon = {
+    final icon =
+        {
           'pending': Icons.hourglass_empty,
           'confirmed': Icons.check_circle,
           'completed': Icons.done_all,
@@ -637,10 +618,7 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
             ),
           ),
           SizedBox(height: 4),
-          Text(
-            content,
-            style: GoogleFonts.poppins(fontSize: 16),
-          ),
+          Text(content, style: GoogleFonts.poppins(fontSize: 16)),
         ],
       ),
     );
@@ -655,16 +633,11 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, color: Colors.white),
-      label: Text(
-        label,
-        style: GoogleFonts.poppins(color: Colors.white),
-      ),
+      label: Text(label, style: GoogleFonts.poppins(color: Colors.white)),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -690,19 +663,13 @@ class _EnhancedCalendarScreenState extends State<EnhancedCalendarScreen>
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
   }
 }

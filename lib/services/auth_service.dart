@@ -31,11 +31,7 @@ class AuthResponse {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'token': token,
-      'userType': userType,
-      'user': user.toJson(),
-    };
+    return {'token': token, 'userType': userType, 'user': user.toJson()};
   }
 }
 
@@ -54,11 +50,13 @@ class AuthService {
   Future<String?> getToken() async {
     try {
       // Try multiple token keys
-  final token = await _storage.read(key: 'auth_token') ??
+      final token =
+          await _storage.read(key: 'auth_token') ??
           await _storage.read(key: 'auth_token');
 
       print(
-          'Debug - Auth Service Token: ${token != null ? 'Found' : 'Not found'}');
+        'Debug - Auth Service Token: ${token != null ? 'Found' : 'Not found'}',
+      );
 
       if (token == null) {
         // If no token, try to refresh or re-authenticate
@@ -91,7 +89,7 @@ class AuthService {
     if (androidInfo.isPhysicalDevice) {
       return 'http:// 192.168.0.102/api'; // Replace with your actual IP
     } else {
-      return 'http://10.0.2.2:5000/api'; // Emulator IP
+      return '${ApiConfig.baseUrl}/api'; // Always use dynamic base URL
     }
   }
 
@@ -134,7 +132,8 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> handleAuthentication(
-      Map<String, dynamic> response) async {
+    Map<String, dynamic> response,
+  ) async {
     try {
       // Handle provider registration response format
       if (response['provider'] != null) {
@@ -149,11 +148,15 @@ class AuthService {
         };
 
         // Save auth data
-        await AuthService._storage
-            .write(key: 'auth_token', value: formattedData['token']);
+        await AuthService._storage.write(
+          key: 'auth_token',
+          value: formattedData['token'],
+        );
         await AuthService._storage.write(key: 'user_type', value: 'provider');
-        await AuthService._storage
-            .write(key: 'user_data', value: json.encode(provider));
+        await AuthService._storage.write(
+          key: 'user_data',
+          value: json.encode(provider),
+        );
 
         return formattedData;
       }
@@ -162,9 +165,13 @@ class AuthService {
       final data = response;
       await AuthService._storage.write(key: 'auth_token', value: data['token']);
       await AuthService._storage.write(
-          key: 'user_type', value: data['user']?['userType'] ?? 'client');
-      await AuthService._storage
-          .write(key: 'user_data', value: json.encode(data['user']));
+        key: 'user_type',
+        value: data['user']?['userType'] ?? 'client',
+      );
+      await AuthService._storage.write(
+        key: 'user_data',
+        value: json.encode(data['user']),
+      );
 
       return {
         'token': data['token'],
@@ -210,12 +217,13 @@ class AuthService {
           'serviceType': serviceType,
           'role': 'provider',
           'userType': 'service-provider',
-        }
+        },
       };
 
       final apiUrl = await getApiUrl();
       print(
-          '📤 Sending $endpoint signup request: \\${json.encode(requestData)} to $apiUrl');
+        '📤 Sending $endpoint signup request: \\${json.encode(requestData)} to $apiUrl',
+      );
 
       final response = await _dio.post(
         '$apiUrl/$endpoint/signup',
@@ -239,7 +247,8 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> signUpServiceProvider(
-      Map<String, dynamic> data) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final signupData = {
         'name': data['name'],
@@ -251,7 +260,7 @@ class AuthService {
         'serviceType': data['serviceType'],
         'location': {
           'type': 'Point',
-          'coordinates': data['location']['coordinates'] ?? [36.8219, -1.2921]
+          'coordinates': data['location']['coordinates'] ?? [36.8219, -1.2921],
         },
         'role': 'provider',
         'userType': 'service-provider',
@@ -281,7 +290,8 @@ class AuthService {
       }
 
       throw Exception(
-          'Signup failed: ${response.statusCode}\n${response.body}');
+        'Signup failed: ${response.statusCode}\n${response.body}',
+      );
     } catch (e) {
       print('❌ Provider signup error: $e');
       rethrow;
@@ -312,7 +322,8 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> signupProvider(
-      Map<String, dynamic> data) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       print('Signing up provider with data: $data'); // Debug log
 
@@ -337,7 +348,8 @@ class AuthService {
         final errorBody = json.decode(response.body);
         if (errorBody['requiredFields'] != null) {
           throw Exception(
-              'Missing fields: ${errorBody['requiredFields'].join(", ")}');
+            'Missing fields: ${errorBody['requiredFields'].join(", ")}',
+          );
         }
         throw Exception(errorBody['error'] ?? 'Failed to create account');
       }
@@ -360,18 +372,17 @@ class AuthService {
       if (!isConnected) {
         print('🔄 Connection failed, refreshing network discovery...');
         await ApiConfig.refreshConnection();
-        
+
         // Test again after refresh
         final stillNotConnected = !(await ApiConfig.testConnection());
         if (stillNotConnected) {
-          throw Exception('Cannot connect to server. Please check your network connection.');
+          throw Exception(
+            'Cannot connect to server. Please check your network connection.',
+          );
         }
       }
 
-      final loginData = {
-        'email': email.trim(),
-        'password': password,
-      };
+      final loginData = {'email': email.trim(), 'password': password};
 
       // Try provider login first
       try {
@@ -383,15 +394,14 @@ class AuthService {
         );
 
         print('📡 Provider login status: ${response.statusCode}');
-        print('📡 Provider response: ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...');
+        print(
+          '📡 Provider response: ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...',
+        );
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           await saveProviderAuthData(data);
-          return {
-            ...data,
-            'userType': 'service-provider',
-          };
+          return {...data, 'userType': 'service-provider'};
         }
       } catch (e) {
         print('❌ Provider login failed: $e');
@@ -407,15 +417,14 @@ class AuthService {
         );
 
         print('📡 Client login status: ${response.statusCode}');
-        print('📡 Client response: ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...');
+        print(
+          '📡 Client response: ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...',
+        );
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           await saveAuthData(data);
-          return {
-            ...data,
-            'userType': 'client',
-          };
+          return {...data, 'userType': 'client'};
         }
       } catch (e) {
         print('❌ Client login failed: $e');
@@ -431,15 +440,14 @@ class AuthService {
         );
 
         print('📡 Admin login status: ${response.statusCode}');
-        print('📡 Admin response: ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...');
+        print(
+          '📡 Admin response: ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...',
+        );
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           await saveAuthData(data);
-          return {
-            ...data,
-            'userType': 'admin',
-          };
+          return {...data, 'userType': 'admin'};
         }
       } catch (e) {
         print('❌ Admin login failed: $e');
@@ -585,7 +593,7 @@ class AuthService {
       print('Saving auth data for user: $userData');
 
       // Store essential auth data
-  await storage.write(key: 'auth_token', value: authData['token']);
+      await storage.write(key: 'auth_token', value: authData['token']);
       await storage.write(key: 'userType', value: userType);
       await storage.write(key: 'userId', value: userId);
       await storage.write(key: 'isLoggedIn', value: 'true');
@@ -596,12 +604,16 @@ class AuthService {
       // Store additional provider data if applicable
       if (userType == 'service-provider') {
         await storage.write(
-            key: 'businessName', value: userData['businessName']);
+          key: 'businessName',
+          value: userData['businessName'],
+        );
         await storage.write(
-            key: 'serviceType',
-            value: userData['serviceType'] ??
-                userData['serviceOffered'] ??
-                'general');
+          key: 'serviceType',
+          value:
+              userData['serviceType'] ??
+              userData['serviceOffered'] ??
+              'general',
+        );
       }
 
       print('Auth Data Saved Successfully:');
@@ -622,7 +634,7 @@ class AuthService {
   static Future<bool> verifyAuthState() async {
     try {
       final storage = const FlutterSecureStorage();
-  final token = await storage.read(key: 'auth_token');
+      final token = await storage.read(key: 'auth_token');
       final userType = await storage.read(key: 'userType');
       final isLoggedIn = await storage.read(key: 'isLoggedIn');
 
@@ -639,8 +651,9 @@ class AuthService {
       if (token.isNotEmpty) {
         try {
           final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-          final expiryDate =
-              DateTime.fromMillisecondsSinceEpoch(decodedToken['exp'] * 1000);
+          final expiryDate = DateTime.fromMillisecondsSinceEpoch(
+            decodedToken['exp'] * 1000,
+          );
 
           // Check token validity and user type match
           final bool isValidToken = DateTime.now().isBefore(expiryDate);
@@ -712,7 +725,7 @@ class AuthService {
       print('Storing login data: $data');
 
       // Store basic auth data
-  await _storage.write(key: 'auth_token', value: data['token']);
+      await _storage.write(key: 'auth_token', value: data['token']);
       await _storage.write(key: 'userType', value: data['userType']);
 
       // Store user data
@@ -720,14 +733,18 @@ class AuthService {
         final user = data['user'];
         await _storage.write(key: 'userId', value: user['id']);
         await _storage.write(
-            key: 'user_id', value: user['id']); // Store both formats
+          key: 'user_id',
+          value: user['id'],
+        ); // Store both formats
         await _storage.write(key: 'name', value: user['name']);
         await _storage.write(key: 'email', value: user['email']);
 
         // Store additional data based on user type
         if (data['userType'] == 'service-provider') {
           await _storage.write(
-              key: 'businessName', value: user['businessName']);
+            key: 'businessName',
+            value: user['businessName'],
+          );
           await _storage.write(key: 'serviceType', value: user['serviceType']);
         }
 
@@ -768,20 +785,28 @@ class AuthService {
       print('Saving provider auth data: $data');
 
       // Save token and userType first
-  await _storage.write(key: 'auth_token', value: data['token']);
+      await _storage.write(key: 'auth_token', value: data['token']);
       await _storage.write(
-          key: 'userType', value: 'service-provider'); // Fixed value
+        key: 'userType',
+        value: 'service-provider',
+      ); // Fixed value
       await _storage.write(
-          key: 'user_type', value: 'service-provider'); // For compatibility
+        key: 'user_type',
+        value: 'service-provider',
+      ); // For compatibility
       await _storage.write(key: 'isLoggedIn', value: 'true');
 
       // Save provider data
       if (data['provider'] != null) {
         await _storage.write(key: 'userId', value: data['provider']['id']);
         await _storage.write(
-            key: 'businessName', value: data['provider']['businessName']);
+          key: 'businessName',
+          value: data['provider']['businessName'],
+        );
         await _storage.write(
-            key: 'user_data', value: json.encode(data['provider']));
+          key: 'user_data',
+          value: json.encode(data['provider']),
+        );
       }
 
       print('Provider auth data saved successfully');
@@ -793,7 +818,7 @@ class AuthService {
 
   static Future<Map<String, String?>> getAuthCredentials() async {
     return {
-  'token': await _storage.read(key: 'auth_token'),
+      'token': await _storage.read(key: 'auth_token'),
       'userType': await _storage.read(key: 'userType'),
       'userId': await _storage.read(key: 'userId'),
       'businessName': await _storage.read(key: 'businessName'),
@@ -815,17 +840,14 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> login(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse(ApiConfig.getProviderLoginUrl()),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'email': email,
-          'password': password,
-        }),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email, 'password': password}),
       );
 
       print('Login response: ${response.statusCode}');
@@ -835,7 +857,7 @@ class AuthService {
         final data = json.decode(response.body);
 
         // Store auth data
-  await _storage.write(key: 'auth_token', value: data['token']);
+        await _storage.write(key: 'auth_token', value: data['token']);
         await _storage.write(key: 'userId', value: data['user']['_id']);
         await _storage.write(key: 'userType', value: 'service-provider');
 
@@ -850,18 +872,18 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> loginProvider(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       print('Attempting provider login: $email');
 
       final response = await http.post(
         Uri.parse(
-            '${ApiConfig.baseUrl}/api/providers/login'), // Add /api/ prefix
+          '${ApiConfig.baseUrl}/api/providers/login',
+        ), // Add /api/ prefix
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'email': email,
-          'password': password,
-        }),
+        body: json.encode({'email': email, 'password': password}),
       );
 
       print('Provider login response: ${response.statusCode}');
@@ -871,11 +893,13 @@ class AuthService {
         final data = json.decode(response.body);
 
         // Store auth data
-  await _storage.write(key: 'auth_token', value: data['token']);
+        await _storage.write(key: 'auth_token', value: data['token']);
         await _storage.write(key: 'userId', value: data['provider']['id']);
         await _storage.write(key: 'userType', value: data['userType']);
         await _storage.write(
-            key: 'businessName', value: data['provider']['businessName']);
+          key: 'businessName',
+          value: data['provider']['businessName'],
+        );
 
         return data;
       }
@@ -888,17 +912,16 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> loginClient(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       print('Attempting client login: $email');
 
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/api/clients/login'), // Add /api/ prefix
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'email': email,
-          'password': password,
-        }),
+        body: json.encode({'email': email, 'password': password}),
       );
 
       print('Client login response: ${response.statusCode}');
@@ -908,7 +931,7 @@ class AuthService {
         final data = json.decode(response.body);
 
         // Store auth data
-  await _storage.write(key: 'auth_token', value: data['token']);
+        await _storage.write(key: 'auth_token', value: data['token']);
         await _storage.write(key: 'userId', value: data['user']['id']);
         await _storage.write(key: 'userType', value: data['userType']);
         await _storage.write(key: 'name', value: data['user']['name']);
@@ -928,7 +951,7 @@ class AuthService {
     Map<String, dynamic> updateData,
   ) async {
     try {
-  final token = await _storage.read(key: 'auth_token');
+      final token = await _storage.read(key: 'auth_token');
       final response = await http.put(
         Uri.parse('${ApiConfig.baseUrl}/api/users/$userId/profile'),
         headers: {
@@ -942,7 +965,9 @@ class AuthService {
         final updatedData = json.decode(response.body);
         // Update stored user data
         await _storage.write(
-            key: 'user_data', value: json.encode(updatedData['user']));
+          key: 'user_data',
+          value: json.encode(updatedData['user']),
+        );
         return updatedData;
       } else {
         throw Exception('Failed to update profile: ${response.body}');

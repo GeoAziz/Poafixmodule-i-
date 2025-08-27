@@ -35,7 +35,8 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
 
   Future<void> _checkAuthAndLoadDocuments() async {
     try {
-      final token = await _storage.read(key: 'auth_token') ??
+      final token =
+          await _storage.read(key: 'auth_token') ??
           await _storage.read(key: 'auth_token');
       final userId = await _storage.read(key: 'userId');
 
@@ -106,10 +107,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to load documents. Please try again.'),
-          action: SnackBarAction(
-            label: 'Retry',
-            onPressed: _loadDocuments,
-          ),
+          action: SnackBarAction(label: 'Retry', onPressed: _loadDocuments),
         ),
       );
     }
@@ -186,8 +184,9 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
           final originalFile = File(file.path!);
 
           // Compress file if it's an image
-          final compressedFile =
-              await CompressionService.compressFile(originalFile);
+          final compressedFile = await CompressionService.compressFile(
+            originalFile,
+          );
           if (compressedFile == null) continue;
 
           final fileSize = await compressedFile.length();
@@ -259,8 +258,8 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                   ),
                 )
               : _documents.isEmpty
-                  ? _buildEmptyState()
-                  : _buildDocumentList(),
+              ? _buildEmptyState()
+              : _buildDocumentList(),
           if (_isUploading)
             Positioned(
               left: 0,
@@ -303,19 +302,14 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
             style: TextStyle(fontSize: 18, color: Colors.grey[600]),
           ),
           SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: _loadDocuments,
-            child: Text('Refresh'),
-          ),
+          ElevatedButton(onPressed: _loadDocuments, child: Text('Refresh')),
         ],
       ),
     );
   }
 
   Widget _buildLoadingShimmer() {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
+    return Center(child: CircularProgressIndicator());
   }
 
   Widget _buildHeader() {
@@ -323,10 +317,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
       padding: EdgeInsets.all(16.0),
       child: Text(
         'Upload Required Documents',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -363,15 +354,18 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
 
   Widget _buildDocumentCard(String documentType, ProviderDocument? document) {
     final status = document?.status ?? 'pending';
-    final isExpiring = document?.expiryDate != null &&
+    final isExpiring =
+        document?.expiryDate != null &&
         document!.expiryDate!.difference(DateTime.now()).inDays <= 7;
-    final statusColor = {
+    final statusColor =
+        {
           'verified': Colors.green,
           'pending': Colors.orange,
           'rejected': Colors.red,
         }[status] ??
         Colors.grey;
-    final statusIcon = {
+    final statusIcon =
+        {
           'verified': Icons.check_circle,
           'pending': Icons.hourglass_top,
           'rejected': Icons.cancel,
@@ -394,15 +388,19 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(statusIcon,
-                        color: statusColor,
-                        size: 18,
-                        semanticLabel: 'Status Icon'),
+                    Icon(
+                      statusIcon,
+                      color: statusColor,
+                      size: 18,
+                      semanticLabel: 'Status Icon',
+                    ),
                     SizedBox(width: 4),
                     Text(
                       _getStatusText(status),
                       style: TextStyle(
-                          color: statusColor, fontWeight: FontWeight.bold),
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     if (isExpiring)
                       Padding(
@@ -410,7 +408,9 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                         child: Text(
                           'Expiring soon!',
                           style: TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold),
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                   ],
@@ -421,7 +421,9 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                     child: Text(
                       'Reason: ${document!.adminComment}',
                       style: TextStyle(
-                          color: Colors.red, fontStyle: FontStyle.italic),
+                        color: Colors.red,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
                 if (document?.expiryDate != null)
@@ -430,7 +432,8 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                     child: Text(
                       'Expires: ${document!.expiryDate!.toLocal().toString().split(' ')[0]}',
                       style: TextStyle(
-                          color: isExpiring ? Colors.red : Colors.grey),
+                        color: isExpiring ? Colors.red : Colors.grey,
+                      ),
                     ),
                   ),
               ],
@@ -443,7 +446,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                     label: 'Preview Document',
                     child: IconButton(
                       icon: Icon(Icons.remove_red_eye),
-                      onPressed: () => _previewDocument(document!),
+                      onPressed: () => _previewDocument(document),
                     ),
                   ),
                 _buildUploadButton(documentType, document),

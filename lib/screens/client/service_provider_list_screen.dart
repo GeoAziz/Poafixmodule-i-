@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../services/user_status_service.dart';
 
 class ServiceProviderListScreen extends StatefulWidget {
   final String serviceType;
 
-  const ServiceProviderListScreen({
-    super.key,
-    required this.serviceType,
-  });
+  const ServiceProviderListScreen({super.key, required this.serviceType});
 
   @override
   _ServiceProviderListScreenState createState() =>
@@ -79,52 +77,93 @@ class _ServiceProviderListScreenState extends State<ServiceProviderListScreen> {
 
       print('Sending request with parameters: $queryParams');
 
-      final uri = Uri.parse('http://localhost:5000/api/location/nearby')
-          .replace(queryParameters: queryParams);
-
-      print('Request URL: $uri');
-
-      final response = await http.get(uri);
-
+      final response = await http.get(
+        Uri.parse(
+          'http://localhost:5000/api/providers/nearby',
+        ).replace(queryParameters: queryParams),
+      );
       print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
+        final providers = json.decode(response.body);
+        // Fetch status for each provider
+        List<dynamic> enrichedProviders = [];
+        for (var provider in providers) {
+          final status = await UserStatusService.fetchUserStatus(
+            provider['_id'] ?? provider['id'],
+          );
+          enrichedProviders.add({
+            ...provider,
+            'isOnline': status?['isOnline'],
+            'lastActive': status?['lastActive'],
+          });
+        }
         setState(() {
-          _providers = json.decode(response.body);
+          _providers = enrichedProviders;
           _isLoading = false;
         });
       } else {
-        throw Exception('Failed to load providers: ${response.body}');
+        setState(() {
+          _isLoading = false;
+        });
       }
     } catch (e) {
       print('Error fetching providers: $e');
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
-    }
-
-    return ListView.builder(
-      itemCount: _providers.length,
-      itemBuilder: (context, index) {
-        final provider = _providers[index];
-        return ListTile(
-          title: Text(provider['name'] ?? 'Unknown Provider'),
-          subtitle:
-              Text('Distance: ${provider['distance']?.toStringAsFixed(2)} km'),
-          trailing: ElevatedButton(
-            onPressed: () {
-              // Handle booking
-            },
-            child: Text('Book'),
-          ),
-        );
-      },
+    return Scaffold(
+      appBar: AppBar(title: Text('Nearby Providers')),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: _providers.length,
+              itemBuilder: (context, index) {
+                final provider = _providers[index];
+                String statusText = provider['isOnline'] == true
+                    ? 'Online'
+                    : 'Offline';
+                String lastActiveText = provider['lastActive'] != null
+                    ? 'Last active: ' +
+                          DateTime.parse(
+                            provider['lastActive'],
+                          ).toLocal().toString()
+                    : 'Last active: Unknown';
+                return Card(
+                  child: ListTile(
+                    title: Text(
+                      provider['businessName'] ?? provider['name'] ?? '',
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          statusText,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          lastActiveText,
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    trailing: Icon(
+                      provider['isOnline'] == true
+                          ? Icons.circle
+                          : Icons.circle_outlined,
+                      color: provider['isOnline'] == true
+                          ? Colors.green
+                          : Colors.grey,
+                      size: 16,
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

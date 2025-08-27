@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import '../models/user_model.dart';
 import '../models/provider_model.dart';
 import '../services/proximity_service.dart';
-import '../screens/enhanced_booking_screen.dart';
+//import '../screens/enhanced_booking_screen.dart';
 
 class XComboProviderSearchScreen extends StatefulWidget {
   final String serviceId;
@@ -19,10 +19,12 @@ class XComboProviderSearchScreen extends StatefulWidget {
   });
 
   @override
-  _XComboProviderSearchScreenState createState() => _XComboProviderSearchScreenState();
+  _XComboProviderSearchScreenState createState() =>
+      _XComboProviderSearchScreenState();
 }
 
-class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen> {
+class _XComboProviderSearchScreenState
+    extends State<XComboProviderSearchScreen> {
   GoogleMapController? _mapController;
   List<ProviderModel> _providers = [];
   bool _isLoading = true;
@@ -35,7 +37,9 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
   }
 
   Future<void> _loadProviders() async {
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
     try {
       _currentLocation = await Geolocator.getCurrentPosition();
       final providersRaw = await ProximityService.getNearbyProviders(
@@ -51,7 +55,9 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
         _isLoading = false;
       });
     } catch (e) {
-      setState(() { _isLoading = false; });
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading providers: {e.toString()}')),
       );
@@ -62,7 +68,10 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
     return _providers.map((provider) {
       return Marker(
         markerId: MarkerId(provider.id),
-        position: LatLng(provider.location.latitude, provider.location.longitude),
+        position: LatLng(
+          provider.location.latitude,
+          provider.location.longitude,
+        ),
         infoWindow: InfoWindow(title: provider.name),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
       );
@@ -102,18 +111,23 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
                     itemBuilder: (context, index) {
                       final provider = _providers[index];
                       return Card(
-                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: ListTile(
                           leading: CircleAvatar(
                             backgroundImage: provider.profileImage != null
                                 ? NetworkImage(provider.profileImage!)
                                 : null,
                             child: provider.profileImage == null
-                                ? Text(provider.name.substring(0, 1).toUpperCase())
+                                ? Text(
+                                    provider.name.substring(0, 1).toUpperCase(),
+                                  )
                                 : null,
                           ),
                           title: Text(provider.name),
-                      subtitle: Text(
+                          subtitle: Text(
                             '⭐ ${provider.rating ?? '-'} • ${provider.distance != null ? provider.distance!.toStringAsFixed(1) : '-'} km away\nKSh ${provider.hourlyRate ?? '-'} /hour',
                           ),
                           trailing: Icon(Icons.arrow_forward_ios),
@@ -121,10 +135,13 @@ class _XComboProviderSearchScreenState extends State<XComboProviderSearchScreen>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => EnhancedBookingScreen(
-                                  serviceId: widget.serviceId,
-                                  serviceName: widget.serviceName,
-                                  user: widget.user,
+                                builder: (context) => Scaffold(
+                                  appBar: AppBar(title: Text('Booking')),
+                                  body: Center(
+                                    child: Text(
+                                      'Enhanced booking screen is no longer available.',
+                                    ),
+                                  ),
                                 ),
                               ),
                             );

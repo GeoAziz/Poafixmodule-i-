@@ -6,11 +6,7 @@ class BookingListItem extends StatelessWidget {
   final dynamic booking;
   final Function()? onTap;
 
-  const BookingListItem({
-    Key? key,
-    required this.booking,
-    this.onTap,
-  }) : super(key: key);
+  const BookingListItem({super.key, required this.booking, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +16,7 @@ class BookingListItem extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -63,8 +57,11 @@ class BookingListItem extends StatelessWidget {
               SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.location_on_outlined,
-                      size: 16, color: Colors.grey),
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 16,
+                    color: Colors.grey,
+                  ),
                   SizedBox(width: 4),
                   Expanded(
                     child: Text(

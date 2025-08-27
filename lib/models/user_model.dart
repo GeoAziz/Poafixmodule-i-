@@ -13,6 +13,8 @@ class User {
   final String? preferredCommunication; // Add this
   final String? backupContact; // Add this
   final String? timezone; // Add this
+  final bool? isOnline; // Add this
+  final DateTime? lastActive; // Add this
 
   User({
     required this.id,
@@ -28,6 +30,8 @@ class User {
     this.preferredCommunication,
     this.backupContact,
     this.timezone,
+    this.isOnline,
+    this.lastActive,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -38,7 +42,8 @@ class User {
       userType: json['userType'] ?? json['role'] ?? 'client',
       phone: json['phone'] ?? json['phoneNumber'] ?? '',
       token: json['token'],
-      avatarUrl: json['avatarUrl'] ??
+      avatarUrl:
+          json['avatarUrl'] ??
           json['profilePicUrl'] ??
           '', // Handle both field names
       phoneNumber: json['phoneNumber'] ?? json['phone'],
@@ -49,6 +54,10 @@ class User {
       preferredCommunication: json['preferredCommunication'],
       backupContact: json['backupContact'],
       timezone: json['timezone'],
+      isOnline: json['isOnline'],
+      lastActive: json['lastActive'] != null
+          ? DateTime.tryParse(json['lastActive'])
+          : null,
     );
   }
 

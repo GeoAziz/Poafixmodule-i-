@@ -4,16 +4,12 @@ import '../models/user_model.dart';
 import '../models/service_category.dart';
 import '../services/proximity_service.dart';
 import '../services/location_service.dart';
-import 'enhanced_booking_screen.dart';
 import '../search/xcombo_provider_search_screen.dart';
 
 class ProximityServiceSelectionScreen extends StatefulWidget {
   final User user;
 
-  const ProximityServiceSelectionScreen({
-    super.key,
-    required this.user,
-  });
+  const ProximityServiceSelectionScreen({super.key, required this.user});
 
   @override
   _ProximityServiceSelectionScreenState createState() =>
@@ -38,14 +34,10 @@ class _ProximityServiceSelectionScreenState
       duration: Duration(milliseconds: 800),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
     _loadServices();
   }
 
@@ -78,7 +70,7 @@ class _ProximityServiceSelectionScreenState
 
       // Get current location
       _currentLocation = await locationService.getCurrentLocation();
-      
+
       // Load services with proximity data
       final services = await ProximityService.getServicesWithProximity(
         latitude: _currentLocation?.latitude,
@@ -101,12 +93,19 @@ class _ProximityServiceSelectionScreenState
 
   List<ServiceCategory> get _filteredServices {
     if (_searchQuery.isEmpty) return _services;
-    
-    return _services.where((service) =>
-      service.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-      service.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-      service.services.any((s) => s.toLowerCase().contains(_searchQuery.toLowerCase()))
-    ).toList();
+
+    return _services
+        .where(
+          (service) =>
+              service.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              service.description.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ) ||
+              service.services.any(
+                (s) => s.toLowerCase().contains(_searchQuery.toLowerCase()),
+              ),
+        )
+        .toList();
   }
 
   @override
@@ -129,19 +128,14 @@ class _ProximityServiceSelectionScreenState
                     SizedBox(height: 16),
                     Text(
                       'Finding nearby providers...',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     ),
                   ],
                 ),
               ),
             )
           else if (_error != null)
-            SliverFillRemaining(
-              child: _buildErrorWidget(),
-            )
+            SliverFillRemaining(child: _buildErrorWidget())
           else ...[
             _buildSearchBar(),
             _buildLocationHeader(),
@@ -165,11 +159,7 @@ class _ProximityServiceSelectionScreenState
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF6366F1),
-                Color(0xFF8B5CF6),
-                Color(0xFFEC4899),
-              ],
+              colors: [Color(0xFF6366F1), Color(0xFF8B5CF6), Color(0xFFEC4899)],
             ),
           ),
           child: SafeArea(
@@ -190,10 +180,7 @@ class _ProximityServiceSelectionScreenState
                   SizedBox(height: 8),
                   Text(
                     'Find trusted professionals near you',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white70,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.white70),
                   ),
                 ],
               ),
@@ -230,7 +217,10 @@ class _ProximityServiceSelectionScreenState
               hintText: 'Search for services...',
               prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
             ),
           ),
         ),
@@ -239,18 +229,15 @@ class _ProximityServiceSelectionScreenState
   }
 
   Widget _buildLocationHeader() {
-    if (_currentLocation == null) return SliverToBoxAdapter(child: SizedBox.shrink());
+    if (_currentLocation == null)
+      return SliverToBoxAdapter(child: SizedBox.shrink());
 
     return SliverToBoxAdapter(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           children: [
-            Icon(
-              Icons.location_on,
-              color: Color(0xFF6366F1),
-              size: 20,
-            ),
+            Icon(Icons.location_on, color: Color(0xFF6366F1), size: 20),
             SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -266,9 +253,7 @@ class _ProximityServiceSelectionScreenState
               onPressed: _loadServices,
               icon: Icon(Icons.refresh, size: 18),
               label: Text('Refresh'),
-              style: TextButton.styleFrom(
-                foregroundColor: Color(0xFF6366F1),
-              ),
+              style: TextButton.styleFrom(foregroundColor: Color(0xFF6366F1)),
             ),
           ],
         ),
@@ -282,28 +267,25 @@ class _ProximityServiceSelectionScreenState
     return SliverPadding(
       padding: EdgeInsets.all(20),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return FadeTransition(
-              opacity: _fadeAnimation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: Offset(0, 0.5),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: _animationController,
-                  curve: Interval(
-                    index * 0.1,
-                    1.0,
-                    curve: Curves.easeOutCubic,
+        delegate: SliverChildBuilderDelegate((context, index) {
+          return FadeTransition(
+            opacity: _fadeAnimation,
+            child: SlideTransition(
+              position: Tween<Offset>(begin: Offset(0, 0.5), end: Offset.zero)
+                  .animate(
+                    CurvedAnimation(
+                      parent: _animationController,
+                      curve: Interval(
+                        index * 0.1,
+                        1.0,
+                        curve: Curves.easeOutCubic,
+                      ),
+                    ),
                   ),
-                )),
-                child: _buildServiceCard(filteredServices[index]),
-              ),
-            );
-          },
-          childCount: filteredServices.length,
-        ),
+              child: _buildServiceCard(filteredServices[index]),
+            ),
+          );
+        }, childCount: filteredServices.length),
       ),
     );
   }
@@ -341,11 +323,7 @@ class _ProximityServiceSelectionScreenState
                         color: service.color.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(
-                        service.icon,
-                        color: service.color,
-                        size: 28,
-                      ),
+                      child: Icon(service.icon, color: service.color, size: 28),
                     ),
                     SizedBox(width: 16),
                     Expanded(
@@ -375,7 +353,10 @@ class _ProximityServiceSelectionScreenState
                     ),
                     if (service.nearbyProviders > 0)
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.green.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
@@ -468,11 +449,7 @@ class _ProximityServiceSelectionScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red[300],
-            ),
+            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
             SizedBox(height: 16),
             Text(
               'Oops! Something went wrong',
@@ -485,10 +462,7 @@ class _ProximityServiceSelectionScreenState
             SizedBox(height: 8),
             Text(
               _error ?? 'Unknown error occurred',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 24),

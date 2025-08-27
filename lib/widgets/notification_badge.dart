@@ -5,19 +5,16 @@ class NotificationBadge extends StatelessWidget {
   final VoidCallback onTap;
 
   const NotificationBadge({
-    Key? key,
+    super.key,
     required this.count,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        IconButton(
-          icon: Icon(Icons.notifications),
-          onPressed: onTap,
-        ),
+        IconButton(icon: Icon(Icons.notifications), onPressed: onTap),
         if (count > 0)
           Positioned(
             right: 8,
@@ -28,16 +25,10 @@ class NotificationBadge extends StatelessWidget {
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(10),
               ),
-              constraints: BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
+              constraints: BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 count > 99 ? '99+' : count.toString(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 10),
                 textAlign: TextAlign.center,
               ),
             ),

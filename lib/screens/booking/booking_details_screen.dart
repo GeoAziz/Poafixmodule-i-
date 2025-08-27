@@ -1,20 +1,24 @@
+import '../bookings/bookings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../core/models/user_model.dart' show UserModel;
 import '../../models/user_model.dart' show User;
-import '../../models/user.dart' as user_model;
 import '../../models/service_category.dart';
 import '../../services/proximity_service.dart';
 import '../../widgets/provider_map_widget.dart';
+import '../../services/notification_service.dart';
+import '../../services/booking_service.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
   final UserModel user;
   final ServiceCategory selectedService;
+  final dynamic userLocation; // Accepts Position or null
 
   const BookingDetailsScreen({
     super.key,
     required this.user,
     required this.selectedService,
+    this.userLocation,
   });
 
   @override
@@ -60,9 +64,53 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
     _slideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-
     _estimatedPrice = widget.selectedService.basePrice;
     _animationController.forward();
+    // Trigger provider search on load
+    if (widget.userLocation != null) {
+      _userLat = widget.userLocation.latitude;
+      _userLng = widget.userLocation.longitude;
+      _loadNearbyProvidersWithCoords(_userLat!, _userLng!);
+    } else {
+      _loadNearbyProviders();
+    }
+  }
+
+  Future<void> _loadNearbyProvidersWithCoords(double lat, double lng) async {
+    if (_isLoadingProviders) return;
+    setState(() => _isLoadingProviders = true);
+    try {
+      final providersData = await ProximityService.getNearbyProviders(
+        serviceType: widget.selectedService.id,
+        latitude: lat,
+        longitude: lng,
+        radiusKm: 10.0,
+      );
+      if (providersData.isNotEmpty && providersData.first is Map) {
+        setState(() {
+          _nearbyProviders = List<Map<String, dynamic>>.from(providersData);
+        });
+      } else if (providersData.isNotEmpty &&
+          providersData.first.runtimeType.toString().contains(
+            'ProviderModel',
+          )) {
+        setState(() {
+          _nearbyProviders = providersData
+              .map((p) => (p as dynamic).toJson() as Map<String, dynamic>)
+              .toList();
+        });
+      } else {
+        setState(() {
+          _nearbyProviders = [];
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading providers: $e');
+      // Use mock data if API fails
+      _loadMockProviders();
+    } finally {
+      setState(() => _isLoadingProviders = false);
+    }
   }
 
   @override
@@ -200,29 +248,31 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          // Progress Indicator
-          _buildProgressIndicator(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Progress Indicator
+            _buildProgressIndicator(),
 
-          // Content
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) => setState(() => _currentStep = index),
-              children: [
-                _buildServiceDetailsStep(),
-                _buildProviderSelectionStep(),
-                _buildScheduleStep(),
-                _buildLocationStep(),
-                _buildConfirmationStep(),
-              ],
+            // Content
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (index) => setState(() => _currentStep = index),
+                children: [
+                  SingleChildScrollView(child: _buildServiceDetailsStep()),
+                  SingleChildScrollView(child: _buildProviderSelectionStep()),
+                  SingleChildScrollView(child: _buildScheduleStep()),
+                  SingleChildScrollView(child: _buildLocationStep()),
+                  SingleChildScrollView(child: _buildConfirmationStep()),
+                ],
+              ),
             ),
-          ),
 
-          // Bottom Navigation
-          _buildBottomNavigation(),
-        ],
+            // Bottom Navigation
+            _buildBottomNavigation(),
+          ],
+        ),
       ),
     );
   }
@@ -328,6 +378,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
       padding: EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             'Choose your preferred provider',
@@ -372,45 +423,45 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
                     ],
                   ),
                 )
-              : Expanded(
-                  child: ListView.builder(
-                    itemCount: _nearbyProviders.length,
-                    itemBuilder: (context, index) {
-                      final provider = _nearbyProviders[index];
-                      return Card(
-                        margin: EdgeInsets.only(bottom: 16),
-                        child: ListTile(
-                          leading: provider['profileImage'] != null
-                              ? CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    provider['profileImage'],
-                                  ),
-                                )
-                              : CircleAvatar(child: Icon(Icons.person)),
-                          title: Text(
-                            provider['businessName'] ??
-                                provider['firstName'] ??
-                                'Provider',
-                          ),
-                          subtitle: Text(
-                            'Rating: ${provider['rating'] ?? '-'} | Jobs: ${provider['completedJobs'] ?? '-'}',
-                          ),
-                          trailing: ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                _selectedProvider = provider;
-                              });
-                            },
-                            child: Text(
-                              _selectedProvider == provider
-                                  ? 'Selected'
-                                  : 'Select',
-                            ),
+              : ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: _nearbyProviders.length,
+                  itemBuilder: (context, index) {
+                    final provider = _nearbyProviders[index];
+                    return Card(
+                      margin: EdgeInsets.only(bottom: 16),
+                      child: ListTile(
+                        leading: provider['profileImage'] != null
+                            ? CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                  provider['profileImage'],
+                                ),
+                              )
+                            : CircleAvatar(child: Icon(Icons.person)),
+                        title: Text(
+                          provider['businessName'] ??
+                              provider['firstName'] ??
+                              'Provider',
+                        ),
+                        subtitle: Text(
+                          'Rating: ${provider['rating'] ?? '-'} | Jobs: ${provider['completedJobs'] ?? '-'}',
+                        ),
+                        trailing: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedProvider = provider;
+                            });
+                          },
+                          child: Text(
+                            _selectedProvider == provider
+                                ? 'Selected'
+                                : 'Select',
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
         ],
       ),
@@ -732,32 +783,99 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen>
     }
   }
 
-  void _confirmBooking() {
-    // TODO: Implement booking API call
-    // Convert UserModel to User before navigation
-    final user = user_model.User.fromUserModel(widget.user);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Booking Confirmed! 🎉'),
-        content: Text(
-          'Your booking has been successfully created. The provider will contact you shortly.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.pushReplacementNamed(
-                context,
-                '/bookings',
-                arguments: user,
-              );
-            },
-            child: Text('View My Bookings'),
+  void _confirmBooking() async {
+    // Use widget.user directly for navigation
+    final user = widget.user;
+    if (_selectedProvider == null ||
+        _selectedSubService == null ||
+        _selectedDate == null ||
+        _selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please complete all booking steps.')),
+      );
+      return;
+    }
+    // Debug: print selected provider
+    print('Selected provider: $_selectedProvider');
+    // Extract providerId robustly
+    final providerId =
+        _selectedProvider!['id'] ??
+        _selectedProvider!['_id'] ??
+        _selectedProvider!['providerId'];
+    if (providerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Provider ID not found. Please select a valid provider.',
           ),
-        ],
-      ),
-    );
+        ),
+      );
+      return;
+    }
+    // Prepare booking data
+    final bookingData = {
+      'clientId': user.id,
+      'providerId': providerId,
+      'serviceType': widget.selectedService.id,
+      'subService': _selectedSubService,
+      'scheduledDate': _selectedDate!.toIso8601String(),
+      'scheduledTime': _selectedTime!.format(context),
+      'location': {
+        'address': _location,
+        'coordinates': [_userLng ?? 0.0, _userLat ?? 0.0],
+      },
+      'notes': _notes,
+      'estimatedPrice': _estimatedPrice,
+    };
+    try {
+      final bookingService = BookingService();
+      final result = await bookingService.createBooking(bookingData);
+      if (result['success'] == true) {
+        final notificationService = NotificationService();
+        await notificationService.sendBookingNotification(
+          providerId: bookingData['providerId'],
+          bookingId: result['booking']['_id'],
+          type: 'BOOKING_REQUEST',
+        );
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Booking Confirmed! 🎉'),
+            content: Text(
+              'Your booking has been successfully created. The provider will contact you shortly.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  final user = User(
+                    id: widget.user.id,
+                    name: widget.user.name,
+                    email: widget.user.email,
+                    userType: widget.user.userType,
+                  );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          BookingsScreen(user: user, showNavigation: true),
+                    ),
+                  );
+                },
+                child: Text('View My Bookings'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Booking failed. Please try again.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
   }
 }

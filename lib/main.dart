@@ -1,31 +1,85 @@
 import 'package:flutter/material.dart';
-import 'app_root.dart';
+import 'package:flutter/foundation.dart';
 import 'models/user_model.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart' as client;
-import 'screens/profile/profile_screen.dart';
 import 'services/auth_storage.dart';
-import 'screens/bookings/bookings_screen.dart';
 import 'services/api_config.dart';
-import 'screens/proximity_service_selection_screen.dart';
-import 'screens/enhanced_booking_screen.dart';
+import 'services/network_service.dart';
+import 'services/app_lifecycle_handler.dart';
+//import 'screens/enhanced_booking_screen.dart';
 import 'screens/notifications/provider_notifications_screen.dart';
-import 'screens/enhanced_calendar_screen.dart';
-import 'screens/services/service_selection_screen.dart';
 import 'screens/client/client_notifications_screen.dart';
+import 'services/notification_service.dart';
+import 'package:provider/provider.dart';
+import 'services/notification_count_provider.dart';
+import 'screens/splash_screen.dart';
+import 'screens/bookings/bookings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize network discovery
   print('🚀 Initializing PoaFix App...');
-  await ApiConfig.initialize();
-
-  // Print network status for debugging
+  // Load persisted base URL before anything else
+  await NetworkService().loadPersistedBaseUrl();
+  // Immediately persist the loaded base URL if valid
+  final loadedBaseUrl = NetworkService().baseUrl;
+  if (loadedBaseUrl != null && loadedBaseUrl.isNotEmpty) {
+    print('[main.dart] Persisting loaded baseUrl at startup: $loadedBaseUrl');
+    NetworkService().baseUrl = loadedBaseUrl;
+  } else {
+    print(
+      '[main.dart] No valid baseUrl loaded at startup, will attempt discovery.',
+    );
+  }
+  // Automatically select env file based on build mode
+  final envFile = kReleaseMode ? ".env.production" : ".env.development";
+  print('[main.dart] Awaiting network discovery...');
+  await ApiConfig.initialize(envFile: envFile);
+  // After discovery, explicitly assign and persist the discovered base URL
+  final discoveredBaseUrl = ApiConfig.baseUrl;
+  if (discoveredBaseUrl != null && discoveredBaseUrl.isNotEmpty) {
+    print(
+      '[main.dart] Persisting discovered baseUrl after network discovery: $discoveredBaseUrl',
+    );
+    NetworkService().baseUrl = discoveredBaseUrl;
+  } else {
+    print('[main.dart] No valid baseUrl discovered after network discovery.');
+  }
+  print('[main.dart] Network discovery complete.');
   final networkStatus = await ApiConfig.getNetworkStatus();
   print('🌐 Network Status: $networkStatus');
+  runApp(PoaFixAppWithSplash());
+}
 
-  runApp(AppRoot(child: const PoaFixApp()));
+class PoaFixAppWithSplash extends StatefulWidget {
+  const PoaFixAppWithSplash({Key? key}) : super(key: key);
+  @override
+  State<PoaFixAppWithSplash> createState() => _PoaFixAppWithSplashState();
+}
+
+class _PoaFixAppWithSplashState extends State<PoaFixAppWithSplash> {
+  bool _showSplash = true;
+
+  void _finishSplash() {
+    setState(() {
+      _showSplash = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: _showSplash
+          ? AnimatedSplashScreen(
+              logoPath: 'assets/poafix_logo.jpg',
+              tagline: 'Fixing Life, One Service at a Time',
+              lottiePath: 'assets/animations/services.json',
+              onFinish: _finishSplash,
+            )
+          : const PoaFixApp(),
+    );
+  }
 }
 
 class PoaFixApp extends StatelessWidget {
@@ -33,74 +87,51 @@ class PoaFixApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PoaFix',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => NotificationCountProvider()),
+        // Add other providers here if needed
+      ],
+      child: MaterialApp(
+        title: 'PoaFix',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        debugShowCheckedModeBanner: false,
+        home: AuthenticationWrapper(),
+        routes: {
+          '/notifications': (context) => ClientNotificationsScreen(),
+          '/bookings': (context) {
+            final user = ModalRoute.of(context)!.settings.arguments as User;
+            // Import BookingsScreen at the top if not already
+            return BookingsScreen(user: user);
+          },
+          // Add other static routes here if needed
+        },
       ),
-      debugShowCheckedModeBanner: false,
-      home: AuthenticationWrapper(),
-      onGenerateRoute: (settings) {
-        print('⚡ Generating route for: ${settings.name}');
-        return MaterialPageRoute(
-          builder: (context) => FutureBuilder(
-            future: Future.delayed(Duration(milliseconds: 300)),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                );
-              }
-              switch (settings.name) {
-                case '/home':
-                  final user = settings.arguments as User?;
-                  return client.HomeScreen(user: user ?? User.empty());
-                case '/profile':
-                  final user = settings.arguments as User?;
-                  if (user != null && user.userType == 'client') {
-                    return ProfileScreen(user: user);
-                  }
-                  return AuthenticationWrapper();
-                case '/proximity-services':
-                  final user = settings.arguments as User?;
-                  return ProximityServiceSelectionScreen(
-                    user: user ?? User.empty(),
-                  );
-                case '/select-service':
-                  final user = settings.arguments as User?;
-                  return ServiceSelectionScreen(user: user ?? User.empty());
-                case '/enhanced-booking':
-                  final arguments = settings.arguments as Map<String, dynamic>?;
-                  return EnhancedBookingScreen(
-                    serviceId: arguments?['serviceId'] ?? '',
-                    serviceName: arguments?['serviceName'] ?? 'Service',
-                    user: arguments?['user'] ?? User.empty(),
-                  );
-                case '/calendar':
-                  final user = settings.arguments as User?;
-                  return EnhancedCalendarScreen(user: user ?? User.empty());
-                case '/bookings':
-                  final user = settings.arguments as User?;
-                  return BookingsScreen(
-                    user: user ?? User.empty(),
-                    showNavigation: true,
-                  );
-                default:
-                  return Scaffold(
-                    body: Center(
-                      child: Text(
-                        'Route not found: ' + (settings.name ?? 'Unknown'),
-                      ),
-                    ),
-                  );
-              }
-            },
-          ),
-        );
-      },
-      routes: {'/notifications': (context) => ClientNotificationsScreen()},
     );
+  }
+}
+
+class AppRoot extends StatefulWidget {
+  final Widget child;
+  const AppRoot({required this.child});
+  @override
+  State<AppRoot> createState() => _AppRootState();
+}
+
+class _AppRootState extends State<AppRoot> {
+  @override
+  void dispose() {
+    // Disconnect WebSocket on app close
+    NotificationService().disconnectWebSocket();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
 
@@ -115,6 +146,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   final _authStorage = AuthStorage();
   bool _isLoading = true;
   String? _error;
+  Map<String, String?>? _credentials;
 
   @override
   void initState() {
@@ -124,81 +156,16 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
 
   Future<void> _checkAuthStatus() async {
     try {
-      print('Checking authentication status...');
       final credentials = await _authStorage.getCredentials();
-
-      final token = credentials['auth_token'];
-      final userType = credentials['userType'];
-      final userId = credentials['user_id'];
-
-      print('Stored credentials found:');
-      print('Token: ${token != null ? 'Present' : 'Missing'}');
-      print('UserType: $userType');
-      print('UserID: $userId');
-
-      if (token == null || userType == null || userId == null) {
-        print('Missing required credentials, redirecting to login');
-        _navigateToLogin();
-        return;
-      }
-
-      // Navigate based on user type
-      if (userType == 'provider') {
-        print('Provider detected, navigating to provider screen');
-        _navigateToProviderScreen(credentials);
-      } else if (userType == 'client') {
-        print('Client detected, navigating to home screen');
-        _navigateToHomeScreen(credentials);
-      } else {
-        print('Unknown user type: $userType');
-        _navigateToLogin();
-      }
+      setState(() {
+        _credentials = credentials;
+        _isLoading = false;
+      });
     } catch (e) {
-      print('Error checking auth status: $e');
       setState(() {
         _error = e.toString();
         _isLoading = false;
       });
-      _navigateToLogin();
-    }
-  }
-
-  void _navigateToLogin() {
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
-    }
-  }
-
-  void _navigateToHomeScreen(Map<String, String?> credentials) {
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => client.HomeScreen(
-            user: User(
-              id: credentials['user_id'] ?? '',
-              name: credentials['name'] ?? '',
-              email: credentials['email'] ?? '',
-              userType: credentials['userType'] ?? '',
-              phone: credentials['phone'] ?? '',
-              token: credentials['auth_token'],
-              avatarUrl: credentials['avatar_url'] ?? '',
-            ),
-          ),
-        ),
-      );
-    }
-  }
-
-  void _navigateToProviderScreen(Map<String, String?> credentials) {
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => ProviderNotificationsScreen()),
-      );
     }
   }
 
@@ -223,6 +190,39 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
           ),
         ),
       );
+    }
+
+    if (_credentials != null) {
+      final token = _credentials!['auth_token'];
+      final userType = _credentials!['userType'];
+      final userId = _credentials!['user_id'];
+
+      if (token == null || userType == null || userId == null) {
+        return LoginScreen();
+      }
+
+      if (userType == 'provider') {
+        return ProviderNotificationsScreen();
+      } else if (userType == 'client') {
+        final user = User(
+          id: _credentials!['user_id'] ?? '',
+          name: _credentials!['name'] ?? '',
+          email: _credentials!['email'] ?? '',
+          userType: _credentials!['userType'] ?? '',
+          phone: _credentials!['phone'] ?? '',
+          token: _credentials!['auth_token'],
+          avatarUrl: _credentials!['avatar_url'] ?? '',
+        );
+        // Wrap AppLifecycleHandler with a widget that implements Widget
+        return Builder(
+          builder: (context) => AppLifecycleHandler(
+            user: user,
+            childWidget: client.HomeScreen(user: user),
+          ),
+        );
+      } else {
+        return LoginScreen();
+      }
     }
 
     return Scaffold(body: Center(child: CircularProgressIndicator()));

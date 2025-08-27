@@ -8,12 +8,12 @@ class ProviderMapWidget extends StatelessWidget {
   final double initialLng;
 
   const ProviderMapWidget({
-    Key? key,
+    super.key,
     required this.providers,
     this.onMarkerTap,
     required this.initialLat,
     required this.initialLng,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +28,9 @@ class ProviderMapWidget extends StatelessWidget {
         final lat = location['coordinates'][1];
         markers.add(
           Marker(
-            markerId:
-                MarkerId(provider['_id'] ?? provider['id'] ?? i.toString()),
+            markerId: MarkerId(
+              provider['_id'] ?? provider['id'] ?? i.toString(),
+            ),
             position: LatLng(lat, lng),
             infoWindow: InfoWindow(
               title: provider['businessName'] ?? provider['name'] ?? 'Provider',
@@ -42,7 +43,7 @@ class ProviderMapWidget extends StatelessWidget {
         );
       }
     }
-    return Container(
+    return SizedBox(
       height: 220,
       child: GoogleMap(
         initialCameraPosition: CameraPosition(

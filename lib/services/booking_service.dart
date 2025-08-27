@@ -14,15 +14,40 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 class BookingService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: ApiConfig.baseUrl));
-  static const String baseUrl = 'http://192.168.0.102/api';
-  static final _storage = FlutterSecureStorage();
-  static final BookingService _instance = BookingService._internal();
+  // Always use ApiConfig.baseUrl dynamically for every request
+  final _storage = FlutterSecureStorage();
   Db? _db;
   DbCollection? _bookings;
   bool _isInitialized = false;
+
+  // Add debug logging for all API calls
+  Future<List<Booking>> fetchClientBookings(String clientId) async {
+    final url = ApiConfig.getEndpointUrl('bookings/client/$clientId');
+    print('[BookingService] GET $url');
+    try {
+      final response = await Dio().get(url);
+      print(
+        '[BookingService] Response: ${response.statusCode} ${response.data}',
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data is String
+            ? json.decode(response.data)
+            : response.data;
+        return data.map((e) => Booking.fromJson(e)).toList();
+      } else {
+        throw Exception('Failed to load bookings');
+      }
+    } catch (e) {
+      print('[BookingService] Error: $e');
+      rethrow;
+    }
+  }
+
   final AuthStorage _authStorage = AuthStorage();
   final AuthService _authService = AuthService();
+
+  // Add Dio instance
+  // Remove cached Dio instance. Use Dio() directly in each request.
 
   // Add these fields
   final _webSocketService = WebSocketService();
@@ -33,11 +58,7 @@ class BookingService {
   final _pendingActionsQueue = <Map<String, dynamic>>[];
   bool _isProcessingQueue = false;
 
-  factory BookingService() {
-    return _instance;
-  }
-
-  BookingService._internal();
+  // Remove factory constructor and singleton pattern. Use default constructor only.
 
   bool get isInitialized => _isInitialized;
 
@@ -160,7 +181,7 @@ class BookingService {
 
       final response = await http
           .post(
-            Uri.parse('${ApiConfig.baseUrl}/api/bookings'),
+            Uri.parse(ApiConfig.getEndpointUrl('bookings')),
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $token',
@@ -210,31 +231,29 @@ class BookingService {
     String serviceType,
     String bookingId,
   ) async {
-    try {
-      final token = await _storage.read(key: 'auth_token');
-      if (token == null) return;
+    // FIX: Use correct keys and type
+    final token = await _storage.read(key: 'auth_token');
+    if (token == null) return;
 
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/notifications'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode({
-          'recipientId': providerId,
-          'type': 'NEW_BOOKING',
-          'title': 'New Booking Request',
-          'message': 'You have a new $serviceType service request',
-          'bookingId': bookingId,
-          'isRead': false,
-          'data': {'bookingId': bookingId, 'serviceType': serviceType},
-        }),
-      );
+    final response = await http.post(
+      Uri.parse(ApiConfig.getEndpointUrl('notifications')),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode({
+        'recipient': providerId, // FIX: use 'recipient'
+        'recipientModel': 'provider', // FIX: use 'provider'
+        'type': 'BOOKING_REQUEST', // FIX: use correct type
+        'title': 'New Booking Request',
+        'message': 'You have a new $serviceType service request',
+        'bookingId': bookingId,
+        'createdAt': DateTime.now().toIso8601String(),
+        'data': {'bookingId': bookingId, 'serviceType': serviceType},
+      }),
+    );
 
-      print('Notification response: ${response.statusCode}');
-    } catch (e) {
-      print('Error sending notification: $e');
-    }
+    print('Notification response: ${response.statusCode}');
   }
 
   Future<Map<String, dynamic>> acceptBooking(String bookingId) async {
@@ -274,7 +293,7 @@ class BookingService {
       print('🔑 Provider ID: $userId');
 
       final response = await http.patch(
-        Uri.parse('${ApiConfig.baseUrl}/api/bookings/$bookingId'),
+        Uri.parse(ApiConfig.getEndpointUrl('bookings/$bookingId')),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -312,7 +331,7 @@ class BookingService {
     BookingStatus status,
   ) async {
     final response = await http.patch(
-      Uri.parse('${ApiConfig.baseUrl}/api/bookings/$bookingId/status'),
+      Uri.parse(ApiConfig.getEndpointUrl('bookings/$bookingId/status')),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'status': status.toString().split('.').last}),
     );
@@ -332,7 +351,8 @@ class BookingService {
       print('Fetching bookings for client: $clientId');
       print('Token: ${token.substring(0, 10)}...'); // Debug token
 
-      final response = await _dio.get(
+      final dio = Dio();
+      final response = await dio.get(
         '${ApiConfig.baseUrl}/api/bookings/client/$clientId',
         options: Options(
           headers: {
@@ -381,7 +401,7 @@ class BookingService {
       print('Token: ${token.substring(0, 10)}...');
 
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/bookings/provider/$providerId'),
+        Uri.parse(ApiConfig.getEndpointUrl('bookings/provider/$providerId')),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -460,9 +480,7 @@ class BookingService {
 
       // Changed endpoint structure to match backend
       final response = await http.patch(
-        Uri.parse(
-          '${ApiConfig.baseUrl}/api/bookings/$bookingId/cancel',
-        ), // Changed endpoint
+        Uri.parse(ApiConfig.getEndpointUrl('bookings/$bookingId/cancel')),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -578,7 +596,7 @@ class BookingService {
       try {
         final response = await http
             .post(
-              Uri.parse('${ApiConfig.baseUrl}/api$endpoint'),
+              Uri.parse(ApiConfig.getEndpointUrl(endpoint)),
               headers: await _getHeaders(),
               body: body != null ? json.encode(body) : null,
             )

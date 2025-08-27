@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
-import '../screens/profile/profile_screen.dart';
 
 class FunctionalBottomNavBar extends StatelessWidget {
   final int currentIndex;

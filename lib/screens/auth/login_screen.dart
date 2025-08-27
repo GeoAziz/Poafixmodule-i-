@@ -35,9 +35,9 @@ class _LoginScreenState extends State<LoginScreen>
     _animController.forward();
     // Debug: Print API configuration
     print('API Configuration:');
-    print('Base URL: ${ApiConfig.baseUrl}');
+    print('Base URL: ${ApiConfig.initialBaseUrl}');
     ApiConfig.printConnectionInfo();
-    print('Login endpoint: ${ApiConfig.baseUrl}/auth/login');
+    print('Login endpoint: ${ApiConfig.initialBaseUrl}/auth/login');
   }
 
   @override
@@ -145,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen>
           ),
           SizedBox(height: 4),
           Text(
-            'Backend URL: ${ApiConfig.baseUrl}',
+            'Backend URL: ${ApiConfig.initialBaseUrl}',
             style: TextStyle(fontSize: 10, fontFamily: 'monospace'),
           ),
           SizedBox(height: 8),

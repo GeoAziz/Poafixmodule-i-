@@ -4,6 +4,7 @@ import 'package:animations/animations.dart';
 import '../../services/auth_service.dart';
 import '../../models/user_model.dart';
 import '../../screens/client/edit_profile_screen.dart';
+import '../../services/user_status_service.dart';
 
 class ClientProfileScreen extends StatefulWidget {
   const ClientProfileScreen({super.key});
@@ -17,6 +18,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Future<User?> _userFuture;
+  late Future<Map<String, dynamic>?> _statusFuture;
 
   @override
   void initState() {
@@ -31,6 +33,13 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _userFuture = AuthService.getCurrentUser();
     _controller.forward();
+    _userFuture.then((user) {
+      if (user != null) {
+        setState(() {
+          _statusFuture = UserStatusService.fetchUserStatus(user.id);
+        });
+      }
+    });
   }
 
   Future<void> _handleEditProfile(User user) async {
@@ -74,6 +83,57 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
               padding: EdgeInsets.all(16),
               children: [
                 _buildProfileHeader(user),
+                SizedBox(height: 16),
+                FutureBuilder<Map<String, dynamic>?>(
+                  future: _statusFuture,
+                  builder: (context, statusSnapshot) {
+                    if (statusSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    final status = statusSnapshot.data;
+                    if (status == null) {
+                      return Text('Status unavailable');
+                    }
+                    String statusText = status['isOnline'] == true
+                        ? 'Online'
+                        : 'Offline';
+                    String lastActiveText = status['lastActive'] != null
+                        ? 'Last active: ' +
+                              DateTime.parse(
+                                status['lastActive'],
+                              ).toLocal().toString()
+                        : 'Last active: Unknown';
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              status['isOnline'] == true
+                                  ? Icons.circle
+                                  : Icons.circle_outlined,
+                              color: status['isOnline'] == true
+                                  ? Colors.green
+                                  : Colors.grey,
+                              size: 16,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              statusText,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          lastActiveText,
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    );
+                  },
+                ),
                 SizedBox(height: 24),
                 _buildInfoSection(user),
                 SizedBox(height: 24),

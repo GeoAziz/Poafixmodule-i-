@@ -7,7 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../config/api_config.dart';
 
 class LocationService {
-  static const String baseUrl = 'http://10.0.2.2:5000/api';
+  // Remove hardcoded baseUrl. Always use ApiConfig.baseUrl dynamically.
   final FlutterSecureStorage _storage = FlutterSecureStorage();
   Timer? _locationTimer;
   Position? _lastKnownPosition;
@@ -53,7 +53,9 @@ class LocationService {
   }
 
   Future<void> updateLocationOnServer(
-      String serviceProviderId, Position position) async {
+    String serviceProviderId,
+    Position position,
+  ) async {
     if (_lastKnownPosition?.latitude == position.latitude &&
         _lastKnownPosition?.longitude == position.longitude) {
       return; // Skip if location hasn't changed
@@ -63,7 +65,7 @@ class LocationService {
 
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/location/update'),
+        Uri.parse('${ApiConfig.baseUrl}/location/update'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'serviceProviderId': serviceProviderId,
@@ -105,10 +107,8 @@ class LocationService {
 
       // Make API request to update location
       final response = await http.post(
-        Uri.parse('$baseUrl/location/update'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        Uri.parse('${ApiConfig.baseUrl}/location/update'),
+        headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'serviceProviderId': serviceProviderId,
           'latitude': position.latitude,
@@ -159,18 +159,24 @@ class LocationService {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    return permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
   }
 
-  Future<List<dynamic>> getNearbyProviders(double latitude, double longitude,
-      {double radius = 5000}) async {
+  Future<List<dynamic>> getNearbyProviders(
+    double latitude,
+    double longitude, {
+    double radius = 5000,
+  }) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/location/nearby').replace(queryParameters: {
-          'latitude': latitude.toString(),
-          'longitude': longitude.toString(),
-          'radius': radius.toString(),
-        }),
+        Uri.parse('${ApiConfig.baseUrl}/location/nearby').replace(
+          queryParameters: {
+            'latitude': latitude.toString(),
+            'longitude': longitude.toString(),
+            'radius': radius.toString(),
+          },
+        ),
       );
 
       print('Location API Response: ${response.statusCode} - ${response.body}');
@@ -179,7 +185,8 @@ class LocationService {
         return json.decode(response.body);
       } else {
         throw Exception(
-            'Failed to load providers: ${response.statusCode}\n${response.body}');
+          'Failed to load providers: ${response.statusCode}\n${response.body}',
+        );
       }
     } catch (e) {
       print('Error in location service: $e');
@@ -194,7 +201,7 @@ class LocationService {
   ) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/location/update'),
+        Uri.parse('${ApiConfig.baseUrl}/location/update'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'providerId': providerId,
@@ -215,13 +222,15 @@ class LocationService {
   }
 
   Future<void> updateProviderLocationWithAuth(
-      String providerId, Map<String, dynamic> locationData) async {
+    String providerId,
+    Map<String, dynamic> locationData,
+  ) async {
     try {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('No auth token found');
 
       // Update URL to match server routes
-      final String url = '$baseUrl/providers/$providerId/location';
+      final String url = '${ApiConfig.baseUrl}/providers/$providerId/location';
       print('DEBUG: Sending location update to: $url');
       print('DEBUG: Request body: ${json.encode(locationData)}');
 
@@ -240,7 +249,8 @@ class LocationService {
       if (response.statusCode == 404) {
         print('DEBUG: Attempting fallback URL...');
         // Try fallback URL with /api prefix
-        final fallbackUrl = '$baseUrl/api/providers/$providerId/location';
+        final fallbackUrl =
+            '${ApiConfig.baseUrl}/api/providers/$providerId/location';
         final fallbackResponse = await http.post(
           Uri.parse(fallbackUrl),
           headers: {
@@ -252,11 +262,13 @@ class LocationService {
 
         if (fallbackResponse.statusCode != 200) {
           throw Exception(
-              'Location update failed: ${fallbackResponse.statusCode} - ${fallbackResponse.body}');
+            'Location update failed: ${fallbackResponse.statusCode} - ${fallbackResponse.body}',
+          );
         }
       } else if (response.statusCode != 200) {
         throw Exception(
-            'Location update failed: ${response.statusCode} - ${response.body}');
+          'Location update failed: ${response.statusCode} - ${response.body}',
+        );
       }
 
       print('DEBUG: Location update successful');
@@ -267,7 +279,8 @@ class LocationService {
   }
 
   static Future<Map<String, double>> getCoordinatesFromAddress(
-      String address) async {
+    String address,
+  ) async {
     try {
       final encodedAddress = Uri.encodeComponent(address);
       final url =
@@ -278,22 +291,13 @@ class LocationService {
 
       if (data['results'] != null && data['results'].length > 0) {
         final location = data['results'][0]['geometry']['location'];
-        return {
-          'latitude': location['lat'],
-          'longitude': location['lng'],
-        };
+        return {'latitude': location['lat'], 'longitude': location['lng']};
       }
 
-      return {
-        'latitude': -1.2921,
-        'longitude': 36.8219,
-      };
+      return {'latitude': -1.2921, 'longitude': 36.8219};
     } catch (e) {
       print('Error getting coordinates: $e');
-      return {
-        'latitude': -1.2921,
-        'longitude': 36.8219,
-      };
+      return {'latitude': -1.2921, 'longitude': 36.8219};
     }
   }
 
@@ -310,7 +314,7 @@ class LocationService {
         body: json.encode({
           'location': {
             'type': 'Point',
-            'coordinates': [longitude, latitude]
+            'coordinates': [longitude, latitude],
           },
           'isAvailable': isOnline,
           'lastUpdated': DateTime.now().toIso8601String(),
@@ -335,14 +339,12 @@ class LocationService {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/api/providers/location'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'providerId': providerId,
           'location': {
             'type': 'Point',
-            'coordinates': [longitude, latitude]
+            'coordinates': [longitude, latitude],
           },
           'isAvailable': isOnline,
           'lastUpdated': DateTime.now().toIso8601String(),
@@ -383,8 +385,12 @@ class LocationService {
   }
 
   // Add method to calculate distance between two points
-  double calculateDistance(double startLatitude, double startLongitude,
-      double endLatitude, double endLongitude) {
+  double calculateDistance(
+    double startLatitude,
+    double startLongitude,
+    double endLatitude,
+    double endLongitude,
+  ) {
     return Geolocator.distanceBetween(
       startLatitude,
       startLongitude,
@@ -487,7 +493,8 @@ class LocationService {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    return permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
   }
 
   Future<Position?> getCurrentLocationHelper() async {

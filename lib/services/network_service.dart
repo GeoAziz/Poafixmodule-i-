@@ -1,31 +1,90 @@
+import 'package:poafixmodule/services/api_config.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NetworkService {
+  // Utility: Print persisted base URL for diagnostics
+  Future<void> printPersistedBaseUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    final persistedUrl = prefs.getString(_prefsKey);
+    print(
+      '[NetworkService] Persisted baseUrl in SharedPreferences: $persistedUrl',
+    );
+  }
+
+  // Robust logging: log every access to baseUrl
+  String? getBaseUrl([String caller = '']) {
+    print(
+      '[NetworkService] baseUrl accessed from: $caller, value: $_workingBaseUrl',
+    );
+    return _workingBaseUrl;
+  }
+
   static final NetworkService _instance = NetworkService._internal();
-  factory NetworkService() => _instance;
-  NetworkService._internal();
+  factory NetworkService() {
+    print('[NetworkService] Singleton factory called. Returning instance.');
+    return _instance;
+  }
+  NetworkService._internal() {
+    print('[NetworkService] Singleton instance constructed.');
+  }
 
   // Updated potential URLs based on your server output
-  static const List<String> _potentialUrls = [
-    'http://192.168.0.101:5000', // Your current network IP (from server logs)
-    'http://10.0.2.2:5000', // Android emulator
+  static List<String> get _potentialUrls => [
+    'http://192.168.0.103:5000', // Your current network IP (from server logs)
+    ApiConfig.baseUrl, // Always use dynamic base URL
     'http://localhost:5000', // Desktop/web
     'http://127.0.0.1:5000', // Local fallback
-    'http://192.168.1.101:5000', // Common router ranges
+    'http://192.168.1.103:5000', // Common router ranges
     'http://192.168.1.100:5000',
     'http://192.168.0.100:5000',
     'http://192.168.0.102:5000',
   ];
 
+  List<String> get baseUrls => [
+    ApiConfig.baseUrl, // Always use dynamic base URL
+  ];
+  static const String _prefsKey = 'workingBaseUrl';
   String? _workingBaseUrl;
-  List<ConnectivityResult>? _lastConnectivity;
 
-  // Force use of the correct backend IP for all API calls
-  String? get baseUrl => 'http://192.168.0.103:5000';
+  // Use dynamically discovered backend IP for all API calls
+  String? get baseUrl => _workingBaseUrl;
+  set baseUrl(String? url) {
+    if (url == null) {
+      print(
+        '[NetworkService] WARNING: baseUrl is being set to null! This may cause API failures.',
+      );
+    } else {
+      print('[NetworkService] Setting baseUrl: $url');
+    }
+    _workingBaseUrl = url;
+    _persistBaseUrl(url);
+    printPersistedBaseUrl();
+  }
+
+  Future<void> loadPersistedBaseUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    _workingBaseUrl = prefs.getString(_prefsKey);
+    print('[NetworkService] Loaded persisted baseUrl: $_workingBaseUrl');
+    if (_workingBaseUrl == null) {
+      print(
+        '[NetworkService] WARNING: No baseUrl loaded from persistent storage!',
+      );
+    }
+    await printPersistedBaseUrl();
+  }
+
+  Future<void> _persistBaseUrl(String? url) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (url != null) {
+      await prefs.setString(_prefsKey, url);
+      print('[NetworkService] Persisted baseUrl: $url');
+    }
+  }
 
   /// Test if a specific URL is reachable
   Future<bool> testUrl(String url) async {
@@ -67,7 +126,6 @@ class NetworkService {
 
     // Check network connectivity first
     final connectivityResult = await Connectivity().checkConnectivity();
-    _lastConnectivity = connectivityResult;
 
     if (connectivityResult.contains(ConnectivityResult.none)) {
       if (kDebugMode) {
@@ -87,7 +145,21 @@ class NetworkService {
       }
 
       if (await testUrl(url)) {
+        print('[NetworkService] Discovered working baseUrl: $url');
         _workingBaseUrl = url;
+        print('[NetworkService] Assigned _workingBaseUrl: $_workingBaseUrl');
+        // Only persist if non-null and non-empty
+        if (_workingBaseUrl != null && _workingBaseUrl!.isNotEmpty) {
+          await _persistBaseUrl(_workingBaseUrl);
+          print(
+            '[NetworkService] Persisted discovered baseUrl: $_workingBaseUrl',
+          );
+        } else {
+          print(
+            '[NetworkService] WARNING: Discovered baseUrl is null or empty, not persisting.',
+          );
+        }
+        await printPersistedBaseUrl();
         if (kDebugMode) {
           print('✅ Found working backend: $url');
         }
@@ -168,6 +240,9 @@ class NetworkService {
 
   /// Force refresh connection
   Future<String?> refreshConnection() async {
+    print(
+      '[NetworkService] refreshConnection called. Resetting _workingBaseUrl to null.',
+    );
     _workingBaseUrl = null;
     return await discoverBackendUrl();
   }
@@ -181,12 +256,18 @@ class NetworkService {
   }) async {
     // Ensure we have a working URL
     if (_workingBaseUrl == null) {
+      print(
+        '[NetworkService] ERROR: baseUrl is null at request time. Attempting to discover...',
+      );
       await discoverBackendUrl();
     }
 
     if (_workingBaseUrl == null) {
+      print(
+        '[NetworkService] FATAL: baseUrl is STILL null after discovery. Throwing error.',
+      );
       throw Exception(
-        'No backend server available. Please check your network connection.',
+        'No backend server available. Please check your network connection. baseUrl is null.',
       );
     }
 

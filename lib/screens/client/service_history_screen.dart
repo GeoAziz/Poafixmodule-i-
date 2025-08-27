@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/service_request.service.dart';
 import '../../models/service_request.dart';
+import '../../services/user_status_service.dart';
 
 class ServiceHistoryScreen extends StatefulWidget {
   const ServiceHistoryScreen({super.key});
@@ -53,8 +54,10 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
             Text(DateFormat('MMM d, y').format(request.scheduledDate)),
             Text('Status: ${request.status.toUpperCase()}'),
             if (request.rejectionReason != null)
-              Text('Reason: ${request.rejectionReason}',
-                  style: TextStyle(color: Colors.red)),
+              Text(
+                'Reason: ${request.rejectionReason}',
+                style: TextStyle(color: Colors.red),
+              ),
           ],
         ),
         trailing: Text('\$${request.amount.toStringAsFixed(2)}'),
@@ -63,7 +66,11 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
     );
   }
 
-  void _showRequestDetails(ServiceRequest request) {
+  void _showRequestDetails(ServiceRequest request) async {
+    Map<String, dynamic>? providerStatus;
+    providerStatus = await UserStatusService.fetchUserStatus(
+      request.providerId,
+    );
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -76,11 +83,27 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
               _buildDetailRow('Service', request.serviceType),
               _buildDetailRow('Status', request.status.toUpperCase()),
               _buildDetailRow(
-                  'Date', DateFormat('MMM d, y').format(request.scheduledDate)),
+                'Date',
+                DateFormat('MMM d, y').format(request.scheduledDate),
+              ),
               _buildDetailRow(
-                  'Amount', '\$${request.amount.toStringAsFixed(2)}'),
-              if (request.notes?.isNotEmpty ?? false)
-                _buildDetailRow('Notes', request.notes!),
+                'Amount',
+                '\$${request.amount.toStringAsFixed(2)}',
+              ),
+              if (providerStatus != null) ...[
+                _buildDetailRow(
+                  'Provider Online',
+                  providerStatus['isOnline'] == true ? 'Online' : 'Offline',
+                ),
+                _buildDetailRow(
+                  'Provider Last Active',
+                  providerStatus['lastActive'] != null
+                      ? DateTime.parse(
+                          providerStatus['lastActive'],
+                        ).toLocal().toString()
+                      : 'Unknown',
+                ),
+              ],
               if (request.rejectionReason != null)
                 _buildDetailRow('Rejection Reason', request.rejectionReason!),
             ],
@@ -115,34 +138,31 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
       appBar: AppBar(
         title: Text('Service History'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _loadRequests,
-          ),
+          IconButton(icon: Icon(Icons.refresh), onPressed: _loadRequests),
         ],
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Error: $_error'),
-                      ElevatedButton(
-                        onPressed: _loadRequests,
-                        child: Text('Retry'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: $_error'),
+                  ElevatedButton(
+                    onPressed: _loadRequests,
+                    child: Text('Retry'),
                   ),
-                )
-              : _requests.isEmpty
-                  ? Center(child: Text('No service history yet'))
-                  : ListView.builder(
-                      itemCount: _requests.length,
-                      itemBuilder: (context, index) =>
-                          _buildRequestCard(_requests[index]),
-                    ),
+                ],
+              ),
+            )
+          : _requests.isEmpty
+          ? Center(child: Text('No service history yet'))
+          : ListView.builder(
+              itemCount: _requests.length,
+              itemBuilder: (context, index) =>
+                  _buildRequestCard(_requests[index]),
+            ),
     );
   }
 }

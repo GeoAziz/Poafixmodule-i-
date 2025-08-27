@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:provider/provider.dart';
 import '../../core/models/user_model.dart'; // Use the correct UserModel
 import '../../models/user_model.dart' show User;
 import '../../models/service_category.dart';
-import '../../models/service_category_model.dart';
-import '../../widgets/bottomnavbar.dart';
-import '../../widgets/client_sidepanel.dart';
 import '../../services/proximity_service.dart';
 import '../booking/booking_details_screen.dart'; // Make sure this import path is correct
-import '../client/client_notifications_screen.dart';
-import '../../providers/notification_count_provider.dart';
-import '../enhanced_booking_screen.dart'; // Ensure this import is correct and the file exists
+//import '../enhanced_booking_screen.dart'; // Ensure this import is correct and the file exists
 
 class ServiceSelectionScreen extends StatefulWidget {
   final User user;
@@ -37,9 +31,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: ClientSidePanel(user: widget.user, parentContext: context),
       body: _isLoading ? _buildLoadingScreen() : _buildMainContent(),
-      bottomNavigationBar: _buildBottomNavigation(),
       backgroundColor: Colors.grey[100],
     );
   }
@@ -47,6 +39,13 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
   @override
   void initState() {
     super.initState();
+    print('[ServiceSelectionScreen] initState called');
+    print(
+      '[ServiceSelectionScreen] Device info: (add device info here if available)',
+    );
+    // TODO: Import ApiConfig if needed, or remove these lines if not required.
+    // print('[ServiceSelectionScreen] ApiConfig.baseUrl: ${ApiConfig.baseUrl}');
+    // print('[ServiceSelectionScreen] Endpoint: ${ApiConfig.getEndpointUrl('services/proximity')}');
     _animationController = AnimationController(
       duration: Duration(milliseconds: 1500),
       vsync: this,
@@ -67,17 +66,26 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
 
   Future<void> _loadServicesWithProximity() async {
     try {
+      print('[ServiceSelectionScreen] _loadServicesWithProximity called');
       if (mounted) setState(() => _isLoading = true);
 
       // Get current location
+      print('[ServiceSelectionScreen] Fetching current location...');
       _currentLocation = await _getCurrentLocation();
+      print(
+        '[ServiceSelectionScreen] Current location: ${_currentLocation?.latitude}, ${_currentLocation?.longitude}',
+      );
 
       // Get services with proximity data
+      print(
+        '[ServiceSelectionScreen] Calling ProximityService.getServicesWithProximity with lat=${_currentLocation?.latitude}, lng=${_currentLocation?.longitude}, radius=15.0',
+      );
       final services = await ProximityService.getServicesWithProximity(
         latitude: _currentLocation?.latitude,
         longitude: _currentLocation?.longitude,
         radius: 15.0, // 15km radius
       );
+      print('[ServiceSelectionScreen] Services returned: $services');
 
       // Calculate proximity stats
       int totalNearby = services.fold(
@@ -98,6 +106,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
         'servicesAvailable': services.length,
         'available24x7': services.where((s) => s.isAvailable24x7).length,
       };
+      print('[ServiceSelectionScreen] Proximity stats: $_proximityStats');
 
       if (mounted) {
         setState(() {
@@ -106,31 +115,42 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
         });
       }
     } catch (e) {
-      print('Error loading services: $e');
+      print('[ServiceSelectionScreen] Error loading services: $e');
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<Position?> _getCurrentLocation() async {
     try {
+      print('[ServiceSelectionScreen] Checking location permission...');
       LocationPermission permission = await Geolocator.checkPermission();
+      print('[ServiceSelectionScreen] Location permission: $permission');
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
+        print(
+          '[ServiceSelectionScreen] Requested location permission, new status: $permission',
+        );
       }
 
       if (permission == LocationPermission.deniedForever) {
+        print('[ServiceSelectionScreen] Location permission denied forever');
         return null;
       }
 
-      return await Geolocator.getCurrentPosition();
+      final position = await Geolocator.getCurrentPosition();
+      print('[ServiceSelectionScreen] Current position: $position');
+      return position;
     } catch (e) {
-      print('Error getting location: $e');
+      print('[ServiceSelectionScreen] Error getting location: $e');
       return null;
     }
   }
 
   // Helper: filtered services getter
   List<ServiceCategory> get _filteredServices {
+    print(
+      '[ServiceSelectionScreen] Filtering services with query: $_searchQuery',
+    );
     if (_searchQuery.isEmpty) return _services;
     return _services
         .where(
@@ -212,26 +232,34 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
 
   // Helper: Service stat
   Widget _buildServiceStat(IconData icon, String text, Color color) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: color),
-        SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
+    return Flexible(
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              text,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   // Helper: Enhanced service card
   Widget _buildEnhancedServiceCard(ServiceCategory service, int index) {
     return GestureDetector(
-      onTap: () => _navigateToBookingDetails(service),
+      onTap: () {
+        print('[ServiceSelectionScreen] Service card tapped: ${service.name}');
+        _navigateToBookingDetails(service);
+      },
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -268,15 +296,17 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
                       children: [
                         Row(
                           children: [
-                            Text(
-                              service.name,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[800],
+                            Expanded(
+                              child: Text(
+                                service.name,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[800],
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Spacer(),
                             if (service.nearbyProviders > 0)
                               Container(
                                 padding: EdgeInsets.symmetric(
@@ -294,6 +324,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                           ],
@@ -342,13 +373,13 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
                     '${service.providers} providers',
                     Colors.blue,
                   ),
-                  SizedBox(width: 16),
+                  SizedBox(width: 8),
                   _buildServiceStat(
                     Icons.star,
                     '${service.rating}',
                     Colors.orange,
                   ),
-                  SizedBox(width: 16),
+                  SizedBox(width: 8),
                   _buildServiceStat(
                     Icons.access_time,
                     '~${service.averageResponse.round()}min',
@@ -442,7 +473,9 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
 
   // Helper: Navigate to booking details
   void _navigateToBookingDetails(ServiceCategory service) {
-    // Create a User instance from widget.user (User)
+    print(
+      '[ServiceSelectionScreen] Navigating to booking details for service: ${service.name}, user: ${widget.user.id}, location: $_currentLocation',
+    );
     final userInstance = User(
       id: widget.user.id,
       name: widget.user.name,
@@ -465,6 +498,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
         builder: (context) => BookingDetailsScreen(
           user: _toUserModel(userInstance),
           selectedService: service,
+          userLocation: _currentLocation, // Pass location if available
         ),
       ),
     );
@@ -495,36 +529,24 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Welcome, ${widget.user.name}',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search for services...',
-                        prefixIcon: Icon(Icons.search),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search for services...',
+                      prefixIcon: Icon(Icons.search),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-                      },
                     ),
+                    onChanged: (value) {
+                      print(
+                        '[ServiceSelectionScreen] Search query changed: $value',
+                      );
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
                   ),
                 ],
               ),
@@ -620,8 +642,12 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
                             // Enhanced Search Bar
                             TextField(
                               controller: _searchController,
-                              onChanged: (value) =>
-                                  setState(() => _searchQuery = value),
+                              onChanged: (value) {
+                                print(
+                                  '[ServiceSelectionScreen] Enhanced search bar query changed: $value',
+                                );
+                                setState(() => _searchQuery = value);
+                              },
                               decoration: InputDecoration(
                                 hintText: 'Search services, providers...',
                                 prefixIcon: Icon(
@@ -635,6 +661,9 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
                                           color: Colors.grey[600],
                                         ),
                                         onPressed: () {
+                                          print(
+                                            '[ServiceSelectionScreen] Enhanced search bar cleared',
+                                          );
                                           _searchController.clear();
                                           setState(() => _searchQuery = '');
                                         },
@@ -747,50 +776,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen>
   }
 
   // Helper: Bottom navigation
-  Widget _buildBottomNavigation() {
-    final unreadCount = Provider.of<NotificationCountProvider>(
-      context,
-    ).unreadCount;
-    return FunctionalBottomNavBar(
-      currentIndex: _currentIndex,
-      unreadCount: unreadCount,
-      onTap: (index) {
-        setState(() => _currentIndex = index);
-        switch (index) {
-          case 0:
-            Navigator.pushReplacementNamed(
-              context,
-              '/home',
-              arguments: widget.user,
-            );
-            break;
-          case 1:
-            // Already on search screen
-            break;
-          case 2:
-            Navigator.pushReplacementNamed(
-              context,
-              '/bookings',
-              arguments: widget.user,
-            );
-            break;
-          case 3:
-            Navigator.pushReplacementNamed(
-              context,
-              '/profile',
-              arguments: widget.user,
-            );
-            break;
-          case 4:
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => ClientNotificationsScreen()),
-            );
-            break;
-        }
-      },
-    );
-  }
+  // Removed duplicate bottom navigation bar
 }
 
 // Helper for opacity replacement

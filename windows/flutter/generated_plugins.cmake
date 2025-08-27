@@ -12,6 +12,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   geolocator_windows
   iris_method_channel
   permission_handler_windows
+  rive_common
   url_launcher_windows
 )
 

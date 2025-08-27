@@ -12,6 +12,7 @@ class SocketService {
       'transports': ['websocket'],
       'autoConnect': false,
     });
+    // Always use ApiConfig.baseUrl dynamically
 
     socket.onConnect((_) => print('Socket connected'));
     socket.onDisconnect((_) => print('Socket disconnected'));

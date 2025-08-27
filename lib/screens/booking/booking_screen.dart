@@ -19,7 +19,6 @@ class BookingScreen extends StatefulWidget {
   final String? providerId;
   final String? clientId;
   final List<Map<String, dynamic>>? selectedServices;
-  // New parameters for service selection screen
   final User? user;
   final String? selectedService;
 
@@ -44,95 +43,26 @@ class _BookingScreenState extends State<BookingScreen> {
   TimeOfDay? selectedTime;
   final noteController = TextEditingController();
   bool _isLoading = false;
-  final _storage = const FlutterSecureStorage();
-  final HttpService _httpService = HttpService();
-  final _jobService = JobService();
-  // Default coordinates (you might want to get these from device location)
-  double latitude = 0.0;
-  double longitude = 0.0;
-
-  // Add clientId field
   String? _effectiveClientId;
-  // Track if clientId is loaded and valid
+  final _storage = const FlutterSecureStorage();
+  final BookingService _bookingService = BookingService();
+
   bool get _isClientIdReady =>
       _effectiveClientId != null && _effectiveClientId!.isNotEmpty;
-
-  // Always load clientId from secure storage before booking submission
-  Future<void> _ensureClientIdLoaded() async {
-    if (_effectiveClientId == null || _effectiveClientId!.isEmpty) {
-      final clientId = await _storage.read(key: 'userId');
-      print(
-        '[DEBUG] _ensureClientIdLoaded: Read clientId from storage: $clientId',
-      );
-      if (clientId != null && clientId.isNotEmpty) {
-        setState(() {
-          _effectiveClientId = clientId;
-        });
-        print('[DEBUG] Loaded client ID (on demand): $_effectiveClientId');
-      } else {
-        print('[DEBUG] No client ID found in storage (on demand)');
-        _showErrorDialog('Client ID not found. Please login again.');
-      }
-    } else {
-      print(
-        '[DEBUG] _ensureClientIdLoaded: _effectiveClientId already set: $_effectiveClientId',
-      );
-    }
-  }
-
-  final BookingService _bookingService = BookingService();
-  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeServices();
-    _loadClientId(); // Add this
-    _logSelectedServices(); // Add debug logging
+    _ensureClientIdLoaded();
   }
 
-  Future<void> _initializeServices() async {
-    try {
-      await _bookingService.initialize();
-      await _loadClientId();
+  Future<void> _ensureClientIdLoaded() async {
+    final clientId = await _storage.read(key: 'userId');
+    if (clientId != null && clientId.isNotEmpty) {
       setState(() {
-        _isInitialized = true;
+        _effectiveClientId = clientId;
       });
-    } catch (e) {
-      print('Initialization error: $e');
-      _showErrorDialog('Failed to initialize services: $e');
     }
-  }
-
-  // Add method to load client ID
-  Future<void> _loadClientId() async {
-    try {
-      final storage = const FlutterSecureStorage();
-      final clientId = await storage.read(key: 'userId');
-      print('[DEBUG] _loadClientId: Read clientId from storage: $clientId');
-      if (clientId != null && clientId.isNotEmpty) {
-        setState(() {
-          _effectiveClientId = clientId;
-        });
-        print('[DEBUG] Loaded client ID: $_effectiveClientId');
-      } else {
-        print('[DEBUG] No client ID found in storage');
-        _showErrorDialog('Client ID not found. Please login again.');
-      }
-    } catch (e) {
-      print('[DEBUG] Error loading client ID: $e');
-      _showErrorDialog('Error loading client information');
-    }
-  }
-
-  void _logSelectedServices() {
-    print('Selected services in booking screen:');
-    print('Number of services: ${widget.selectedServices?.length ?? 0}');
-    widget.selectedServices?.forEach((service) {
-      print(
-        'Service: ${service['name']}, Quantity: ${service['quantity']}, Price: ${service['basePrice']}',
-      );
-    });
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -162,35 +92,18 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Future<void> _submitBooking() async {
-    print('🔄 Starting booking submission...');
-    await _ensureClientIdLoaded();
-    print(
-      '[DEBUG] _submitBooking: _effectiveClientId after ensure: $_effectiveClientId',
-    );
     if (!_isClientIdReady) {
-      print(
-        '[DEBUG] _submitBooking: clientId not ready, aborting booking submission',
-      );
       _showErrorDialog('Client ID not loaded. Please login again.');
       return;
     }
     if (!_validateBooking()) {
-      print('❌ Validation failed, stopping submission');
       return;
     }
     setState(() => _isLoading = true);
-
     try {
-      // Calculate services with proper validation
       final services = (widget.selectedServices ?? []).map((service) {
         final quantity = (service['quantity'] as int?) ?? 1;
         final basePrice = (service['basePrice'] as num?)?.toDouble() ?? 0.0;
-
-        print('📦 Processing service:');
-        print('Name: ${service['name']}');
-        print('Quantity: $quantity');
-        print('Base Price: $basePrice');
-
         return {
           'name': service['name'],
           'quantity': quantity < 1 ? 1 : quantity,
@@ -198,21 +111,13 @@ class _BookingScreenState extends State<BookingScreen> {
           'totalPrice': (quantity < 1 ? 1 : quantity) * basePrice,
         };
       }).toList();
-
       final totalAmount = services.fold<double>(
         0.0,
         (sum, service) => sum + (service['totalPrice'] as double),
       );
-
-      print('💰 Total amount calculated: $totalAmount');
-
-      // Create service request
-      if (_effectiveClientId == null) {
-        throw Exception('Client ID is required');
-      }
       final serviceRequest = await ServiceRequestService().createRequest(
         providerId: widget.providerId ?? '',
-        clientId: _effectiveClientId!, // Add non-null assertion
+        clientId: _effectiveClientId!,
         serviceType: widget.serviceOffered ?? '',
         scheduledDate: DateTime(
           selectedDate!.year,
@@ -230,10 +135,6 @@ class _BookingScreenState extends State<BookingScreen> {
         amount: totalAmount,
         notes: noteController.text,
       );
-
-      print('📝 Service request created with ID: ${serviceRequest['id']}');
-
-      // Create booking with the service request ID
       final bookingData = {
         'providerId': widget.providerId ?? '',
         'clientId': _effectiveClientId,
@@ -258,20 +159,14 @@ class _BookingScreenState extends State<BookingScreen> {
         },
         'serviceRequestId': serviceRequest['id'],
       };
-
-      print('📤 Submitting booking data...');
       final response = await _bookingService.createBooking(bookingData);
-
       if (!mounted) return;
-
       if (response['success'] == true && response['booking'] != null) {
-        print('✅ Booking created successfully');
         _showBookingSuccessDialog();
       } else {
         throw Exception('Booking creation failed: ${response['error']}');
       }
     } catch (e) {
-      print('❌ Error in _submitBooking: $e');
       if (mounted) {
         _showErrorDialog('Failed to create booking: ${e.toString()}');
       }
@@ -281,37 +176,27 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   bool _validateBooking() {
-    print('🔍 Starting booking validation...');
-
-    // Basic validations
     if (selectedDate == null) {
       _showErrorDialog('Please select a date');
       return false;
     }
-
     if (selectedTime == null) {
       _showErrorDialog('Please select a time');
       return false;
     }
-
     if (_effectiveClientId == null || _effectiveClientId!.isEmpty) {
       _showErrorDialog('Client ID not found. Please login again');
       return false;
     }
-
     if ((widget.providerId?.isEmpty ?? true)) {
       _showErrorDialog('Provider information missing');
       return false;
     }
-
     if ((widget.selectedServices?.isEmpty ?? true)) {
       _showErrorDialog('Please select at least one service');
       return false;
     }
-
-    // Skip quantity validation for moving service
     if ((widget.serviceOffered?.toLowerCase() ?? '') != 'moving') {
-      // Only validate quantities for non-moving services
       for (final service in widget.selectedServices ?? []) {
         final quantity = service['quantity'] as int?;
         if (quantity == null || quantity < 1) {
@@ -322,112 +207,7 @@ class _BookingScreenState extends State<BookingScreen> {
         }
       }
     }
-
-    print('✅ Validation successful');
     return true;
-  }
-
-  Future<void> _completeService(String bookingId) async {
-    try {
-      final response = await _httpService.authenticatedRequest(
-        '/api/bookings/$bookingId/complete',
-        method: 'PATCH',
-        body: {'serviceStatus': 'completed'},
-      );
-
-      if (response.statusCode == 200) {
-        // Navigate to payment screen
-        if (!mounted) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ServicePaymentScreen(
-              booking: json.decode(response.body),
-              amount: (widget.selectedServices ?? []).fold<double>(
-                0,
-                (sum, service) =>
-                    sum +
-                    ((service['basePrice'] ?? 0.0) *
-                        (service['quantity'] ?? 1)),
-              ),
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      _showErrorDialog(e.toString());
-    }
-  }
-
-  Future<void> _notifyProvider(Map<String, dynamic> bookingData) async {
-    try {
-      await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/notifications'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'type': 'NEW_BOOKING',
-          'recipientId': widget.providerId, // Send as string
-          'title': 'New Booking Request',
-          'message':
-              'You have a new booking request for ${widget.serviceOffered}',
-          'data': bookingData,
-        }),
-      );
-    } catch (e) {
-      print('Error sending notification: $e');
-    }
-  }
-
-  void _handleSessionExpired() {
-    Navigator.of(context).pushReplacementNamed('/login');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Session expired. Please login again.')),
-    );
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Success'),
-          content: const Text('Your booking has been submitted successfully!'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () async {
-                final storage = FlutterSecureStorage();
-                final userId = await storage.read(key: 'userId');
-                final name = await storage.read(key: 'name');
-                final email = await storage.read(key: 'email');
-                final userType = await storage.read(key: 'userType');
-                final phone = await storage.read(key: 'phone');
-                final token = await storage.read(key: 'auth_token');
-
-                Navigator.of(context).pop(); // Close dialog
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BookingsScreen(
-                      user: User(
-                        id: userId ?? '',
-                        name: name ?? '',
-                        email: email ?? '',
-                        userType: userType ?? 'client',
-                        phone: phone ?? '',
-                        token: token,
-                        avatarUrl: '',
-                      ),
-                      showNavigation: true,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _showBookingSuccessDialog() {
@@ -448,25 +228,38 @@ class _BookingScreenState extends State<BookingScreen> {
               final userType = await storage.read(key: 'userType');
               final phone = await storage.read(key: 'phone');
               final token = await storage.read(key: 'auth_token');
-
-              // Close dialog first
-              Navigator.pop(context);
-              // Use direct navigation instead of named route
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BookingsScreen(
-                    user: User(
-                      id: userId ?? '',
-                      name: name ?? '',
-                      email: email ?? '',
-                      userType: userType ?? 'client',
-                      phone: phone ?? '',
-                      token: token,
-                      avatarUrl: '',
-                    ),
-                    showNavigation: true, // Pass the parameter
-                  ),
+              Navigator.of(context, rootNavigator: true).pop();
+              final user = User(
+                id: userId ?? '',
+                name: name ?? '',
+                email: email ?? '',
+                userType: userType ?? 'client',
+                phone: phone ?? '',
+                token: token,
+                avatarUrl: '',
+              );
+              Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      BookingsScreen(user: user, showNavigation: true),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        final slideTween = Tween<Offset>(
+                          begin: Offset(1.0, 0.0),
+                          end: Offset.zero,
+                        ).chain(CurveTween(curve: Curves.easeOut));
+                        final fadeTween = Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).chain(CurveTween(curve: Curves.easeIn));
+                        return SlideTransition(
+                          position: animation.drive(slideTween),
+                          child: FadeTransition(
+                            opacity: animation.drive(fadeTween),
+                            child: child,
+                          ),
+                        );
+                      },
                 ),
                 (route) => false,
               );
@@ -482,13 +275,8 @@ class _BookingScreenState extends State<BookingScreen> {
               final userType = await storage.read(key: 'userType');
               final phone = await storage.read(key: 'phone');
               final token = await storage.read(key: 'auth_token');
-
-              // Close dialog first
-              Navigator.pop(context);
-
-              // Use direct navigation instead of named route
-              Navigator.pushAndRemoveUntil(
-                context,
+              Navigator.of(context, rootNavigator: true).pop();
+              Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                 MaterialPageRoute(
                   builder: (context) => HomeScreen(
                     user: User(
@@ -514,7 +302,7 @@ class _BookingScreenState extends State<BookingScreen> {
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
-      barrierDismissible: false, // User must tap button to close dialog
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Error'),

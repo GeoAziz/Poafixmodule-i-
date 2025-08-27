@@ -23,7 +23,7 @@ class ProviderService {
       final token = await _storage.read(key: 'auth_token');
 
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/providers/search/advanced'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/api/providers/search/advanced'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -63,7 +63,7 @@ class ProviderService {
       final token = await _storage.read(key: 'auth_token');
 
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/providers/compare-prices'),
+        Uri.parse('${ApiConfig.initialBaseUrl}/providers/compare-prices'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -104,7 +104,7 @@ class ProviderService {
       };
 
       final uri = Uri.parse(
-        '${ApiConfig.baseUrl}/providers/top-rated',
+        '${ApiConfig.initialBaseUrl}/providers/top-rated',
       ).replace(queryParameters: queryParams);
 
       final response = await http.get(
@@ -145,7 +145,7 @@ class ProviderService {
       };
 
       final uri = Uri.parse(
-        '${ApiConfig.baseUrl}/providers/available-now',
+        '${ApiConfig.initialBaseUrl}/providers/available-now',
       ).replace(queryParameters: queryParams);
 
       final response = await http.get(
@@ -178,7 +178,9 @@ class ProviderService {
       final token = await _storage.read(key: 'auth_token');
 
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/providers/$providerId/ratings-reviews'),
+        Uri.parse(
+          '${ApiConfig.initialBaseUrl}/providers/$providerId/ratings-reviews',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -208,7 +210,9 @@ class ProviderService {
       final token = await _storage.read(key: 'auth_token');
 
       final response = await http.put(
-        Uri.parse('${ApiConfig.baseUrl}/api/providers/$providerId/location'),
+        Uri.parse(
+          '${ApiConfig.initialBaseUrl}/api/providers/$providerId/location',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -238,7 +242,7 @@ class ProviderService {
     required String serviceType,
   }) async {
     final url =
-        '${ApiConfig.baseUrl}/api/providers/nearby?latitude=$latitude&longitude=$longitude&radius=$radius&serviceType=$serviceType';
+        '${ApiConfig.initialBaseUrl}/api/providers/nearby?latitude=$latitude&longitude=$longitude&radius=$radius&serviceType=$serviceType';
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

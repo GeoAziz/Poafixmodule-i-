@@ -5,10 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 class EarningsChart extends StatelessWidget {
   final List<dynamic> data;
 
-  const EarningsChart({
-    Key? key,
-    required this.data,
-  }) : super(key: key);
+  const EarningsChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +108,10 @@ class EarningsChart extends StatelessWidget {
                   ),
                   borderData: FlBorderData(
                     show: true,
-                    border:
-                        Border.all(color: const Color(0xff37434d), width: 1),
+                    border: Border.all(
+                      color: const Color(0xff37434d),
+                      width: 1,
+                    ),
                   ),
                   minX: 0,
                   maxX: 6,

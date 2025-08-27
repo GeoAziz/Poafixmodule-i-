@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class PaymentService {
   final _storage = const FlutterSecureStorage();
-  static String baseUrl = ApiConfig.baseUrl;
+  // Remove static baseUrl. Always use ApiConfig.baseUrl dynamically.
 
   // Initiate MPesa payment
   Future<Map<String, dynamic>> initiateMpesaPayment({
@@ -20,7 +20,7 @@ class PaymentService {
       if (token == null) throw Exception('Authentication token not found');
 
       final response = await http.post(
-        Uri.parse('$baseUrl/api/payments/mpesa/initiate'),
+        Uri.parse('${ApiConfig.baseUrl}/api/payments/mpesa/initiate'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -57,7 +57,7 @@ class PaymentService {
       if (token == null) throw Exception('Authentication token not found');
 
       final response = await http.post(
-        Uri.parse('$baseUrl/api/payments/paypal/initiate'),
+        Uri.parse('${ApiConfig.baseUrl}/api/payments/paypal/initiate'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -88,7 +88,7 @@ class PaymentService {
       if (token == null) throw Exception('Authentication token not found');
 
       final response = await http.get(
-        Uri.parse('$baseUrl/api/payments/status/$bookingId'),
+        Uri.parse('${ApiConfig.baseUrl}/api/payments/status/$bookingId'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -108,7 +108,7 @@ class PaymentService {
     final token = await _storage.read(key: 'auth_token');
     if (token == null) throw Exception('Authentication token not found');
     final response = await http.get(
-      Uri.parse('$baseUrl/api/payments/paypal/pending/$clientId'),
+      Uri.parse('${ApiConfig.baseUrl}/api/payments/paypal/pending/$clientId'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
